@@ -1,24 +1,24 @@
-#spring:
-#  datasource:
-#    url: ${DB_URL}
-#    username: ${DB_USERNAME}
-#    password: ${DB_PASSWORD}
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#
-#  jpa:
-#    hibernate:
-#      ddl-auto: update # 초기세팅 이후 update로 변경
-#    properties:
-#      hibernate:
-#        format_sql: true
-#    show-sql: true
-#    open-in-view: false
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create # 초기세팅 이후 update로 변경
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+    open-in-view: false
 
 ## swagger---------
 #springdoc:
 #  swagger-ui:
 #    path: /swagger-ui
-
+#
 ## AWS S3----------
 #cloud:
 #  aws:
