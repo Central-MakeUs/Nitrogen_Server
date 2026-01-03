@@ -1,4 +1,4 @@
-package com.nitrogen.domain.auth.entity;
+package com.nitrogen.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,6 +12,8 @@ public class User {
 
     @Column(unique = true, nullable = false)
     private String email;
+
+    private String provider; // "kakao" 또는 "apple" 저장용 필드
 
     private String nickname;
     private String profileUrl;
