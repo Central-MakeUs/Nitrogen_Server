@@ -41,7 +41,7 @@ public class OauthService {
 
     public Map<String, String> loginOrSignup(String code, String currentUri) {
         String selectedUri = redirectUris.stream()
-                .filter(uri -> currentUri.contains(uri) || uri.contains(currentUri))
+                .filter(uri -> currentUri != null && (currentUri.contains(uri) || uri.contains(currentUri)))
                 .findFirst()
                 .orElse(redirectUris.get(0));
 

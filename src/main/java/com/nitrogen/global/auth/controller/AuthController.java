@@ -26,9 +26,12 @@ public class AuthController {
     public ResponseEntity<?> kakaoCallback(@RequestParam("code") String code, HttpServletRequest request) {
         log.info("카카오 로그인 콜백 요청 - 인가 코드: {}", code);
 
-        String currentOrigin = request.getHeader("Origin");
+        String currentUri = request.getHeader("Origin");
+        if (currentUri == null) {
+            currentUri = request.getRequestURL().toString();
+        }
 
-        Map<String, String> tokens = oauthService.loginOrSignup(code, currentOrigin);
+        Map<String, String> tokens = oauthService.loginOrSignup(code, currentUri);
         return ResponseEntity.ok(tokens);
     }
 
