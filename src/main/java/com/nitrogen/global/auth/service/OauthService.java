@@ -32,16 +32,20 @@ public class OauthService {
     @Value("${kakao.client_secret}")
     private String clientSecret;
 
-    @Value("${kakao.redirect_uris}")
-    private String redirectUri;
-
     // 탈퇴로직에 이용
     @Value("${kakao.admin_key}")
     private List<String> adminKey;
 
-    public Map<String, String> loginOrSignup(String code, String currentUri) {
+    @Value("${kakao.redirect_uris}")
+    private List<String> redirectUris;
 
-        String kakaoAccessToken = getKakaoAccessToken(code, currentUri);
+    public Map<String, String> loginOrSignup(String code, String currentUri) {
+        String selectedUri = redirectUris.stream()
+                .filter(uri -> currentUri.contains(uri) || uri.contains(currentUri))
+                .findFirst()
+                .orElse(redirectUris.get(0));
+
+        String kakaoAccessToken = getKakaoAccessToken(code, selectedUri);
         KakaoUserInfo userInfo = getKakaoUserInfo(kakaoAccessToken);
 
         User user = userRepository.findBySocialId(userInfo.getProviderId())
