@@ -13,6 +13,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -32,7 +33,7 @@ public class OauthService {
     @Value("${kakao.redirect-uris}")
     private String redirectUri;
 
-    public String loginOrSignup(String code) {
+    public Map<String, String> loginOrSignup(String code) {
 
         String kakaoAccessToken = getKakaoAccessToken(code);
         KakaoUserInfo userInfo = getKakaoUserInfo(kakaoAccessToken);
@@ -45,7 +46,14 @@ public class OauthService {
                         .provider(userInfo.getProvider())
                         .build()));
 
-        return tokenProvider.createToken(user.getSocialId());
+        String accessToken = tokenProvider.createToken(user.getSocialId());
+        String refreshToken = tokenProvider.createRefreshToken(user.getSocialId());
+
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("accessToken", accessToken);
+        tokens.put("refreshToken", refreshToken);
+
+        return tokens;
     }
 
     private String getKakaoAccessToken(String code) {
