@@ -18,7 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth/kakao")
 @Tag(name = "Auth", description = "카카오 소셜 로그인 API")
-public class KakaoController {
+public class AuthController {
     private final OauthService oauthService;
 
     @Operation(summary = "카카오 로그인 콜백", description = "카카오 인가 코드를 통해 로그인을 진행하고 JWT를 발급합니다.")
