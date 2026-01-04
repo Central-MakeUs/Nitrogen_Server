@@ -34,16 +34,21 @@ public class OauthService {
 
     // 탈퇴로직에 이용
     @Value("${kakao.admin_key}")
-    private List<String> adminKey;
+    private String adminKey;
 
     @Value("${kakao.redirect_uris}")
     private List<String> redirectUris;
 
     public Map<String, String> loginOrSignup(String code, String currentUri) {
+
+        log.info("입력된 currentUri: {}", currentUri);
+
         String selectedUri = redirectUris.stream()
-                .filter(uri -> currentUri != null && (currentUri.contains(uri) || uri.contains(currentUri)))
+                .filter(uri -> currentUri != null && (currentUri.contains(uri) || uri.contains("swagger-ui")))
                 .findFirst()
                 .orElse(redirectUris.get(0));
+
+        log.info("최종 선택된 Redirect URI: {}", selectedUri);
 
         String kakaoAccessToken = getKakaoAccessToken(code, selectedUri);
         KakaoUserInfo userInfo = getKakaoUserInfo(kakaoAccessToken);
