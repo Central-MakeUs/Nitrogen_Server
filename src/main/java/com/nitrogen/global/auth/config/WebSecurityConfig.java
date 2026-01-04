@@ -25,22 +25,18 @@ public class WebSecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) //cors 에러 배포 주소 허용
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
-                                "/css/**",
-                                "/images/**",
-                                "/api/v0/email-auth/**",
-                                "/js/**",
-                                "/lib/**",
+                                "/v3/api-docs/**", // Swagger용 추가
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/webjars/**",
-                                "/swagger-resources/**",
                                 "/api/auth/kakao/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+                // .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
