@@ -15,6 +15,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -36,11 +37,11 @@ public class OauthService {
 
     // 탈퇴로직에 이용
     @Value("${kakao.admin_key}")
-    private String adminKey;
+    private List<String> adminKey;
 
-    public Map<String, String> loginOrSignup(String code) {
+    public Map<String, String> loginOrSignup(String code, String currentUri) {
 
-        String kakaoAccessToken = getKakaoAccessToken(code);
+        String kakaoAccessToken = getKakaoAccessToken(code, currentUri);
         KakaoUserInfo userInfo = getKakaoUserInfo(kakaoAccessToken);
 
         User user = userRepository.findBySocialId(userInfo.getProviderId())
@@ -61,7 +62,7 @@ public class OauthService {
         return tokens;
     }
 
-    private String getKakaoAccessToken(String code) {
+    private String getKakaoAccessToken(String code, String redirectUri) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
