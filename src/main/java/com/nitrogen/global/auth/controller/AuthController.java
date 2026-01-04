@@ -21,7 +21,7 @@ import java.util.Map;
 public class AuthController {
     private final OauthService oauthService;
 
-    @Operation(summary = "카카오 로그인 콜백", description = "카카오 인가 코드를 통해 로그인을 진행하고 JWT를 발급합니다.")
+    @Operation(summary = "카카오 로그인 콜백", description = "카카오 인가 코드를 통해 로그인을 진행하고 JWT를 발급한다.")
     @GetMapping("/kakao/callback")
     public ResponseEntity<?> kakaoCallback(@RequestParam("code") String code, HttpServletRequest request) {
         String currentUri = request.getHeader("Referer");
@@ -34,7 +34,7 @@ public class AuthController {
         return ResponseEntity.ok(tokens);
     }
 
-    @Operation(summary = "회원 탈퇴", description = "현재 로그인한 유저의 정보를 삭제합니다.")
+    @Operation(summary = "회원 탈퇴", description = "현재 로그인한 유저의 정보를 삭제한다.")
     @DeleteMapping("/withdraw")
     public ResponseEntity<Void> withdraw(@AuthenticationPrincipal UserDetails userDetails) {
         oauthService.withdraw(userDetails.getUsername());

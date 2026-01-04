@@ -32,7 +32,7 @@ public class OauthService {
     @Value("${kakao.client_secret}")
     private String clientSecret;
 
-    // 탈퇴로직에 이용
+    // 탈퇴
     @Value("${kakao.admin_key}")
     private String adminKey;
 
