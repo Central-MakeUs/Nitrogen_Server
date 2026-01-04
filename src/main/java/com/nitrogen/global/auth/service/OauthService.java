@@ -1,8 +1,8 @@
 package com.nitrogen.global.auth.service;
 
+import com.nitrogen.domain.user.repository.UserRepository;
 import com.nitrogen.global.auth.dto.KakaoUserInfo;
 import com.nitrogen.domain.user.entity.User;
-import com.nitrogen.domain.user.entity.repository.UserRepository;
 import com.nitrogen.global.auth.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
