@@ -42,7 +42,17 @@ public class S3ImageUploader {
     }
 
     // 이미지 삭제
-    public void deleteImage(String originalFilename)  {
-        amazonS3.deleteObject(bucket, originalFilename);
+    public void deleteImage(String dirName, String fileName) {
+        String s3Key = dirName + "/" + fileName; // 경로와 파일명을 합쳐서 Key 생성
+
+        if (!amazonS3.doesObjectExist(bucket, s3Key)) {
+            throw new RuntimeException("삭제할 파일이 S3에 존재하지 않습니다: " + s3Key);
+        }
+
+        try {
+            amazonS3.deleteObject(bucket, s3Key);
+        } catch (Exception e) {
+            throw new RuntimeException("S3 파일 삭제 실패: " + e.getMessage());
+        }
     }
 }
