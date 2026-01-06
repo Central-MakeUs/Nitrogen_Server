@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,15 +20,25 @@ public class S3ImageUploader {
     private String bucket;
 
     // 이미지 업로드
-    public String uploadImage(MultipartFile multipartFile) throws IOException {
-        String originalFilename = multipartFile.getOriginalFilename();
+    public String uploadImage(MultipartFile file, String dirName){
+
+        if (file == null || file.isEmpty()) {
+            return null; // 혹은 예외 던지기
+        }
+
+        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String s3Key = dirName + "/" + filename;
 
         ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(multipartFile.getSize());
-        metadata.setContentType(multipartFile.getContentType());
+        metadata.setContentLength(file.getSize());
+        metadata.setContentType(file.getContentType());
 
-        amazonS3.putObject(bucket, originalFilename, multipartFile.getInputStream(), metadata);
-        return amazonS3.getUrl(bucket, originalFilename).toString();
+        try {
+            amazonS3.putObject(bucket, s3Key, file.getInputStream(), metadata);
+            return amazonS3.getUrl(bucket, s3Key).toString();
+        } catch (IOException e) {
+            throw new RuntimeException("S3 파일 업로드 실패: " + e.getMessage());
+        }
     }
 
     // 이미지 삭제
