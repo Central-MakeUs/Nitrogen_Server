@@ -8,6 +8,9 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "expense", indexes = {
+        @Index(name = "idx_user_expended_at", columnList = "user_id, expended_at")
+})
 @Getter
 @Builder
 @AllArgsConstructor
