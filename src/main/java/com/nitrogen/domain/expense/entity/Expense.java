@@ -20,14 +20,13 @@ public class Expense {
 
     private int amount; // 지출 금액
     private LocalDate expendedAt; // 지출 일자
-    private String memo; // 메모(선택입력)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
-    private Category category; // 카테고리(커스텀 가능)
+    private Category category; // 카테고리
 
     @Enumerated(EnumType.STRING)
-    private EmotionType situationType; // 소비상황
+    private EmotionType emotionType; // 소비감정
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
