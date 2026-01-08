@@ -1,7 +1,6 @@
 package com.nitrogen.domain.expense.entity;
 
-import com.nitrogen.domain.expense.entity.Category;
-import com.nitrogen.domain.expense.entity.enums.SituationType;
+import com.nitrogen.domain.expense.entity.enums.EmotionType;
 import com.nitrogen.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,7 +27,7 @@ public class Expense {
     private Category category; // 카테고리(커스텀 가능)
 
     @Enumerated(EnumType.STRING)
-    private SituationType situationType; // 소비상황
+    private EmotionType situationType; // 소비상황
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

@@ -18,8 +18,6 @@ public class Category {
 
     private String name;
 
-    private String imageUrl;
-
     @Enumerated(EnumType.STRING)
     private BasicCategory category;
 
