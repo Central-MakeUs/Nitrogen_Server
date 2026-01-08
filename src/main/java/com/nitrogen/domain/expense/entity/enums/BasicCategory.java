@@ -1,6 +1,6 @@
 package com.nitrogen.domain.expense.entity.enums;
 
-public enum Category {
+public enum BasicCategory {
     FOOD,       // 식비
     CAFE,       // 카페
     SUBSCRIPTION, // 구독

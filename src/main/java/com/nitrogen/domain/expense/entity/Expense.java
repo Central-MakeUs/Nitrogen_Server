@@ -1,13 +1,12 @@
 package com.nitrogen.domain.expense.entity;
 
-import com.nitrogen.domain.expense.entity.enums.Category;
+import com.nitrogen.domain.expense.entity.Category;
 import com.nitrogen.domain.expense.entity.enums.SituationType;
 import com.nitrogen.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -23,8 +22,11 @@ public class Expense {
     private int amount; // 지출 금액
     private LocalDate expendedAt; // 지출 일자
     private String memo; // 메모(선택입력)
-    @Enumerated(EnumType.STRING)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category; // 카테고리(커스텀 가능)
+
     @Enumerated(EnumType.STRING)
     private SituationType situationType; // 소비상황
 
