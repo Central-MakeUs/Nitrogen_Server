@@ -25,6 +25,10 @@ public class Expense {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category; // 카테고리
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sub_category_id")
+    private SubCategory subCategory; // 세부 카테고리 (선택 사항)
+
     @Enumerated(EnumType.STRING)
     private EmotionType emotionType; // 소비감정
 
