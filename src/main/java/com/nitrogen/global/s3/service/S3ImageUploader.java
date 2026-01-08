@@ -23,7 +23,7 @@ public class S3ImageUploader {
     public String uploadImage(MultipartFile file, String dirName){
 
         if (file == null || file.isEmpty()) {
-            return null; // 혹은 예외 던지기
+            return null;
         }
 
         String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
