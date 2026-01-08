@@ -16,7 +16,7 @@ public class S3ImageUploader {
 
     private final AmazonS3 amazonS3;
 
-    @Value("${cloud.aws.s3.bucket}")
+    @Value("${cloud.aws.s3.bucket-name}")
     private String bucket;
 
     // 이미지 업로드
