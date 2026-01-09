@@ -28,15 +28,17 @@ public class DataInitializer implements CommandLineRunner {
             if (basic == BasicCategory.CUSTOM) continue;
 
             Category category = Category.builder()
-                    .name(getKoreanName(basic))
+                    .name(getCategoryKoreanName(basic))
                     .category(basic)
                     .user(null)
                     .build();
             categoryRepository.save(category);
 
-            for (int i = 1; i <= 3; i++) {
+            List<String> subNames = getSubCategoryNames(basic);
+
+            for (String subName : subNames) {
                 SubCategory sub = SubCategory.builder()
-                        .subCategoryName(category.getName() + " 세부 " + i) // 이름 전달받으면 수정하기
+                        .subCategoryName(subName)
                         .parentCategory(category)
                         .build();
                 subCategoryRepository.save(sub);
@@ -44,7 +46,20 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private List<String> getKoreanName(BasicCategory basic) {
+    private String getCategoryKoreanName(BasicCategory basic) {
+        return switch (basic) {
+            case FOOD -> "식비";
+            case CAFE -> "카페";
+            case SUBSCRIPTION -> "구독";
+            case EDUCATION -> "교육";
+            case BEAUTY -> "미용";
+            case ENTERTAINMENT -> "유흥";
+            case SHOPPING -> "쇼핑";
+            default -> basic.name();
+        };
+    }
+
+    private List<String> getSubCategoryNames(BasicCategory basic) {
         return switch (basic) {
             case FOOD -> List.of("외식", "장보기", "야식");
             case CAFE -> List.of("커피", "빵", "스타벅스");
