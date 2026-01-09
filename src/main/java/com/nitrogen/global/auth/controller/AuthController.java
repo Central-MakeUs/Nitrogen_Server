@@ -16,7 +16,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth") // 경로를 /api/auth로 통일
+@RequestMapping("/api/auth")
 @Tag(name = "Auth", description = "인증 및 계정 관리 API")
 public class AuthController {
     private final OauthService oauthService;

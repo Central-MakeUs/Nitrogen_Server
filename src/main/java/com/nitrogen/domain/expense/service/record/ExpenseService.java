@@ -36,6 +36,11 @@ public class ExpenseService {
             subCategory = subCategoryRepository.findById(dto.getSubCategoryId())
                     .orElseThrow(() -> new IllegalArgumentException("세부 카테고리가 존재하지 않습니다."));
         }
+
+        if (subCategory != null && !subCategory.getParentCategory().getId().equals(category.getId())) {
+            throw new IllegalArgumentException("선택한 세부 카테고리가 해당 상위 카테고리에 속하지 않습니다.");
+        }
+
         Expense expense = Expense.builder()
                 .amount(dto.getAmount())
                 .expendedAt(dto.getExpendedAt())
