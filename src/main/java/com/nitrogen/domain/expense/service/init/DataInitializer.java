@@ -10,6 +10,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
@@ -42,16 +44,16 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private String getKoreanName(BasicCategory basic) {
+    private List<String> getKoreanName(BasicCategory basic) {
         return switch (basic) {
-            case FOOD -> "식비";
-            case CAFE -> "카페";
-            case SUBSCRIPTION -> "구독";
-            case EDUCATION -> "교육";
-            case BEAUTY -> "미용";
-            case ENTERTAINMENT -> "유흥";
-            case SHOPPING -> "쇼핑";
-            default -> basic.name();
+            case FOOD -> List.of("외식", "장보기", "야식");
+            case CAFE -> List.of("커피", "빵", "스타벅스");
+            case SUBSCRIPTION -> List.of("동영상", "노래", "뉴스");
+            case EDUCATION -> List.of("강의", "도서", "자격증");
+            case BEAUTY -> List.of("머리", "피부", "화장품");
+            case ENTERTAINMENT -> List.of("술", "노래방", "보드게임");
+            case SHOPPING -> List.of("옷", "생활용품", "굿즈");
+            default -> List.of("기타 1", "기타 2", "기타 3");
         };
     }
 }
