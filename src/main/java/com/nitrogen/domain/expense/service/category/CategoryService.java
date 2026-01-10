@@ -31,7 +31,7 @@ public class CategoryService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
         // 이름 중복방지(상위 + 서브 포함)
-        if (categoryRepository.existsByCategoryName(dto.getName()) ||
+        if (categoryRepository.existsByName(dto.getName()) ||
                 subCategoryRepository.existsBySubCategoryName(dto.getName())) {
             throw new IllegalArgumentException("이미 존재하는 카테고리 이름입니다.");
         }
@@ -65,13 +65,14 @@ public class CategoryService {
     // 카테고리 조회
     @Transactional(readOnly = true)
     public List<CategoryListResponse> getAllCategories(Long userId) {
+        // fetch join
         List<Category> categories = categoryRepository.findAllByUserId(userId);
 
         return categories.stream()
                 .map(cat -> new CategoryListResponse(
                         cat.getId(),
                         cat.getName(),
-                        cat.getSubCategories().stream() // 엔티티 내에 List<SubCategory>가 있다고 가정
+                        cat.getSubCategories().stream()
                                 .map(sub -> new SubCategoryResponse(sub.getId(), sub.getSubCategoryName()))
                                 .collect(Collectors.toList())
                 ))
