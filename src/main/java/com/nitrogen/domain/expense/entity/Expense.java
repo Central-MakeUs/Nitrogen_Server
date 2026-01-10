@@ -44,7 +44,7 @@ public class Expense {
     private EvaluationType evaluationType; // 소비 회고
 
     public void updateEvaluation(EvaluationType evaluationType) {
-        this.evaluationType = evaluationType; // 회고 업데이트용 메서드
+        this.evaluationType = evaluationType;
     }
 
 //    private String memo;

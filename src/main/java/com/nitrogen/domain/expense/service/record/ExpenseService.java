@@ -1,6 +1,7 @@
 package com.nitrogen.domain.expense.service.record;
 
 import com.nitrogen.domain.expense.dto.ExpenseDetailsDTO;
+import com.nitrogen.domain.expense.dto.ExpenseRemindRequestDTO;
 import com.nitrogen.domain.expense.entity.Category;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.expense.entity.SubCategory;
@@ -53,5 +54,18 @@ public class ExpenseService {
 
         log.info("지출 기록 완료: ID={}, 금액={}", saved.getId(), saved.getAmount());
         return saved.getId();
+    }
+
+    // 소비 회고
+    public long remindExpense(ExpenseRemindRequestDTO dto, Long userId){
+        Expense expense = expenseRepository.findById(dto.getExpenseId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출 기록입니다."));
+
+        if (!expense.getUser().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("해당 지출에 대한 접근 권한이 없습니다.");
+        }
+
+        expense.updateEvaluation(dto.getEvaluationType());
+        return expense.getId();
     }
 }
