@@ -1,6 +1,7 @@
 package com.nitrogen.domain.expense.entity;
 
 import com.nitrogen.domain.expense.entity.enums.EmotionType;
+import com.nitrogen.domain.expense.entity.enums.EvaluationType;
 import com.nitrogen.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,5 +39,14 @@ public class Expense {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user; // 지출기록 유저
+
+    @Enumerated(EnumType.STRING)
+    private EvaluationType evaluationType; // 소비 회고
+
+    public void updateEvaluation(EvaluationType evaluationType) {
+        this.evaluationType = evaluationType; // 회고 업데이트용 메서드
+    }
+
+//    private String memo;
 
 }
