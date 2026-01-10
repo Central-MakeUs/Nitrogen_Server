@@ -1,8 +1,8 @@
 package com.nitrogen.domain.expense.service.category;
 
 import com.nitrogen.domain.expense.dto.CategoryDetailsDTO;
-import com.nitrogen.domain.expense.dto.CategoryListResponse;
-import com.nitrogen.domain.expense.dto.SubCategoryResponse;
+import com.nitrogen.domain.expense.dto.CategoryListResponseDTO;
+import com.nitrogen.domain.expense.dto.SubCategoryResponseDTO;
 import com.nitrogen.domain.expense.entity.Category;
 import com.nitrogen.domain.expense.entity.SubCategory;
 import com.nitrogen.domain.expense.entity.enums.BasicCategory;
@@ -69,16 +69,16 @@ public class CategoryService {
 
     // 카테고리 조회
     @Transactional(readOnly = true)
-    public List<CategoryListResponse> getAllCategories(Long userId) {
+    public List<CategoryListResponseDTO> getAllCategories(Long userId) {
         // fetch join
         List<Category> categories = categoryRepository.findAllByUserId(userId);
 
         return categories.stream()
-                .map(cat -> new CategoryListResponse(
+                .map(cat -> new CategoryListResponseDTO(
                         cat.getId(),
                         cat.getName(),
                         cat.getSubCategories().stream()
-                                .map(sub -> new SubCategoryResponse(sub.getId(), sub.getSubCategoryName()))
+                                .map(sub -> new SubCategoryResponseDTO(sub.getId(), sub.getSubCategoryName()))
                                 .collect(Collectors.toList())
                 ))
                 .collect(Collectors.toList());

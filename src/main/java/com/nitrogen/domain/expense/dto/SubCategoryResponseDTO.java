@@ -1,6 +1,6 @@
 package com.nitrogen.domain.expense.dto;
 
-public record SubCategoryResponse(
+public record SubCategoryResponseDTO(
         Long id,
         String name
 ) {}
