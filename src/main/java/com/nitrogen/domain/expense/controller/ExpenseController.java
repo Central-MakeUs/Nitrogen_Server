@@ -25,7 +25,7 @@ public class ExpenseController {
     @PostMapping("/record")
     public ApiResponse<Long> registerExpense(
             @RequestBody @Valid ExpenseDetailsDTO dto,
-            @AuthenticationPrincipal Long userId){
+            @RequestParam("userId") Long userId){
         Long savedExpenseId = expenseService.registerExpense(dto, userId);
         return ApiResponse.onSuccess(savedExpenseId);
     }
