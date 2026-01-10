@@ -47,6 +47,10 @@ public class CategoryService {
             Category parent = categoryRepository.findById(dto.getParentCategoryId())
                     .orElseThrow(() -> new IllegalArgumentException("상위 카테고리가 존재하지 않습니다."));
 
+            if (!parent.getUser().getUserId().equals(userId)) {
+                throw new IllegalArgumentException("해당 카테고리에 대한 접근 권한이 없습니다.");
+            } // +
+
             if (subCategoryRepository.existsBySubCategoryNameAndParentCategory(dto.getName(), parent)) {
                 throw new IllegalArgumentException("이미 존재하는 서브 카테고리 이름입니다.");
             }
