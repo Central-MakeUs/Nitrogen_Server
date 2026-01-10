@@ -4,6 +4,7 @@ import com.nitrogen.domain.expense.dto.CategoryDetailsDTO;
 import com.nitrogen.domain.expense.dto.CategoryListResponse;
 import com.nitrogen.domain.expense.service.category.CategoryService;
 import com.nitrogen.global.apiPayload.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ public class CategoryController {
 
     // 카테고리 목록 조회
     @GetMapping("/category_list")
+    @Operation(summary = "카테고리 조회", description = "지출을 쓰기 전에 사용자가 선택할 카테고리 리스트(기본 7종 + 커스텀)를 서버에서 내려줘야 합니다.(서브카테고리 포함)")
     public ApiResponse<List<CategoryListResponse>> getCategoryList(@RequestParam(name = "userId") Long userId) {
         List<CategoryListResponse> responses = categoryService.getAllCategories(userId);
         return ApiResponse.onSuccess(responses);
@@ -26,6 +28,7 @@ public class CategoryController {
 
     // 커스텀 카테고리 생성
     @PostMapping("/category_create")
+    @Operation(summary = "카테고리 직접추가", description = "유저가 직접 카테고리를 추가합니다.")
     public ApiResponse<Long> createCategory(@RequestBody CategoryDetailsDTO dto,
                                             @RequestParam(name = "userId") Long userId) {
         Long categoryId = categoryService.registerCategory(dto, userId);

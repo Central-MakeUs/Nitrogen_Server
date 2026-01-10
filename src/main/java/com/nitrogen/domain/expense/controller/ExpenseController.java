@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class ExpenseController {
     private final ExpenseService expenseService;
 
+    // 지출기록 작성
     @Operation(summary = "지출 기록 작성", description = "유저가 하루일과동안 쓴 지출목록을 작성합니다.")
     @PostMapping("/record")
     public ApiResponse<Long> registerExpense(
@@ -26,4 +27,6 @@ public class ExpenseController {
         Long savedExpenseId = expenseService.registerExpense(dto, userId);
         return ApiResponse.onSuccess(savedExpenseId);
     }
+    
+    // 지출기록 조회
 }
