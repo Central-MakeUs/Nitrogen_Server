@@ -1,6 +1,8 @@
 package com.nitrogen.domain.expense.service.category;
 
 import com.nitrogen.domain.expense.dto.CategoryDetailsDTO;
+import com.nitrogen.domain.expense.dto.CategoryListResponse;
+import com.nitrogen.domain.expense.dto.SubCategoryResponse;
 import com.nitrogen.domain.expense.entity.Category;
 import com.nitrogen.domain.expense.entity.SubCategory;
 import com.nitrogen.domain.expense.entity.enums.BasicCategory;
@@ -12,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
@@ -19,6 +24,7 @@ public class CategoryService {
     private final SubCategoryRepository subCategoryRepository;
     private final UserRepository userRepository;
 
+    // 카테고리 추가
     @Transactional
     public Long registerCategory(CategoryDetailsDTO dto, Long userId) {
         User user = userRepository.findById(userId)
@@ -54,5 +60,21 @@ public class CategoryService {
                     .build();
             return subCategoryRepository.save(subCategory).getId();
         }
+    }
+
+    // 카테고리 조회
+    @Transactional(readOnly = true)
+    public List<CategoryListResponse> getAllCategories(Long userId) {
+        List<Category> categories = categoryRepository.findAllByUserId(userId);
+
+        return categories.stream()
+                .map(cat -> new CategoryListResponse(
+                        cat.getId(),
+                        cat.getName(),
+                        cat.getSubCategories().stream() // 엔티티 내에 List<SubCategory>가 있다고 가정
+                                .map(sub -> new SubCategoryResponse(sub.getId(), sub.getSubCategoryName()))
+                                .collect(Collectors.toList())
+                ))
+                .collect(Collectors.toList());
     }
 }
