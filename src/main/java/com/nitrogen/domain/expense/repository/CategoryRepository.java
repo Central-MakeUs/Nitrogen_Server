@@ -10,7 +10,8 @@ import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    boolean existsByName(String name);
+    @Query("SELECT count(c) > 0 FROM Category c WHERE c.name = :name AND c.user.userId = :userId")
+    boolean existsByNameAndUserId(@Param("name") String name, @Param("userId") Long userId);
 
     @Query("SELECT DISTINCT c FROM Category c " +
             "LEFT JOIN FETCH c.subCategories " +

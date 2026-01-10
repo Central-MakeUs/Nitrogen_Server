@@ -30,13 +30,11 @@ public class CategoryService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-        // 이름 중복방지(상위 + 서브 포함)
-        if (categoryRepository.existsByName(dto.getName()) ||
-                subCategoryRepository.existsBySubCategoryName(dto.getName())) {
-            throw new IllegalArgumentException("이미 존재하는 카테고리 이름입니다.");
-        }
-
         if (dto.getParentCategoryId() == null) {
+            if (categoryRepository.existsByNameAndUserId(dto.getName(), userId)) {
+                throw new IllegalArgumentException("이미 존재하는 카테고리 이름입니다.");
+            }
+
             Category newCategory = Category.builder()
                     .name(dto.getName())
                     .category(BasicCategory.CUSTOM)
@@ -49,8 +47,11 @@ public class CategoryService {
             Category parent = categoryRepository.findById(dto.getParentCategoryId())
                     .orElseThrow(() -> new IllegalArgumentException("상위 카테고리가 존재하지 않습니다."));
 
-            long subCount = subCategoryRepository.countByParentCategory(parent);
-            if (subCount >= 3) {
+            if (subCategoryRepository.existsBySubCategoryNameAndParentCategory(dto.getName(), parent)) {
+                throw new IllegalArgumentException("이미 존재하는 서브 카테고리 이름입니다.");
+            }
+
+            if (subCategoryRepository.countByParentCategory(parent) >= 3) {
                 throw new IllegalArgumentException("서브 카테고리는 상위 카테고리당 최대 3개까지만 추가 가능합니다.");
             }
 
