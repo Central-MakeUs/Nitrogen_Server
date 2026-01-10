@@ -36,6 +36,7 @@ public class WebSecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/api/auth/kakao/**",
+
                                 "/api/expense/**"
                         ).permitAll()
                         .anyRequest().authenticated()
