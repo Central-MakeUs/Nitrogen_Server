@@ -9,5 +9,4 @@ import lombok.*;
 @AllArgsConstructor
 public class CategoryDetailsDTO {
     private String name;
-    private Long parentCategoryId;
 }

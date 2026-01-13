@@ -13,8 +13,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     @Query("SELECT count(c) > 0 FROM Category c WHERE c.name = :name AND c.user.userId = :userId")
     boolean existsByNameAndUserId(@Param("name") String name, @Param("userId") Long userId);
 
-    @Query("SELECT DISTINCT c FROM Category c " +
-            "LEFT JOIN FETCH c.subCategories " +
-            "WHERE c.user.userId = :userId")
+    @Query("SELECT c FROM Category c WHERE c.user.userId = :userId")
     List<Category> findAllByUserId(@Param("userId") Long userId);
 }

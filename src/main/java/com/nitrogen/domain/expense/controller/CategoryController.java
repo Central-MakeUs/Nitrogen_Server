@@ -19,7 +19,7 @@ public class CategoryController {
 
     // 카테고리 목록 조회
     @GetMapping("/category_list")
-    @Operation(summary = "카테고리 조회", description = "지출을 쓰기 전에 사용자가 선택할 카테고리 리스트(기본 7종 + 커스텀)를 서버에서 내려줘야 합니다.(서브카테고리 포함)")
+    @Operation(summary = "카테고리 조회", description = "지출을 쓰기 전에 사용자가 선택할 카테고리 리스트(기본 7종 + 커스텀)를 서버에서 내려줘야 합니다.")
     public ApiResponse<List<CategoryListResponseDTO>> getCategoryList(@RequestParam(name = "userId") Long userId) {
         List<CategoryListResponseDTO> responses = categoryService.getAllCategories(userId);
         return ApiResponse.onSuccess(responses);

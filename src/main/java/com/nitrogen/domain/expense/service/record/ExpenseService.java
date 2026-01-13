@@ -4,10 +4,8 @@ import com.nitrogen.domain.expense.dto.ExpenseDetailsDTO;
 import com.nitrogen.domain.expense.dto.ExpenseRemindRequestDTO;
 import com.nitrogen.domain.expense.entity.Category;
 import com.nitrogen.domain.expense.entity.Expense;
-import com.nitrogen.domain.expense.entity.SubCategory;
 import com.nitrogen.domain.expense.repository.CategoryRepository;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
-import com.nitrogen.domain.expense.repository.SubCategoryRepository;
 import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ExpenseService {
 
     private final CategoryRepository categoryRepository;
-    private final SubCategoryRepository subCategoryRepository;
     private final UserRepository userRepository;
     private final ExpenseRepository expenseRepository;
 
@@ -32,23 +29,21 @@ public class ExpenseService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
         Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("상위 카테고리가 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("카테고리가 존재하지 않습니다."));
 
-        SubCategory subCategory = null;
-        if (dto.getSubCategoryId() != null) {
-            subCategory = subCategoryRepository.findById(dto.getSubCategoryId())
-                    .orElseThrow(() -> new IllegalArgumentException("세부 카테고리가 존재하지 않습니다."));
+        if(dto.getAmount() <= 0){
+            throw new IllegalArgumentException("지출기록은 0보다 커야합니다.");
         }
 
-        if (subCategory != null && !subCategory.getParentCategory().getId().equals(category.getId())) {
-            throw new IllegalArgumentException("선택한 세부 카테고리가 해당 상위 카테고리에 속하지 않습니다.");
+        if (dto.getUsageHistory() == null || dto.getUsageHistory().trim().isEmpty()) {
+            throw new IllegalArgumentException("사용처 기록이 비어있습니다.");
         }
 
         Expense expense = Expense.builder()
                 .amount(dto.getAmount())
                 .expendedAt(dto.getExpendedAt())
                 .category(category)
-                .subCategory(subCategory)
+                .usageHistory(dto.getUsageHistory())
                 .emotionType(dto.getEmotionType())
                 .user(user)
                 .build();
