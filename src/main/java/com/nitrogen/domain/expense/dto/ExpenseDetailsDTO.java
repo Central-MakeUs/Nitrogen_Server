@@ -25,7 +25,8 @@ public class ExpenseDetailsDTO {
     @NotNull(message = "상위 카테고리는 필수 선택 사항입니다.")
     private Long categoryId;
 
-    private Long subCategoryId;
+    @NotNull(message = "사용처 기록은 필수 입력 사항입니다.")
+    private String usageHistory;
 
     @NotNull(message = "소비 감정은 필수 선택 사항입니다.")
     private EmotionType emotionType;
