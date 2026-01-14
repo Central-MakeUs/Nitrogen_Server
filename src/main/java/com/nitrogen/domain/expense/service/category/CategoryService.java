@@ -55,7 +55,7 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-//    카테고리 수정(기본 + 커스텀)
+    // 카테고리 수정(기본 + 커스텀)
     @Transactional
     public Long updateCategory(Long categoryId, CategoryUpdateRequestDTO dto){
         Category category = categoryRepository.findById(categoryId)
@@ -64,5 +64,22 @@ public class CategoryService {
         category.updateName(dto.getName());
 
         return category.getId();
+    }
+
+    @Transactional
+    public void initUserCategories(User user) {
+
+        if (categoryRepository.existsByUser(user)) return;
+
+        for (BasicCategory basic : BasicCategory.values()) {
+            if (basic == BasicCategory.CUSTOM) continue;
+
+            Category category = Category.builder()
+                    .name(basic.getDefaultName())
+                    .category(basic)
+                    .user(user)
+                    .build();
+            categoryRepository.save(category);
+        }
     }
 }

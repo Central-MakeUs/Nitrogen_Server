@@ -1,6 +1,7 @@
 package com.nitrogen.domain.expense.repository;
 
 import com.nitrogen.domain.expense.entity.Category;
+import com.nitrogen.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,4 +16,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query("SELECT c FROM Category c WHERE c.user.userId = :userId")
     List<Category> findAllByUserId(@Param("userId") Long userId);
+
+    boolean existsByUser(User user);
 }
