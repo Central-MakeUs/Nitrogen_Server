@@ -1,4 +1,4 @@
-package com.nitrogen.domain.expense.dto;
+package com.nitrogen.domain.expense.dto.expense;
 
 import com.nitrogen.domain.expense.entity.enums.EvaluationType;
 import lombok.AllArgsConstructor;

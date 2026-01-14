@@ -1,7 +1,7 @@
 package com.nitrogen.domain.expense.controller;
 
-import com.nitrogen.domain.expense.dto.ExpenseDetailsDTO;
-import com.nitrogen.domain.expense.dto.ExpenseRemindRequestDTO;
+import com.nitrogen.domain.expense.dto.expense.ExpenseDetailsDTO;
+import com.nitrogen.domain.expense.dto.expense.ExpenseRemindRequestDTO;
 import com.nitrogen.domain.expense.service.record.ExpenseService;
 import com.nitrogen.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j

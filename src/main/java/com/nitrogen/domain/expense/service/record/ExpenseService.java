@@ -1,7 +1,7 @@
 package com.nitrogen.domain.expense.service.record;
 
-import com.nitrogen.domain.expense.dto.ExpenseDetailsDTO;
-import com.nitrogen.domain.expense.dto.ExpenseRemindRequestDTO;
+import com.nitrogen.domain.expense.dto.expense.ExpenseDetailsDTO;
+import com.nitrogen.domain.expense.dto.expense.ExpenseRemindRequestDTO;
 import com.nitrogen.domain.expense.entity.Category;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.expense.repository.CategoryRepository;

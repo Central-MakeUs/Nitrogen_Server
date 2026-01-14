@@ -1,7 +1,7 @@
 package com.nitrogen.domain.expense.controller;
 
-import com.nitrogen.domain.expense.dto.CategoryDetailsDTO;
-import com.nitrogen.domain.expense.dto.CategoryListResponseDTO;
+import com.nitrogen.domain.expense.dto.category.CategoryDetailsDTO;
+import com.nitrogen.domain.expense.dto.category.CategoryListResponseDTO;
 import com.nitrogen.domain.expense.service.category.CategoryService;
 import com.nitrogen.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;

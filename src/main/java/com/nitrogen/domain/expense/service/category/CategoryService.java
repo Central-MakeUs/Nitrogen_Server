@@ -1,7 +1,7 @@
 package com.nitrogen.domain.expense.service.category;
 
-import com.nitrogen.domain.expense.dto.CategoryDetailsDTO;
-import com.nitrogen.domain.expense.dto.CategoryListResponseDTO;
+import com.nitrogen.domain.expense.dto.category.CategoryDetailsDTO;
+import com.nitrogen.domain.expense.dto.category.CategoryListResponseDTO;
 import com.nitrogen.domain.expense.entity.Category;
 import com.nitrogen.domain.expense.entity.enums.BasicCategory;
 import com.nitrogen.domain.expense.repository.CategoryRepository;
@@ -52,5 +52,11 @@ public class CategoryService {
                         cat.getName()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    // 카테고리 수정(기본 + 커스텀)
+    @Transactional
+    public Long updateCategoryName(Long userId){
+
     }
 }

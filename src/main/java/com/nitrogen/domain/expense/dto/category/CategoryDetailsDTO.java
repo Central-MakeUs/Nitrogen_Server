@@ -1,4 +1,4 @@
-package com.nitrogen.domain.expense.dto;
+package com.nitrogen.domain.expense.dto.category;
 
 import jakarta.persistence.Entity;
 import lombok.*;
