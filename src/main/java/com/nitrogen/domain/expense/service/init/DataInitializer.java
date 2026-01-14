@@ -25,7 +25,7 @@ public class DataInitializer implements CommandLineRunner {
             if (basic == BasicCategory.CUSTOM) continue;
 
             Category category = Category.builder()
-                    .name(getCategoryKoreanName(basic))
+                    .name(basic.getDefaultName())
                     .category(basic)
                     .user(null)
                     .build();
