@@ -2,6 +2,7 @@ package com.nitrogen.domain.expense.controller;
 
 import com.nitrogen.domain.expense.dto.category.CategoryDetailsDTO;
 import com.nitrogen.domain.expense.dto.category.CategoryListResponseDTO;
+import com.nitrogen.domain.expense.dto.category.CategoryUpdateRequestDTO;
 import com.nitrogen.domain.expense.service.category.CategoryService;
 import com.nitrogen.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,5 +35,19 @@ public class CategoryController {
         return ApiResponse.onSuccess(categoryId);
     }
 
-    // 커스텀 카테고리 수정 (PATCH)
+    // 카테고리 수정 (PATCH)
+    @Operation(summary = "카테고리 수정", description = "유저가 직접 카테고리를 수정합니다.")
+    @PatchMapping("/category_update/{categoryId}")
+    public ApiResponse<Long> updateCategory(
+            @PathVariable Long categoryId,
+            @RequestBody CategoryUpdateRequestDTO dto) {
+
+        if (dto.getName() == null || dto.getName().isBlank()) {
+            throw new IllegalArgumentException("카테고리 이름은 비어있을 수 없습니다.");
+        }
+
+        Long updatedId = categoryService.updateCategory(categoryId, dto);
+
+        return ApiResponse.onSuccess(updatedId);
+    }
 }
