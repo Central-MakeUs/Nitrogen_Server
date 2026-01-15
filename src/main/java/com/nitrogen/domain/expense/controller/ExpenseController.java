@@ -1,7 +1,9 @@
 package com.nitrogen.domain.expense.controller;
 
+import com.nitrogen.domain.expense.dto.expense.DailyExpenseResponseDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseDetailsDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseRemindRequestDTO;
+import com.nitrogen.domain.expense.service.inquiry.ExpenseInquiryService;
 import com.nitrogen.domain.expense.service.record.ExpenseRecordService;
 import com.nitrogen.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,7 +11,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @Slf4j
 @RestController
@@ -18,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Expense", description = "지출 기록 작성 및 조회")
 public class ExpenseController {
     private final ExpenseRecordService expenseService;
+    private final ExpenseInquiryService expenseInquiryService;
 
     // 지출기록 작성
     @Operation(summary = "지출 기록 작성", description = "유저가 하루일과동안 쓴 지출목록을 작성합니다.")
@@ -38,4 +45,17 @@ public class ExpenseController {
     }
     
     // 지출기록 조회
+    @Operation(summary = "일별 지출 내역 조회", description = "특정 날짜의 지출 내역과 월간 총액을 조회합니다.")
+    @GetMapping("/daily")
+    public ResponseEntity<DailyExpenseResponseDTO> getDailyExpense(
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam int day,
+            @RequestParam Long userId) {
+
+        LocalDate targetDate = LocalDate.of(year, month, day);
+
+        DailyExpenseResponseDTO response = expenseInquiryService.inquiryExpense(targetDate, userId);
+        return ResponseEntity.ok(response);
+    }
 }

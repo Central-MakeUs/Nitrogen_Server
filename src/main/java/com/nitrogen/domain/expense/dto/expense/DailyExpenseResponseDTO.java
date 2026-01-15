@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class DailyExpenseResponseDTO {
     private LocalDate date;
-    private Long dailyTotalAmount;
+    private Long monthlyTotalAmount;
+//    private Long dailyTotalAmount;
     private List<ExpenseListDTO> expenses;
 }

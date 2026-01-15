@@ -9,10 +9,8 @@ import com.nitrogen.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,8 +28,11 @@ public class ExpenseInquiryService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
+        LocalDate startOfMonth = expendedAt.withDayOfMonth(1);
+        LocalDate endOfMonth = expendedAt.withDayOfMonth(expendedAt.lengthOfMonth());
+        long monthlyTotal = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
+
         List<Expense> expenseList = expenseRepository.findAllByUserIdAndExpendedAt(userId, expendedAt);
-        long totalAmount = expenseList.stream().mapToInt(Expense::getAmount).sum();
 
         List<ExpenseListDTO> dtos = expenseList.stream()
                 .map(e -> ExpenseListDTO.builder()
@@ -46,7 +47,7 @@ public class ExpenseInquiryService {
 
         return DailyExpenseResponseDTO.builder()
                 .date(expendedAt)
-                .dailyTotalAmount(totalAmount)
+                .monthlyTotalAmount(monthlyTotal)
                 .expenses(dtos)
                 .build();
     }
