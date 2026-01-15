@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ExpenseService {
+public class ExpenseRecordService {
 
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
