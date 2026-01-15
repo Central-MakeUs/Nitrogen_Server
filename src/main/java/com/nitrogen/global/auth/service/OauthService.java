@@ -1,5 +1,6 @@
 package com.nitrogen.global.auth.service;
 
+import com.nitrogen.domain.expense.service.category.CategoryService;
 import com.nitrogen.domain.user.repository.UserRepository;
 import com.nitrogen.global.auth.dto.KakaoUserInfo;
 import com.nitrogen.domain.user.entity.User;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class OauthService {
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
+    private final CategoryService categoryService;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${kakao.client_id}")
@@ -60,6 +62,8 @@ public class OauthService {
                         .nickname(userInfo.getName())
                         .provider(userInfo.getProvider())
                         .build()));
+
+        categoryService.initUserCategories(user);
 
         String accessToken = tokenProvider.createToken(user.getSocialId());
         String refreshToken = tokenProvider.createRefreshToken(user.getSocialId());

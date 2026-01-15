@@ -35,7 +35,9 @@ public class WebSecurityConfig {
                                 "/v3/api-docs/**", // Swagger용 추가
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/api/auth/kakao/**"
+                                "/api/auth/kakao/**",
+
+                                "/api/expense/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

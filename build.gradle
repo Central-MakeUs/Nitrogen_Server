@@ -36,7 +36,7 @@ dependencies {
     implementation 'mysql:mysql-connector-java:8.0.28'
     // 스프링 시큐리티를 사용하기 위한 스타터 추가
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    // 타임리프에서 스프링 시큐리티를 사용하기지출 입력 및 월별 내역 조회 기능 구현 위한 의존성 추가
+    // 타임리프에서 스프링 시큐리티를 사용하기
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     // 스프링 시큐리티를 테스트하기 위한 의존성 추가
     testImplementation 'org.springframework.security:spring-security-test'
@@ -49,6 +49,8 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
     //s3
     implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
+    // 검증 프로세스
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
 tasks.named('test') {

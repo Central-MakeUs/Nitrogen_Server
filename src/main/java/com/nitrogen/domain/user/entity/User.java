@@ -1,5 +1,6 @@
 package com.nitrogen.domain.user.entity;
 
+import com.nitrogen.domain.user.entity.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,4 +31,13 @@ public class User {
     public void updateRefreshToken(String refreshToken){
         this.refreshToken = refreshToken;
     }
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private UserStatus status = UserStatus.ACTIVE;
+
+    @Column(unique = true)
+    private String appleSub; // 애플 고유 식별자
+
+
 }
