@@ -9,6 +9,7 @@ import com.nitrogen.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,6 +24,7 @@ public class ExpenseInquiryService {
     private final ExpenseRepository expenseRepository;
 
     // 지출 기록 조회(일별)
+    @Transactional(readOnly = true)
     public DailyExpenseResponseDTO inquiryExpense(LocalDate expendedAt, Long userId){
 
         User user = userRepository.findById(userId)
@@ -32,7 +34,7 @@ public class ExpenseInquiryService {
         LocalDate endOfMonth = expendedAt.withDayOfMonth(expendedAt.lengthOfMonth());
         long monthlyTotal = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
 
-        List<Expense> expenseList = expenseRepository.findAllByUserIdAndExpendedAt(userId, expendedAt);
+        List<Expense> expenseList = expenseRepository.findAllByUserUserIdAndExpendedAt(userId, expendedAt);
 
         List<ExpenseListDTO> dtos = expenseList.stream()
                 .map(e -> ExpenseListDTO.builder()
