@@ -2,7 +2,7 @@ package com.nitrogen.global.auth.service;
 
 import com.nitrogen.domain.expense.service.category.CategoryService;
 import com.nitrogen.domain.user.repository.UserRepository;
-import com.nitrogen.global.auth.dto.KakaoUserInfo;
+import com.nitrogen.global.auth.dto.kakao.KakaoUserInfo;
 import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.global.auth.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ public class OauthService {
     @Value("${kakao.redirect_uris}")
     private List<String> redirectUris;
 
-    public Map<String, String> loginOrSignup(String code, String currentUri) {
+    public Map<String, Object> loginOrSignup(String code, String currentUri) {
 
         log.info("입력된 currentUri: {}", currentUri);
 
@@ -49,8 +49,6 @@ public class OauthService {
                 .filter(uri -> currentUri != null && (currentUri.contains(uri) || uri.contains("swagger-ui")))
                 .findFirst()
                 .orElse(redirectUris.get(0));
-
-        log.info("최종 선택된 Redirect URI: {}", selectedUri);
 
         String kakaoAccessToken = getKakaoAccessToken(code, selectedUri);
         KakaoUserInfo userInfo = getKakaoUserInfo(kakaoAccessToken);
@@ -68,11 +66,12 @@ public class OauthService {
         String accessToken = tokenProvider.createToken(user.getSocialId());
         String refreshToken = tokenProvider.createRefreshToken(user.getSocialId());
 
-        Map<String, String> tokens = new HashMap<>();
-        tokens.put("accessToken", accessToken);
-        tokens.put("refreshToken", refreshToken);
+        Map<String, Object> result = new HashMap<>();
+        result.put("accessToken", accessToken);
+        result.put("refreshToken", refreshToken);
+        result.put("user", user);
 
-        return tokens;
+        return result;
     }
 
     private String getKakaoAccessToken(String code, String redirectUri) {
