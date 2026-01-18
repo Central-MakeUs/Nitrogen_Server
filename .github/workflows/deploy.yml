@@ -1,0 +1,57 @@
+name: Java CI/CD with Gradle
+
+on:
+  push:
+    branches: [ "develop" ] # 브랜치에 푸시하면 자동 배포
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 1. Secrets에서 yml 내용을 가져와서 파일로 만듭니다.
+      - name: Create application-prod.yml
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.APPLICATION_PROD_YML }}" > src/main/resources/application-prod.yml
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+
+      # 2. 빌드된 JAR 파일을 EC2로 전송
+      - name: Copy JAR to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "build/libs/*.jar"
+          target: "~/app/Nitrogen_Server/build/libs"
+          strip_components: 2
+
+      # 3. 서버에 접속해서 기존 앱을 끄고 새 앱을 실행
+      - name: Execute Remote SSH Commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/app/Nitrogen_Server/build/libs
+            # 기존 자바 프로세스 종료
+            sudo pkill -9 java || true
+            # 기존 JAR 삭제 (선택사항: 깔끔한 관리를 위해)
+            # rm -f *.jar 
+            # 새 JAR 찾아서 실행 (파일명이 SNAPSHOT이든 아니든 실행됨)
+            nohup java -jar *.jar --spring.config.location=file:./application-prod.yml > nohup.out 2>&1 &

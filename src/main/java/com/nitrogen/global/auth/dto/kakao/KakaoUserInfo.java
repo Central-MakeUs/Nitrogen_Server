@@ -1,4 +1,4 @@
-package com.nitrogen.global.auth.dto;
+package com.nitrogen.global.auth.dto.kakao;
 
 import com.nitrogen.global.auth.oAuth.OAuth2UserInfo;
 import lombok.AllArgsConstructor;

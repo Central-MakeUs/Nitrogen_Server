@@ -1,16 +1,22 @@
 package com.nitrogen.domain.expense.entity.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum EmotionType {
-    ENTRANCED("홀린듯이"),
-    STRESS("스트레스"),
-    FOR_SELF("나를 위해서"),
-    SURVIVAL("살기 위해"),
-    INVESTMENT("투자"),
-    HABIT("습관처럼");
+    TYPE_A("기분 전환"),
+    TYPE_B("그냥 저냥"),
+    TYPE_C("필수템"),
+    TYPE_D("홀린 듯이"),
+    TYPE_E("살기 위해");
 
     private final String emotion_description;
 
     EmotionType(String emotion_description) {
         this.emotion_description = emotion_description;
+    }
+
+    @JsonValue
+    public String getEmotion_description() {
+        return emotion_description;
     }
 }
