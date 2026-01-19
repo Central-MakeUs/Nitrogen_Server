@@ -4,6 +4,6 @@ import com.nitrogen.domain.expense.entity.enums.EmotionType;
 
 public record EmotionSummary(
         EmotionType emotionType,
-        long totalAmount,
-        long count
+        long count,
+        long totalAmount
 ) {}
