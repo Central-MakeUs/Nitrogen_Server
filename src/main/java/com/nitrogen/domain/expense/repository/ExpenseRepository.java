@@ -15,4 +15,10 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e JOIN e.user u WHERE u.userId = :userId AND e.expendedAt BETWEEN :start AND :end")
     long calculateMonthlyTotal(@Param("userId") Long userId, @Param("start") LocalDate start, @Param("end") LocalDate end);
     List<Expense> findAllByUserUserIdAndExpendedAt(Long userId, LocalDate expendedAt);
+    // 특정 기간 내 사용자의 지출 내역 조회
+    List<Expense> findAllByUserIdAndExpenseDateBetween(Long userId, LocalDate start, LocalDate end);
+
+    // 월별 총 소비 금액 합산
+    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.userId = :userId AND e.expenseDate BETWEEN :start AND :end")
+    Long sumAmountByUserIdAndDateBetween(Long userId, LocalDate start, LocalDate end);
 }
