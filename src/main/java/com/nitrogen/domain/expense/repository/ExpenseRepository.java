@@ -19,6 +19,6 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Expense> findAllByUserIdAndExpenseDateBetween(Long userId, LocalDate start, LocalDate end);
 
     // 월별 총 소비 금액 합산
-    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.userId = :userId AND e.expenseDate BETWEEN :start AND :end")
+    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.user.userId = :userId AND e.expendedAt BETWEEN :start AND :end")
     Long sumAmountByUserIdAndDateBetween(Long userId, LocalDate start, LocalDate end);
 }
