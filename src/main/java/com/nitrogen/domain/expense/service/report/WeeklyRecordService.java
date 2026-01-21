@@ -27,7 +27,6 @@ public class WeeklyRecordService {
         List<Expense> weeklyExpenses = expenseRepository.findAllByUserIdAndExpenseDateBetween(userId, start, end);
         long weeklyTotalAmount = weeklyExpenses.stream().mapToLong(Expense::getAmount).sum();
 
-        // 목요일이 속한 달이 해당 주차의 '기준 달'이 됨 (ISO-8601의 '과반수 일수' 원리)
         LocalDate thursday = start.plusDays(3);
         int isoYear = thursday.get(WeekFields.ISO.weekBasedYear());
         int isoMonth = thursday.getMonthValue();
