@@ -24,7 +24,14 @@ public class WeeklyRecordService {
     private final ExpenseRepository expenseRepository;
 
     public WeeklyReportResponse generateWeeklyReport(Long userId, LocalDate start, LocalDate end, int week) {
+
+        System.out.println("조회 범위: " + start + " ~ " + end);
+        System.out.println("로그인 유저 ID: " + userId);
+
         List<Expense> weeklyExpenses = expenseRepository.findAllByUserIdAndExpendedAtBetween(userId, start, end);
+
+        System.out.println("찾은 데이터 개수: " + weeklyExpenses.size());
+
         long weeklyTotalAmount = weeklyExpenses.stream().mapToLong(Expense::getAmount).sum();
 
         LocalDate thursday = start.plusDays(3);

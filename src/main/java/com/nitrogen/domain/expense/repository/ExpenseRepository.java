@@ -10,13 +10,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
-
-    // 월별 총액을 위한 계산
-    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e JOIN e.user u WHERE u.userId = :userId AND e.expendedAt BETWEEN :start AND :end")
-    long calculateMonthlyTotal(@Param("userId") Long userId, @Param("start") LocalDate start, @Param("end") LocalDate end);
     // 특정 날짜 지출내역 조회
     List<Expense> findAllByUserUserIdAndExpendedAt(Long userId, LocalDate expendedAt);
+
+    // 월별 총액을 위한 계산
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.user.userId = :userId AND e.expendedAt BETWEEN :start AND :end")
+    long calculateMonthlyTotal(@Param("userId") Long userId, @Param("start") LocalDate start, @Param("end") LocalDate end);
     // 특정 기간 내 사용자의 지출 내역 조회
-    @Query("SELECT e FROM Expense e WHERE e.user.id = :userId AND e.expendedAt BETWEEN :start AND :end")
+    @Query("SELECT e FROM Expense e WHERE e.user.userId = :userId AND e.expendedAt BETWEEN :start AND :end")
     List<Expense> findAllByUserIdAndExpendedAtBetween(@Param("userId") Long userId, @Param("start") LocalDate start, @Param("end") LocalDate end);
 }

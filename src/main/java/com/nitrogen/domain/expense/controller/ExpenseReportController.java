@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.DayOfWeek;
@@ -30,7 +31,7 @@ public class ExpenseReportController {
 
     @Operation(summary = "메인화면 분석 리포트 조회", description = "이번 달 총 소비 금액과 지난주 주간 분석 리포트를 한 번에 조회합니다.")
     @GetMapping("/summary_record")
-    public ResponseEntity<SummaryRecordResponse> getSummaryRecord(@AuthenticationPrincipal Long userId) {
+    public ResponseEntity<SummaryRecordResponse> getSummaryRecord(@RequestParam("userId") Long userId) {
         LocalDate now = LocalDate.now();
 
         // 월별 리포트 데이터 준비 (이번 달)
