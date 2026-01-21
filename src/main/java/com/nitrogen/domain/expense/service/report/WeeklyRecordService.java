@@ -34,7 +34,7 @@ public class WeeklyRecordService {
                 .map(entry -> new EmotionSummary(
                         entry.getKey(),
                         entry.getValue().size(),
-                        entry.getValue().stream().mapToLong(Expense::getAmount).sum() // 총 금액
+                        entry.getValue().stream().mapToLong(Expense::getAmount).sum()
                 ))
                 .sorted(getEmotionComparator())
                 .toList();
