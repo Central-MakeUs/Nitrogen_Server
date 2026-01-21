@@ -24,7 +24,7 @@ public class WeeklyRecordService {
     private final ExpenseRepository expenseRepository;
 
     public WeeklyReportResponse generateWeeklyReport(Long userId, LocalDate start, LocalDate end, int week) {
-        List<Expense> weeklyExpenses = expenseRepository.findAllByUserIdAndExpenseDateBetween(userId, start, end);
+        List<Expense> weeklyExpenses = expenseRepository.findAllByUserIdAndExpendedAtBetween(userId, start, end);
         long weeklyTotalAmount = weeklyExpenses.stream().mapToLong(Expense::getAmount).sum();
 
         LocalDate thursday = start.plusDays(3);
