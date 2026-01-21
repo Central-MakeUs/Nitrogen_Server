@@ -5,6 +5,8 @@ import com.nitrogen.domain.expense.dto.report.SummaryRecordResponse;
 import com.nitrogen.domain.expense.dto.report.WeeklyReportResponse;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import com.nitrogen.domain.expense.service.report.WeeklyRecordService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,11 +22,13 @@ import java.time.temporal.WeekFields;
 @RestController
 @RequestMapping("/api/expense")
 @RequiredArgsConstructor
+@Tag(name = "Expense Report", description = "소비 분석 리포트 관련 API")
 public class ExpenseReportController {
 
     private final WeeklyRecordService weeklyRecordService;
     private final ExpenseRepository expenseRepository;
 
+    @Operation(summary = "메인화면 분석 리포트 조회", description = "이번 달 총 소비 금액과 지난주 주간 분석 리포트를 한 번에 조회합니다.")
     @GetMapping("/summary_record")
     public ResponseEntity<SummaryRecordResponse> getSummaryRecord(@AuthenticationPrincipal Long userId) {
         LocalDate now = LocalDate.now();
