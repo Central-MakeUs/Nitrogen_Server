@@ -27,8 +27,10 @@ public class WeeklyRecordService {
         List<Expense> weeklyExpenses = expenseRepository.findAllByUserIdAndExpenseDateBetween(userId, start, end);
         long weeklyTotalAmount = weeklyExpenses.stream().mapToLong(Expense::getAmount).sum();
 
-        int isoYear = start.get(WeekFields.ISO.weekBasedYear());
-        int isoMonth = start.plusDays(3).getMonthValue();
+        // 목요일이 속한 달이 해당 주차의 '기준 달'이 됨 (ISO-8601의 '과반수 일수' 원리)
+        LocalDate thursday = start.plusDays(3);
+        int isoYear = thursday.get(WeekFields.ISO.weekBasedYear());
+        int isoMonth = thursday.getMonthValue();
 
         Map<EmotionType, List<Expense>> grouped = weeklyExpenses.stream()
                 .collect(Collectors.groupingBy(Expense::getEmotionType));
@@ -47,13 +49,12 @@ public class WeeklyRecordService {
         String weekRange = String.format("%d년 %d월 %d주차", isoYear, isoMonth, week);
         return new WeeklyReportResponse(weekRange, weeklyTotalAmount, topEmotion, emotionDetails);
     }
-
     /**
      * 지출 금액 내림차순 -> 소비 건수 내림차순 -> 이름(ㄱㄴㄷ) 오름차순
      */
     private Comparator<EmotionSummary> getEmotionComparator() {
         return Comparator.comparingLong(EmotionSummary::totalAmount).reversed()
-                .thenComparing(Comparator.comparingLong(EmotionSummary::count).reversed()) //
-                .thenComparing(summary -> summary.emotionType().name());
+                .thenComparing(Comparator.comparingLong(EmotionSummary::count).reversed())
+                .thenComparing(summary -> summary.emotionType().getEmotion_description());
     }
 }
