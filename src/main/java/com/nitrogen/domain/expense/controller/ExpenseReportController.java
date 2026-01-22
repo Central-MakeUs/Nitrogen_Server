@@ -34,7 +34,7 @@ public class ExpenseReportController {
     public ResponseEntity<SummaryRecordResponse> getSummaryRecord(@RequestParam("userId") Long userId) {
         LocalDate now = LocalDate.now();
 
-        // 월별 리포트 데이터 준비 (이번 달)
+        // 월별 리포트 데이터 준비 https://m.blog.naver.com/seek316/222319652865
         LocalDate startOfMonth = now.withDayOfMonth(1);
         LocalDate endOfMonth = now.withDayOfMonth(now.lengthOfMonth());
         long monthlyTotalAmount = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
