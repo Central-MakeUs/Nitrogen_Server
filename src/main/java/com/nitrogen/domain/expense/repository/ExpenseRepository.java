@@ -19,4 +19,6 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     // 특정 기간 내 사용자의 지출 내역 조회
     @Query("SELECT e FROM Expense e WHERE e.user.userId = :userId AND e.expendedAt BETWEEN :start AND :end")
     List<Expense> findAllByUserIdAndExpendedAtBetween(@Param("userId") Long userId, @Param("start") LocalDate start, @Param("end") LocalDate end);
+
+    
 }
