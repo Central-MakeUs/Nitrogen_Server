@@ -1,15 +1,14 @@
 package com.nitrogen.domain.expense.controller;
 
-import com.nitrogen.domain.expense.dto.report.MonthlyReportSummaryResponse;
-import com.nitrogen.domain.expense.dto.report.SummaryRecordResponse;
-import com.nitrogen.domain.expense.dto.report.WeeklyReportResponse;
+import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportSummaryResponse;
+import com.nitrogen.domain.expense.dto.report.summary.SummaryRecordResponse;
+import com.nitrogen.domain.expense.dto.report.summary.WeeklyReportResponse;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import com.nitrogen.domain.expense.service.report.WeeklyRecordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

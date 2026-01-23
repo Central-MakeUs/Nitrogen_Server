@@ -1,12 +1,10 @@
 package com.nitrogen.domain.expense.service.report;
 
-import com.nitrogen.domain.expense.dto.report.EmotionSummary;
-import com.nitrogen.domain.expense.dto.report.WeeklyReportResponse;
+import com.nitrogen.domain.expense.dto.report.summary.EmotionSummary;
+import com.nitrogen.domain.expense.dto.report.summary.WeeklyReportResponse;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.expense.entity.enums.EmotionType;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

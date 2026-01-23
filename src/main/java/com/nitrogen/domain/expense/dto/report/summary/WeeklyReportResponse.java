@@ -1,6 +1,4 @@
-package com.nitrogen.domain.expense.dto.report;
-
-import com.nitrogen.domain.expense.entity.enums.EmotionType;
+package com.nitrogen.domain.expense.dto.report.summary;
 
 import java.util.List;
 

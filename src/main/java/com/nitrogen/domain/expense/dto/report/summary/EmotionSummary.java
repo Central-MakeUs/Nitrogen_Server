@@ -1,4 +1,4 @@
-package com.nitrogen.domain.expense.dto.report;
+package com.nitrogen.domain.expense.dto.report.summary;
 
 import com.nitrogen.domain.expense.entity.enums.EmotionType;
 
