@@ -1,6 +1,8 @@
 package com.nitrogen.domain.expense.repository;
 
 import com.nitrogen.domain.expense.entity.Expense;
+import com.nitrogen.domain.expense.entity.enums.EmotionType;
+import com.nitrogen.domain.expense.entity.enums.EvaluationType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,5 +22,46 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     @Query("SELECT e FROM Expense e WHERE e.user.userId = :userId AND e.expendedAt BETWEEN :start AND :end")
     List<Expense> findAllByUserIdAndExpendedAtBetween(@Param("userId") Long userId, @Param("start") LocalDate start, @Param("end") LocalDate end);
 
-    
+    // 특정 기간 내 만족도 별 사용자의 지출 내역 조회
+    @Query("SELECT e FROM Expense e WHERE e.user.userId = :userId AND e.expendedAt BETWEEN :start AND :end " +
+            "AND e.evaluationType = :evaluationType")
+    List<Expense> findExpenses(
+            @Param("userId") Long userId,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end,
+            @Param("evaluationType") EvaluationType evaluationType
+    );
+
+    // 특정 기간 내 특정 감정 내 소비 항목 TOP 3 조회
+    @Query("SELECT e FROM Expense e WHERE e.user.userId = :userId AND e.expendedAt BETWEEN :start AND :end " +
+            "AND e.emotionType = :emotionType ORDER BY e.amount DESC")
+    List<Expense> findTop3ByUserUserIdAndEmotionTypeOrderByAmountDesc(
+            @Param("userId") Long userId,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end,
+            @Param("emotionType") EmotionType emotionType
+    );
+
+    // 평균 만족도 점수 계산
+    @Query("""
+    SELECT COALESCE(AVG(
+        CASE e.evaluationType
+            WHEN com.nitrogen.domain.expense.entity.enums.EvaluationType.VERY_SATISFIED THEN 5
+            WHEN com.nitrogen.domain.expense.entity.enums.EvaluationType.SATISFIED THEN 4
+            WHEN com.nitrogen.domain.expense.entity.enums.EvaluationType.NORMAL THEN 3
+            WHEN com.nitrogen.domain.expense.entity.enums.EvaluationType.DISAPPOINTED THEN 2
+            WHEN com.nitrogen.domain.expense.entity.enums.EvaluationType.VERY_DISAPPOINTED THEN 1
+            ELSE 0
+        END
+    ), 0)
+    FROM Expense e
+    WHERE e.user.userId = :userId
+      AND e.expendedAt BETWEEN :start AND :end
+""")
+    double calculateAverageEvaluationScore(
+            @Param("userId") Long userId,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end
+    );
+
 }
