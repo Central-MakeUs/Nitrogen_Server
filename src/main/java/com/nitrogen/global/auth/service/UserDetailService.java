@@ -1,5 +1,6 @@
 package com.nitrogen.global.auth.service;
 
+import com.nitrogen.domain.user.entity.CustomUserDetails;
 import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +20,6 @@ public class UserDetailService implements UserDetailsService {
         User user = userRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 소셜 계정을 찾을 수 없습니다."));
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getSocialId()) // 고유 식별값
-                .password("")
-                .authorities("ROLE_USER")
-                .build();
+        return new CustomUserDetails(user);
     }
 }
