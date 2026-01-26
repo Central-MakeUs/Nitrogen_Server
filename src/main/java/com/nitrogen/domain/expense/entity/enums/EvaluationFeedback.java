@@ -59,6 +59,6 @@ public enum EvaluationFeedback {
                 return feedback.sentences.get(randomIndex);
             }
         }
-        return "데이터가 부족하여 분석할 수 없습니다."; // 기본값
+        return "데이터가 부족하여 분석할 수 없습니다."; // 0개
     }
 }
