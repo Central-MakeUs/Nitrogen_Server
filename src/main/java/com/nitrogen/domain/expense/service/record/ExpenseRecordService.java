@@ -1,11 +1,13 @@
 package com.nitrogen.domain.expense.service.record;
 
 import com.nitrogen.domain.expense.dto.expense.ExpenseDetailsDTO;
+import com.nitrogen.domain.expense.dto.expense.ExpenseListDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseRemindRequestDTO;
 import com.nitrogen.domain.expense.entity.Category;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.expense.repository.CategoryRepository;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
+import com.nitrogen.domain.expense.service.inquiry.ExpenseInquiryService;
 import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +68,24 @@ public class ExpenseRecordService {
         }
 
         expense.updateEvaluation(dto.getEvaluationType());
+        return expense.getId();
+    }
+
+    // 지출 기록 수정
+    @Transactional
+    public Long updateExpense(Long expenseId, ExpenseDetailsDTO dto, Long userId) {
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출 기록입니다."));
+
+        if (!expense.getUser().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("해당 지출에 대한 접근 권한이 없습니다.");
+        }
+
+        Category category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
+
+        expense.updateExpenseRecord(dto.getAmount(), dto.getUsageHistory(), dto.getExpendedAt(), category);
+
         return expense.getId();
     }
 }

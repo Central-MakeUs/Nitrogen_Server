@@ -46,4 +46,13 @@ public class Expense {
     @Column(nullable = false, length = 40)
     private String usageHistory;
 
+    public void updateExpenseRecord(Integer newAmount, String newUsageHistory, LocalDate newExpendedAt, Category newCategory) {
+        if (newAmount == null || newAmount.intValue() <= 0) {
+            throw new IllegalArgumentException("금액은 0보다 커야 합니다.");
+        }
+        this.amount = newAmount;
+        this.usageHistory = newUsageHistory;
+        this.expendedAt = newExpendedAt;
+        this.category = newCategory;
+    }
 }

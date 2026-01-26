@@ -65,4 +65,17 @@ public class ExpenseController {
         DailyExpenseResponseDTO response = expenseInquiryService.inquiryExpense(targetDate, userId);
         return ResponseEntity.ok(response);
     }
+
+    // 지출 기록 수정
+    @Operation(summary = "지출 기록 수정", description = "유저가 작성한 지출 기록을 수정합니다.")
+    @PatchMapping("/update_record/{expenseId}")
+    public ApiResponse<Long> updateExpense(
+            @PathVariable Long expenseId,
+            @RequestBody @Valid ExpenseDetailsDTO dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getUserId();
+        Long updatedExpenseId = expenseService.updateExpense(expenseId, dto, userId);
+        return ApiResponse.onSuccess(updatedExpenseId);
+    }
 }
