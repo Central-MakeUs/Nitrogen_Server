@@ -7,11 +7,13 @@ import com.nitrogen.domain.expense.dto.report.summary.WeeklyReportResponse;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import com.nitrogen.domain.expense.service.report.WeeklyRecordService;
 import com.nitrogen.domain.expense.service.report.WeeklyDetailRecordService;
+import com.nitrogen.domain.user.entity.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,7 +36,8 @@ public class ExpenseReportController {
 
     @Operation(summary = "메인화면 분석 리포트 조회", description = "이번 달 총 소비 금액과 지난주 주간 분석 리포트를 한 번에 조회합니다.")
     @GetMapping("/summary_record")
-    public ResponseEntity<SummaryRecordResponse> getSummaryRecord(@RequestParam("userId") Long userId) {
+    public ResponseEntity<SummaryRecordResponse> getSummaryRecord(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUserId();
         LocalDate now = LocalDate.now();
 
         // 월별 리포트 데이터 준비 https://m.blog.naver.com/seek316/222319652865
@@ -67,8 +70,10 @@ public class ExpenseReportController {
     @Operation(summary = "주간 분석 상세 리포트 조회", description = "특정 주차의 감정 분석, 만족도 통계, TOP 3 지출 내역 등 상세 데이터를 조회합니다.")
     @GetMapping("/weekly_detail")
     public ResponseEntity<WeeklyDetailReportResponse> getWeeklyDetailReport(
-            @RequestParam("userId") Long userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        Long userId = userDetails.getUserId();
 
         LocalDate start = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate end = start.plusDays(6);
