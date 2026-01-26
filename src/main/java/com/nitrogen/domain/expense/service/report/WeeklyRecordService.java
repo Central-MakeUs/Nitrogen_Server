@@ -36,7 +36,7 @@ public class WeeklyRecordService {
 
         List<EmotionSummary> emotionDetails = grouped.entrySet().stream()
                 .map(entry -> new EmotionSummary(
-                        entry.getKey(),
+                        entry.getKey().getEmotion_description(),
                         entry.getValue().size(),
                         entry.getValue().stream().mapToLong(Expense::getAmount).sum()
                 ))
@@ -54,6 +54,6 @@ public class WeeklyRecordService {
     private Comparator<EmotionSummary> getEmotionComparator() {
         return Comparator.comparingLong(EmotionSummary::totalAmount).reversed()
                 .thenComparing(Comparator.comparingLong(EmotionSummary::count).reversed())
-                .thenComparing(summary -> summary.emotionType().getEmotion_description());
+                .thenComparing(EmotionSummary::emotionDescription);
     }
 }

@@ -63,6 +63,7 @@ public class WeeklyDetailRecordService {
                 new EmotionSummary(topEmotion.getEmotion_description(), topEmotionTotalAmount, (long) top3Expenses.size()),
                 evaluationMessage,
                 evaluationSummaries,
+                top3Expenses,
                 topEmotionTotalAmount,
                 (long) allExpenses.size(),
                 weeklyTotalAmount
