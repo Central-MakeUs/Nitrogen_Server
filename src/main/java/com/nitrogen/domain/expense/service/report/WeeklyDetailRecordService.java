@@ -1,6 +1,7 @@
 package com.nitrogen.domain.expense.service.report;
 
 import com.nitrogen.domain.expense.dto.report.detail.EvaluationSummary;
+import com.nitrogen.domain.expense.dto.report.detail.ExpenseSimpleResponse;
 import com.nitrogen.domain.expense.dto.report.detail.WeeklyDetailReportResponse;
 import com.nitrogen.domain.expense.dto.report.summary.EmotionSummary;
 import com.nitrogen.domain.expense.entity.Expense;
@@ -58,12 +59,16 @@ public class WeeklyDetailRecordService {
 
         long weeklyTotalAmount = allExpenses.stream().mapToLong(Expense::getAmount).sum();
 
+        List<ExpenseSimpleResponse> top3Response = top3Expenses.stream()
+                .map(e -> new ExpenseSimpleResponse(e.getUsageHistory(), e.getAmount()))
+                .toList();
+
         return new WeeklyDetailReportResponse(
                 weekRange,
                 new EmotionSummary(topEmotion.getEmotion_description(), topEmotionTotalAmount, (long) top3Expenses.size()),
                 evaluationMessage,
                 evaluationSummaries,
-                top3Expenses,
+                top3Response,
                 topEmotionTotalAmount,
                 (long) allExpenses.size(),
                 weeklyTotalAmount
