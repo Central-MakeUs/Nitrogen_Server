@@ -41,6 +41,10 @@ public class ExpenseRecordService {
             throw new IllegalArgumentException("사용처 기록이 비어있습니다.");
         }
 
+        if(dto.getExpendedAt().isAfter(java.time.LocalDate.now())){
+            throw new IllegalArgumentException("미래 날짜로 소비 기록을 작성할 수 없습니다.");
+        }
+
         Expense expense = Expense.builder()
                 .amount(dto.getAmount())
                 .expendedAt(dto.getExpendedAt())
