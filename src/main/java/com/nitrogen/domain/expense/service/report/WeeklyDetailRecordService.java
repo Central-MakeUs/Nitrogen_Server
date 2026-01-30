@@ -41,7 +41,7 @@ public class WeeklyDetailRecordService {
                         allExpenses.stream().filter(e -> e.getEvaluationType() == type).mapToLong(Expense::getAmount).sum()
                 )).toList();
 
-        // 이번 주 가장 빈번했던 {마음할목} 선정
+        // 이번 주 가장 빈번했던 {마음항목} 선정
         EmotionType topEmotion = allExpenses.stream()
                 .collect(Collectors.groupingBy(Expense::getEmotionType, Collectors.counting()))
                 .entrySet().stream()
