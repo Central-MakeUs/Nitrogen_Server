@@ -5,9 +5,11 @@ import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportSummaryRespon
 import com.nitrogen.domain.expense.dto.report.summary.SummaryRecordResponse;
 import com.nitrogen.domain.expense.dto.report.summary.WeeklyReportResponse;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
+import com.nitrogen.domain.expense.service.report.DailyRetrospectReportService;
 import com.nitrogen.domain.expense.service.report.WeeklyRecordService;
 import com.nitrogen.domain.expense.service.report.WeeklyDetailRecordService;
 import com.nitrogen.domain.user.entity.CustomUserDetails;
+import com.nitrogen.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ public class ExpenseReportController {
 
     private final WeeklyRecordService weeklyRecordService;
     private final WeeklyDetailRecordService weeklyDetailRecordService;
+    private final DailyRetrospectReportService dailyRetrospectReportService;
     private final ExpenseRepository expenseRepository;
 
     @Operation(summary = "메인화면 분석 리포트 조회", description = "이번 달 총 소비 금액과 지난주 주간 분석 리포트를 한 번에 조회합니다.")
@@ -86,5 +89,17 @@ public class ExpenseReportController {
                 userId, start, end, weekRange);
 
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "일별 종합 소비 만족도 조회", description = "당일 모든 지출에 대한 회고가 완료된 경우, 전체 만족도 평균을 문구로 반환합니다.")
+    @GetMapping("/daily_satisfaction")
+    public ResponseEntity<ApiResponse<String>> getDailyAverageSatisfaction(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        Long userId = userDetails.getUserId();
+        String satisfactionMessage = dailyRetrospectReportService.getDailyAverageSatisfaction(userId, date);
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(satisfactionMessage));
     }
 }
