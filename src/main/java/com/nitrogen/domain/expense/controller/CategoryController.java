@@ -1,6 +1,7 @@
 package com.nitrogen.domain.expense.controller;
 
 import com.nitrogen.domain.expense.dto.category.CategoryDetailsDTO;
+import com.nitrogen.domain.expense.dto.category.CategoryIdResponseDTO;
 import com.nitrogen.domain.expense.dto.category.CategoryListResponseDTO;
 import com.nitrogen.domain.expense.dto.category.CategoryUpdateRequestDTO;
 import com.nitrogen.domain.expense.service.category.CategoryService;
@@ -34,18 +35,18 @@ public class CategoryController {
     // 커스텀 카테고리 생성
     @PostMapping("/category_create")
     @Operation(summary = "카테고리 직접추가", description = "유저가 직접 카테고리를 추가합니다.")
-    public ApiResponse<Long> createCategory(@RequestBody CategoryDetailsDTO dto,
-                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ApiResponse<CategoryIdResponseDTO> createCategory(@RequestBody CategoryDetailsDTO dto,
+                                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
 
         Long categoryId = categoryService.registerCategory(dto, userId);
-        return ApiResponse.onSuccess(categoryId);
+        return ApiResponse.onSuccess(new CategoryIdResponseDTO(categoryId));
     }
 
     // 카테고리 수정 (PATCH)
     @Operation(summary = "카테고리 수정", description = "유저가 직접 카테고리를 수정합니다.")
     @PatchMapping("/category_update/{categoryId}")
-    public ApiResponse<Long> updateCategory(
+    public ApiResponse<CategoryIdResponseDTO> updateCategory(
             @PathVariable Long categoryId,
             @RequestBody CategoryUpdateRequestDTO dto) {
 
@@ -55,6 +56,6 @@ public class CategoryController {
 
         Long updatedId = categoryService.updateCategory(categoryId, dto);
 
-        return ApiResponse.onSuccess(updatedId);
+        return ApiResponse.onSuccess(new CategoryIdResponseDTO(updatedId));
     }
 }
