@@ -1,6 +1,7 @@
 package com.nitrogen.global.auth.controller;
 
 import com.nitrogen.domain.user.entity.User;
+import com.nitrogen.global.apiPayload.ApiResponse;
 import com.nitrogen.global.auth.dto.AuthResponse;
 import com.nitrogen.global.auth.service.OauthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +29,7 @@ public class AuthController {
 
     @Operation(summary = "카카오 로그인 콜백", description = "카카오 인가 코드를 통해 로그인을 진행하고 JWT 및 유저 정보를 반환한다.")
     @GetMapping("/kakao/callback")
-    public ResponseEntity<AuthResponse> kakaoCallback(
+    public ApiResponse<AuthResponse> kakaoCallback(
             @RequestParam("code") String code,
             HttpServletRequest request,
             HttpServletResponse response) { // 응답 헤더에 쿠키를 추가하기 위해 response 객체 필요
@@ -62,14 +63,14 @@ public class AuthController {
                         .build())
                 .build();
 
-        return ResponseEntity.ok(authResponse);
+        return ApiResponse.onSuccess(authResponse);
     }
 
     @Operation(summary = "회원 탈퇴", description = "현재 로그인한 유저의 정보를 삭제한다.")
     @DeleteMapping("/withdraw")
-    public ResponseEntity<Void> withdraw(@AuthenticationPrincipal UserDetails userDetails) {
+    public ApiResponse<String> withdraw(@AuthenticationPrincipal UserDetails userDetails) {
         oauthService.withdraw(userDetails.getUsername());
         log.info("유저 탈퇴 완료: {}", userDetails.getUsername());
-        return ResponseEntity.noContent().build();
+        return ApiResponse.onSuccess("회원 탈퇴가 완료되었습니다.");
     }
 }

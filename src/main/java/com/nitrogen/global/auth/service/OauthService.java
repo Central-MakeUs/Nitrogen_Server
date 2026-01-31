@@ -126,10 +126,11 @@ public class OauthService {
     // 탈퇴
     @Transactional
     public void withdraw(String socialId){
+        User user = userRepository.findBySocialId(socialId)
+                .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
+
         unlinkKakao(socialId);
 
-        User user = userRepository.findBySocialId(socialId)
-                .orElseThrow(()-> new RuntimeException("해당 유저를 찾을 수 없습니다."));
         userRepository.delete(user);
     }
 
@@ -151,10 +152,12 @@ public class OauthService {
                     request,
                     String.class
             );
-            log.info("카카오 연결 끊기 성공: {}", response.getBody());
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            if (!e.getResponseBodyAsString().contains("-101")) {
+                log.error("카카오 unlink 실패: {}", e.getResponseBodyAsString());
+            }
         } catch (Exception e) {
-            log.error("카카오 연결 끊기 실패: {}", e.getMessage());
-            throw new RuntimeException("카카오 인증 서버와의 통신 중 오류가 발생했습니다.");
+            log.error("카카오 통신 중 알 수 없는 오류 발생: {}", e.getMessage());
         }
     }
 }
