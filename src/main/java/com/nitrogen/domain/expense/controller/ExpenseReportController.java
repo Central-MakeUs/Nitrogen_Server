@@ -39,7 +39,7 @@ public class ExpenseReportController {
 
     @Operation(summary = "메인화면 분석 리포트 조회", description = "이번 달 총 소비 금액과 지난주 주간 분석 리포트를 한 번에 조회합니다.")
     @GetMapping("/summary_record")
-    public ResponseEntity<SummaryRecordResponse> getSummaryRecord(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ApiResponse<SummaryRecordResponse> getSummaryRecord(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
         LocalDate now = LocalDate.now();
 
@@ -56,8 +56,6 @@ public class ExpenseReportController {
         // 주간 리포트 데이터 준비 (직전 주차 계산)
         LocalDate lastMonday = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(1);
         LocalDate lastSunday = lastMonday.plusDays(6);
-
-        // 현재 몇 주차인지 계산
         int weekOfMonth = lastMonday.get(WeekFields.ISO.weekOfMonth());
 
         WeeklyReportResponse weeklyReport = weeklyRecordService.generateWeeklyReport(
@@ -67,12 +65,12 @@ public class ExpenseReportController {
                 weekOfMonth
         );
 
-        return ResponseEntity.ok(new SummaryRecordResponse(monthlyReport, weeklyReport));
+        return ApiResponse.onSuccess(new SummaryRecordResponse(monthlyReport, weeklyReport));
     }
 
     @Operation(summary = "주간 분석 상세 리포트 조회", description = "특정 주차의 감정 분석, 만족도 통계, TOP 3 지출 내역 등 상세 데이터를 조회합니다.")
     @GetMapping("/weekly_detail")
-    public ResponseEntity<WeeklyDetailReportResponse> getWeeklyDetailReport(
+    public ApiResponse<WeeklyDetailReportResponse> getWeeklyDetailReport(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
@@ -88,18 +86,18 @@ public class ExpenseReportController {
         WeeklyDetailReportResponse response = weeklyDetailRecordService.generateWeeklyDetailReport(
                 userId, start, end, weekRange);
 
-        return ResponseEntity.ok(response);
+        return ApiResponse.onSuccess(response);
     }
 
     @Operation(summary = "일별 종합 소비 만족도 조회", description = "당일 모든 지출에 대한 회고가 완료된 경우, 전체 만족도 평균을 문구로 반환합니다.")
     @GetMapping("/daily_satisfaction")
-    public ResponseEntity<ApiResponse<String>> getDailyAverageSatisfaction(
+    public ApiResponse<String> getDailyAverageSatisfaction(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
         Long userId = userDetails.getUserId();
         String satisfactionMessage = dailyRetrospectReportService.getDailyAverageSatisfaction(userId, date);
 
-        return ResponseEntity.ok(ApiResponse.onSuccess(satisfactionMessage));
+        return ApiResponse.onSuccess(satisfactionMessage);
     }
 }
