@@ -1,8 +1,13 @@
 package com.nitrogen.domain.user.entity;
 
+import com.nitrogen.domain.expense.entity.Category;
+import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.user.entity.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -38,6 +43,14 @@ public class User {
 
     @Column(unique = true)
     private String appleSub; // 애플 고유 식별자
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Category> categories = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Expense> expenses = new ArrayList<>();
 
 
 }
