@@ -1,10 +1,14 @@
 package com.nitrogen.global.auth.service;
 
 import com.nitrogen.domain.expense.service.category.CategoryService;
+import com.nitrogen.domain.user.entity.enums.UserStatus;
 import com.nitrogen.domain.user.repository.UserRepository;
+import com.nitrogen.global.auth.dto.apple.AppleTokenResponseDTO;
 import com.nitrogen.global.auth.dto.kakao.KakaoUserInfo;
 import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.global.auth.security.TokenProvider;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,10 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,22 +34,39 @@ public class OauthService {
     private final CategoryService categoryService;
     private final RestTemplate restTemplate = new RestTemplate();
 
+    // kakao
+
     @Value("${kakao.client_id}")
     private String clientId;
 
     @Value("${kakao.client_secret}")
     private String clientSecret;
 
-    // 탈퇴
     @Value("${kakao.admin_key}")
     private String adminKey;
 
     @Value("${kakao.redirect_uris}")
     private List<String> redirectUris;
 
-    public Map<String, Object> loginOrSignup(String code, String currentUri) {
+    // apple
 
-        log.info("입력된 currentUri: {}", currentUri);
+    @Value("${apple.client-id}")
+    private String appleClientId;
+
+    @Value("${apple.team-id}")
+    private String appleTeamId;
+
+    @Value("${apple.key-id}")
+    private String appleKeyId;
+
+    @Value("${apple.private-key}")
+    private String applePrivateKey;
+
+    @Value("${apple.redirect-uri}")
+    private String appleRedirectUri;
+
+    // kakao
+    public Map<String, Object> loginOrSignup(String code, String currentUri) {
 
         String selectedUri = redirectUris.stream()
                 .filter(uri -> currentUri != null && (currentUri.contains(uri) || uri.contains("swagger-ui")))
@@ -102,7 +125,6 @@ public class OauthService {
             throw new RuntimeException("카카오 인증 실패: " + e.getMessage());
         }
     }
-
     private KakaoUserInfo getKakaoUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
@@ -122,8 +144,6 @@ public class OauthService {
             throw new RuntimeException("카카오 정보 조회 실패");
         }
     }
-
-    // 탈퇴
     @Transactional
     public void withdraw(String socialId){
         User user = userRepository.findBySocialId(socialId)
@@ -133,7 +153,6 @@ public class OauthService {
 
         userRepository.delete(user);
     }
-
     private void unlinkKakao(String socialId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -158,6 +177,103 @@ public class OauthService {
             }
         } catch (Exception e) {
             log.error("카카오 통신 중 알 수 없는 오류 발생: {}", e.getMessage());
+        }
+    }
+
+    // apple
+    public Map<String, Object> appleLoginOrSignup(String code){
+        AppleTokenResponseDTO tokenResponse = getAppleToken(code);
+        String appleSub = decodeIdToken(tokenResponse.getIdToken());
+
+        User user = userRepository.findByAppleSub(appleSub)
+                .orElseGet(() -> userRepository.save(User.builder()
+                        .appleSub(appleSub)
+                        .provider("apple")
+                        .status(UserStatus.ACTIVE)
+                        .build()));
+
+        categoryService.initUserCategories(user);
+
+        String accessToken = tokenProvider.createToken(user.getSocialId());
+        String refreshToken = tokenProvider.createRefreshToken(user.getSocialId());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("accessToken", accessToken);
+        result.put("refreshToken", refreshToken);
+        result.put("user", user);
+
+        return result;
+    }
+
+    private AppleTokenResponseDTO getAppleToken(String code) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", appleClientId);
+        params.add("client_secret", makeClientSecretToken());
+        params.add("code", code);
+        params.add("redirect_uri", appleRedirectUri);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        try {
+            ResponseEntity<AppleTokenResponseDTO> response = restTemplate.postForEntity(
+                    "https://appleid.apple.com/auth/token", request, AppleTokenResponseDTO.class);
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("애플 토큰 발급 실패: {}", e.getMessage());
+            throw new RuntimeException("애플 인증 서버 통신 실패");
+        }
+    }
+    private String decodeIdToken(String idToken) {
+        try {
+            String[] chunks = idToken.split("\\.");
+            Base64.Decoder decoder = Base64.getUrlDecoder();
+
+            String payload = new String(decoder.decode(chunks[1]));
+
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> data = mapper.readValue(payload, Map.class);
+
+            return (String) data.get("sub");
+        } catch (Exception e) {
+            log.error("ID 토큰 디코딩 실패: {}", e.getMessage());
+            throw new RuntimeException("애플 유저 정보 추출 실패");
+        }
+    }
+    private String makeClientSecretToken() {
+        Date now = new Date();
+
+        Date expiration = new Date(now.getTime() + 1000 * 60 * 5);
+
+        return Jwts.builder()
+                .setHeaderParam("kid", appleKeyId)
+                .setHeaderParam("alg", "ES256")
+                .setIssuer(appleTeamId)
+                .setIssuedAt(now)
+                .setExpiration(expiration)
+                .setAudience("https://appleid.apple.com")
+                .setSubject(appleClientId)
+                .signWith(getPrivateKey(), SignatureAlgorithm.ES256)
+                .compact();
+    }
+    private PrivateKey getPrivateKey() {
+        try {
+            String privateKeyContent = applePrivateKey
+                    .replace("-----BEGIN PRIVATE KEY-----", "")
+                    .replace("-----END PRIVATE KEY-----", "")
+                    .replaceAll("\\s+", "");
+
+            byte[] encoded = Base64.getDecoder().decode(privateKeyContent);
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
+
+            KeyFactory kf = KeyFactory.getInstance("EC");
+            return kf.generatePrivate(keySpec);
+        } catch (Exception e) {
+            log.error("애플 개인키 생성 중 오류 발생: {}", e.getMessage());
+            throw new RuntimeException("애플 인증 설정 오류");
         }
     }
 }

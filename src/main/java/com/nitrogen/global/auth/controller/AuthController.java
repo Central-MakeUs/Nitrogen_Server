@@ -66,6 +66,11 @@ public class AuthController {
         return ApiResponse.onSuccess(authResponse);
     }
 
+    @Operation(summary = "oauth 애플 로그인 리다이렉트")
+    @PostMapping("/redirect/apple")
+    public void appleRedirect(@RequestParam("code") String code, HttpServletResponse response) throws Exception {
+    }
+
     @Operation(summary = "회원 탈퇴", description = "현재 로그인한 유저의 정보를 삭제한다.")
     @DeleteMapping("/withdraw")
     public ApiResponse<String> withdraw(@AuthenticationPrincipal UserDetails userDetails) {
