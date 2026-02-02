@@ -5,6 +5,7 @@ import com.nitrogen.domain.expense.dto.category.CategoryListResponseDTO;
 import com.nitrogen.domain.expense.dto.category.CategoryUpdateRequestDTO;
 import com.nitrogen.domain.expense.entity.Category;
 import com.nitrogen.domain.expense.entity.enums.BasicCategory;
+import com.nitrogen.domain.expense.entity.enums.CategoryIconType;
 import com.nitrogen.domain.expense.repository.CategoryRepository;
 import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.domain.user.repository.UserRepository;
@@ -51,7 +52,8 @@ public class CategoryService {
         return categories.stream()
                 .map(cat -> new CategoryListResponseDTO(
                         cat.getId(),
-                        cat.getName()
+                        cat.getName(),
+                        cat.getCategoryIconType()
                 ))
                 .collect(Collectors.toList());
     }
@@ -63,6 +65,12 @@ public class CategoryService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않습니다."));
 
         category.updateName(dto.getName());
+/*
+아이콘 수정 로직 확장 기능 오픈 시 재오픈 예정
+ */
+//        if (dto.getIcon() != null) {
+//            category.updateIcon(dto.getIcon());
+//        }
 
         return category.getId();
     }
@@ -79,6 +87,7 @@ public class CategoryService {
                     .name(basic.getDefaultName())
                     .category(basic)
                     .user(user)
+                    .categoryIconType(CategoryIconType.PLUS)
                     .build();
             categoryRepository.save(category);
         }
