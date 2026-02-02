@@ -1,14 +1,19 @@
 package com.nitrogen.global.auth.service;
 
 import com.nitrogen.domain.expense.service.category.CategoryService;
+import com.nitrogen.domain.user.dto.UserResponseDTO;
 import com.nitrogen.domain.user.repository.UserRepository;
+import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
+import com.nitrogen.global.apiPayload.exception.UserHandler;
 import com.nitrogen.global.auth.dto.kakao.KakaoUserInfo;
 import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.global.auth.security.TokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -159,5 +164,30 @@ public class OauthService {
         } catch (Exception e) {
             log.error("카카오 통신 중 알 수 없는 오류 발생: {}", e.getMessage());
         }
+    }
+
+    // 토큰 재발급
+    @Transactional
+    public UserResponseDTO.TokenReissueResultDTO reissueToken(String refreshToken) {
+
+        if (!tokenProvider.validateToken(refreshToken)) {
+            throw new UserHandler(ErrorStatus.INVALID_TOKEN);
+        }
+
+        Authentication authentication = tokenProvider.getAuthentication(refreshToken);
+        String socialId = authentication.getName();
+
+        User user = userRepository.findBySocialId(socialId)
+                .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
+
+        if (!refreshToken.equals(user.getRefreshToken())) {
+            throw new UserHandler(ErrorStatus.INVALID_TOKEN);
+        }
+
+        String newAccessToken = tokenProvider.createToken(socialId);
+
+        return UserResponseDTO.TokenReissueResultDTO.builder()
+                .accessToken(newAccessToken)
+                .build();
     }
 }
