@@ -61,6 +61,10 @@ public class CategoryController {
 
         Long updatedId = categoryService.updateCategory(categoryId, dto);
 
-        return ApiResponse.onSuccess(new CategoryIdResponseDTO(updatedId));
+        return ApiResponse.onSuccess(new CategoryIdResponseDTO(
+                updatedId,
+                dto.getName(),
+                dto.getIcon()
+        ));
     }
 }

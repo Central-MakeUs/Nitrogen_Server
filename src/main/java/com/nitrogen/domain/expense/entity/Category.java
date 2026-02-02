@@ -39,4 +39,10 @@ public class Category {
         }
         this.name = newName;
     }
+
+    public void updateIcon(CategoryIconType newIcon) {
+        if (newIcon != null) {
+            this.categoryIconType = newIcon;
+        }
+    }
 }

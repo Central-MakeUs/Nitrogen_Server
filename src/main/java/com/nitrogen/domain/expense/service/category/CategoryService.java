@@ -64,7 +64,13 @@ public class CategoryService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않습니다."));
 
-        category.updateName(dto.getName());
+        if (dto.getName() != null && !dto.getName().isBlank()) {
+            category.updateName(dto.getName());
+        }
+
+        if (dto.getIcon() != null) {
+            category.updateIcon(dto.getIcon());
+        }
 /*
 아이콘 수정 로직 확장 기능 오픈 시 재오픈 예정
  */
