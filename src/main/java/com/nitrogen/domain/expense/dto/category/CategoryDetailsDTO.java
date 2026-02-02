@@ -1,5 +1,6 @@
 package com.nitrogen.domain.expense.dto.category;
 
+import com.nitrogen.domain.expense.entity.enums.CategoryIconType;
 import jakarta.persistence.Entity;
 import lombok.*;
 
@@ -9,4 +10,5 @@ import lombok.*;
 @AllArgsConstructor
 public class CategoryDetailsDTO {
     private String name;
+    private CategoryIconType icon;
 }

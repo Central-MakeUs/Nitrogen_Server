@@ -1,18 +1,22 @@
 package com.nitrogen.global.auth.controller;
 
+import com.nitrogen.domain.user.dto.UserResponseDTO;
 import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.global.apiPayload.ApiResponse;
+import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
+import com.nitrogen.global.apiPayload.exception.UserHandler;
 import com.nitrogen.global.auth.dto.AuthResponse;
+import com.nitrogen.global.auth.security.TokenProvider;
 import com.nitrogen.global.auth.service.OauthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +30,7 @@ import java.util.Map;
 @Tag(name = "Auth", description = "인증 및 계정 관리 API")
 public class AuthController {
     private final OauthService oauthService;
+    private final TokenProvider tokenProvider;
 
     @Operation(summary = "카카오 로그인 콜백", description = "카카오 인가 코드를 통해 로그인을 진행하고 JWT 및 유저 정보를 반환한다.")
     @GetMapping("/kakao/callback")
@@ -78,4 +83,32 @@ public class AuthController {
         log.info("유저 탈퇴 완료: {}", userDetails.getUsername());
         return ApiResponse.onSuccess("회원 탈퇴가 완료되었습니다.");
     }
+
+    /**
+     * 토큰 재발급
+     */
+    @Operation(summary = "토큰 재발급 API", description = "리프레시 토큰으로 액세스 토큰을 재발급하는 API입니다.")
+    @PostMapping("/reissue")
+    public ApiResponse<UserResponseDTO.TokenReissueResultDTO> reissue(
+            HttpServletRequest request) {
+
+        String refreshToken = null;
+        Cookie[] cookies = request.getCookies();
+        System.out.println("쿠키 배열 존재 여부: " + (request.getCookies() != null));
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    System.out.println("쿠키 이름: " + cookie.getName() + ", 값: " + cookie.getValue());
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if(refreshToken == null){
+            throw new UserHandler(ErrorStatus.INVALID_TOKEN);
+        }
+        return ApiResponse.onSuccess(oauthService.reissueToken(refreshToken));
+    }
+
 }
