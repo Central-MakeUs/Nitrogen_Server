@@ -4,6 +4,7 @@ import com.nitrogen.domain.expense.dto.category.CategoryDetailsDTO;
 import com.nitrogen.domain.expense.dto.category.CategoryIdResponseDTO;
 import com.nitrogen.domain.expense.dto.category.CategoryListResponseDTO;
 import com.nitrogen.domain.expense.dto.category.CategoryUpdateRequestDTO;
+import com.nitrogen.domain.expense.entity.Category;
 import com.nitrogen.domain.expense.service.category.CategoryService;
 import com.nitrogen.domain.user.entity.CustomUserDetails;
 import com.nitrogen.global.apiPayload.ApiResponse;
@@ -38,9 +39,13 @@ public class CategoryController {
     public ApiResponse<CategoryIdResponseDTO> createCategory(@RequestBody CategoryDetailsDTO dto,
                                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
-
         Long categoryId = categoryService.registerCategory(dto, userId);
-        return ApiResponse.onSuccess(new CategoryIdResponseDTO(categoryId));
+
+        return ApiResponse.onSuccess(new CategoryIdResponseDTO(
+                categoryId,
+                dto.getName(),
+                dto.getIcon()
+        ));
     }
 
     // 카테고리 수정 (PATCH)
