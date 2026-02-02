@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -93,9 +94,23 @@ public class AuthController {
     )
     @PostMapping("/reissue")
     public ApiResponse<UserResponseDTO.TokenReissueResultDTO> reissue(
-            @RequestBody UserRequestDTO.TokenReissueDTO request) {
+            HttpServletRequest request) {
 
-        return ApiResponse.onSuccess(oauthService.reissueToken(request.getRefreshToken()));
+        String refreshToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if(refreshToken == null){
+            throw new UserHandler(ErrorStatus.INVALID_TOKEN);
+        }
+        return ApiResponse.onSuccess(oauthService.reissueToken(refreshToken));
     }
 
 }
