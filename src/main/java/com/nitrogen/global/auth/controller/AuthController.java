@@ -98,9 +98,11 @@ public class AuthController {
 
         String refreshToken = null;
         Cookie[] cookies = request.getCookies();
+        System.out.println("쿠키 배열 존재 여부: " + (request.getCookies() != null));
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if ("refreshToken".equals(cookie.getName())) {
+                    System.out.println("쿠키 이름: " + cookie.getName() + ", 값: " + cookie.getValue());
                     refreshToken = cookie.getValue();
                     break;
                 }

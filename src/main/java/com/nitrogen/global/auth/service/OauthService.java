@@ -71,6 +71,9 @@ public class OauthService {
         String accessToken = tokenProvider.createToken(user.getSocialId());
         String refreshToken = tokenProvider.createRefreshToken(user.getSocialId());
 
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+
         Map<String, Object> result = new HashMap<>();
         result.put("accessToken", accessToken);
         result.put("refreshToken", refreshToken);
