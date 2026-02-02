@@ -1,6 +1,7 @@
 package com.nitrogen.domain.expense.entity;
 
 import com.nitrogen.domain.expense.entity.enums.BasicCategory;
+import com.nitrogen.domain.expense.entity.enums.CategoryIconType;
 import com.nitrogen.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,6 +28,10 @@ public class Category {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category_icon_type", nullable = false)
+    private CategoryIconType categoryIconType;
 
     public void updateName(String newName) {
         if (newName == null || newName.isBlank()) {
