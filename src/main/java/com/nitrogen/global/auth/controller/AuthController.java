@@ -7,7 +7,7 @@ import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
 import com.nitrogen.global.apiPayload.exception.UserHandler;
 import com.nitrogen.global.auth.dto.AuthResponse;
 import com.nitrogen.global.auth.security.TokenProvider;
-import com.nitrogen.global.auth.service.OauthService;
+import com.nitrogen.global.auth.service.kakao_apple.OauthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;

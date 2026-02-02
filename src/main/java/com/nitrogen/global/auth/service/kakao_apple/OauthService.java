@@ -1,4 +1,4 @@
-package com.nitrogen.global.auth.service;
+package com.nitrogen.global.auth.service.kakao_apple;
 
 import com.nitrogen.domain.expense.service.category.CategoryService;
 import com.nitrogen.domain.user.dto.UserResponseDTO;
