@@ -34,6 +34,7 @@ public class CategoryService {
         Category newCategory = Category.builder()
                 .name(dto.getName())
                 .category(BasicCategory.CUSTOM) // 기본 7종 외에는 모두 CUSTOM
+                .categoryIconType(dto.getIcon())
                 .user(user)
                 .build();
 
