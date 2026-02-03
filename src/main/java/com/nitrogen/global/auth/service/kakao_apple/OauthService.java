@@ -331,14 +331,38 @@ public class OauthService {
                     .parseClaimsJws(payload);
 
             Claims body = jws.getBody();
-            String notificationType = (String) body.get("notification_type");
-            String appleSub = (String) body.get("sub");
-
-            log.info("검증 완료된 애플 알림 - 타입: {}, 서브: {}", notificationType, appleSub);
-
-            if ("consent-revoked".equals(notificationType)) {
-                handleUserRevoke(appleSub);
+            String notificationType = body.get("notificationType", String.class);
+            if (!"CONSENT_REVOKED".equals(notificationType)) {
+                return; // 관심 없는 알림
             }
+
+            Object dataObj = body.get("data");
+            if (!(dataObj instanceof Map<?, ?> data)) {
+                log.warn("data 형식 오류");
+                return;
+            }
+
+            Object signedTxObj = data.get("signedTransactionInfo");
+            if (!(signedTxObj instanceof String signedTransactionInfo)) {
+                log.warn("signedTransactionInfo 형식 오류");
+                return;
+            }
+
+            Jws<Claims> txJws = Jwts.parserBuilder()
+                    .setSigningKeyResolver(new SigningKeyResolverAdapter() {
+                        @Override
+                        public Key resolveSigningKey(JwsHeader header, Claims claims) {
+                            return getApplePublicKey(header.getKeyId());
+                        }
+                    })
+                    .build()
+                    .parseClaimsJws(signedTransactionInfo);
+
+            Claims txClaims = txJws.getBody();
+            String appleSub = txClaims.getSubject();
+
+            log.info("CONSENT_REVOKED 유저 sub={}", appleSub);
+            handleUserRevoke(appleSub);
         }catch (Exception e) {
             log.error("애플 서명 검증 실패: {}", e.getMessage());
             throw new RuntimeException("신뢰할 수 없는 애플 알림입니다.");
