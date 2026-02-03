@@ -16,10 +16,11 @@ public class ExpenseResponseDTO {
 
     private Long expenseId;
     private LocalDate date;
-    private String title;
+    private String usageHistory;
     private String category;
     private Long amount;
-    private String situation;
+    private String emotionType;
+
     @Builder
     @Getter
     @NoArgsConstructor
@@ -31,11 +32,11 @@ public class ExpenseResponseDTO {
     public static ExpenseResponseDTO from(Expense expense) {
         return ExpenseResponseDTO.builder()
                 .expenseId(expense.getId())
-                .title(expense.getUsageHistory())
-                .amount((long) expense.getAmount())
-                .category(expense.getCategory().getName())
-                .situation(expense.getEmotionType().name())
                 .date(expense.getExpendedAt())
+                .usageHistory(expense.getUsageHistory())
+                .category(expense.getCategory().getName())
+                .amount((long) expense.getAmount())
+                .emotionType(expense.getEmotionType().name())
                 .build();
     }
 }
