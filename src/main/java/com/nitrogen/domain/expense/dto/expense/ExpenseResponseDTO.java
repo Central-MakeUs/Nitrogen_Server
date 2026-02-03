@@ -1,6 +1,7 @@
 package com.nitrogen.domain.expense.dto.expense;
 
 import com.nitrogen.domain.expense.entity.Expense;
+import com.nitrogen.domain.expense.entity.enums.CategoryIconType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +17,7 @@ public class ExpenseResponseDTO {
 
     private Long expenseId;
     private LocalDate date;
+    private CategoryIconType categoryIconType;
     private String usageHistory;
     private String category;
     private Long amount;
@@ -33,6 +35,7 @@ public class ExpenseResponseDTO {
         return ExpenseResponseDTO.builder()
                 .expenseId(expense.getId())
                 .date(expense.getExpendedAt())
+                .categoryIconType(expense.getCategory().getCategoryIconType())
                 .usageHistory(expense.getUsageHistory())
                 .category(expense.getCategory().getName())
                 .amount((long) expense.getAmount())
