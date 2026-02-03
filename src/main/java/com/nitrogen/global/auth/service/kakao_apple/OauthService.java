@@ -271,15 +271,17 @@ public class OauthService {
     }
     private String decodeIdToken(String idToken) {
         try {
-            String[] chunks = idToken.split("\\.");
-            Base64.Decoder decoder = Base64.getUrlDecoder();
+            Jws<Claims> jws = Jwts.parserBuilder()
+                    .setSigningKeyResolver(new SigningKeyResolverAdapter() {
+                        @Override
+                        public Key resolveSigningKey(JwsHeader header, Claims claims) {
+                            return getApplePublicKey(header.getKeyId());
+                        }
+                    })
+                    .build()
+                    .parseClaimsJws(idToken);
 
-            String payload = new String(decoder.decode(chunks[1]));
-
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> data = mapper.readValue(payload, Map.class);
-
-            return (String) data.get("sub");
+            return jws.getBody().getSubject();
         } catch (Exception e) {
             log.error("ID 토큰 디코딩 실패: {}", e.getMessage());
             throw new RuntimeException("애플 유저 정보 추출 실패");
