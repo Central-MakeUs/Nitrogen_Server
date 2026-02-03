@@ -19,7 +19,7 @@ public class AppleAuthController {
 
     private final OauthService oauthService;
 
-    @Operation(summary = "애플 로그인 및 회원가입")
+    @Operation(summary = "애플 로그인 및 회원가입", description = "애플 OAuth 코드를 받아 로그인 또는 회원가입을 처리합니다.")
     @PostMapping("/login")
     public ApiResponse<Map<String, Object>> appleLogin(@RequestParam("code") String code) {
 
@@ -28,13 +28,25 @@ public class AppleAuthController {
     }
 
     // server to server
+    @Operation(summary = "애플 서버 알림 처리", description = "애플 서버에서 전송된 알림을 처리합니다.")
     @PostMapping("/callback")
     public ApiResponse<String> handleAppleNotification(
             @RequestBody Map<String, String> body
     ) {
-        String payload = body.get("signedPayload");
-        oauthService.handleAppleServerNotification(payload);
-        return ApiResponse.onSuccess("OK");
+        try {
+            String signedPayload = body.get("signedPayload");
+            if (signedPayload == null) {
+                log.warn("signedPayload 누락");
+                return ApiResponse.onSuccess("IGNORED");
+            }
+
+            oauthService.handleAppleServerNotification(signedPayload);
+            return ApiResponse.onSuccess("OK");
+
+        } catch (Exception e) {
+            log.error("Apple Notification 처리 실패", e);
+            return ApiResponse.onSuccess("IGNORED");
+        }
     }
 
 }
