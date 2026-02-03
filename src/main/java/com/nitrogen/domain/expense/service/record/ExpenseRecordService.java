@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 @Slf4j
 @Service
 @Transactional
@@ -64,11 +66,12 @@ public class ExpenseRecordService {
         Expense expense = expenseRepository.findById(dto.getExpenseId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출 기록입니다."));
 
-        log.info("지출 주인 ID: " + expense.getUser().getUserId());
-        log.info("요청 보낸 ID: " + userId);
-
         if (!expense.getUser().getUserId().equals(userId)) {
             throw new IllegalArgumentException("해당 지출에 대한 접근 권한이 없습니다.");
+        }
+
+        if (!expense.getExpendedAt().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("소비 회고는 기록한 다음 날부터 가능합니다.");
         }
 
         expense.updateEvaluation(dto.getEvaluationType());

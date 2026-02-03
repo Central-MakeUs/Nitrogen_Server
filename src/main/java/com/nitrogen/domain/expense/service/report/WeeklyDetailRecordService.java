@@ -27,7 +27,7 @@ public class WeeklyDetailRecordService {
     public WeeklyDetailReportResponse generateWeeklyDetailReport(Long userId, LocalDate start, LocalDate end, String weekRange) {
 
         // {주차별 총 소비 금액}
-        List<Expense> allExpenses = expenseRepository.findAllByUserIdAndExpendedAtBetween(userId, start, end);
+        List<Expense> allExpenses = expenseRepository.findAllByUserIdAndExpendedAtBetweenWithCategory(userId, start, end);
 
         // 주간 평균 만족도 점수를 계산해 하단 회색 박스의 랜덤 문구 생성
         double avgScore = expenseRepository.calculateAverageEvaluationScore(userId, start, end);

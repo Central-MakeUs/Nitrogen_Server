@@ -17,7 +17,7 @@ public class DailyRetrospectReportService {
 
     public String getDailyAverageSatisfaction(Long userId, LocalDate date) {
 
-        List<Expense> dailyExpenses = expenseRepository.findAllByUserIdAndExpendedAtBetween(userId, date, date);
+        List<Expense> dailyExpenses = expenseRepository.findAllByUserIdAndExpendedAtBetweenWithCategory(userId, date, date);
 
         if (dailyExpenses.isEmpty()) {
             return "기록된 지출이 없습니다.";

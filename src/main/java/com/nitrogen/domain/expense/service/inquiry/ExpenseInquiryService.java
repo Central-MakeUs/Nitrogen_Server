@@ -35,7 +35,7 @@ public class ExpenseInquiryService {
         LocalDate endOfMonth = expendedAt.withDayOfMonth(expendedAt.lengthOfMonth());
         long monthlyTotal = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
 
-        List<Expense> expenseList = expenseRepository.findAllByUserUserIdAndExpendedAt(userId, expendedAt);
+        List<Expense> expenseList = expenseRepository.findAllByUserUserIdAndExpendedAtWithCategory(userId, expendedAt);
 
         List<ExpenseListDTO> dtos = expenseList.stream()
                 .map(e -> ExpenseListDTO.builder()
@@ -58,10 +58,10 @@ public class ExpenseInquiryService {
     // 회고할 소비내역 조회(일별)
     @Transactional(readOnly = true)
     public List<ExpenseResponseDTO> getPendingRetrospectList(Long userId, LocalDate date) {
-        List<Expense> expenses = expenseRepository.findAllByUserUserIdAndExpendedAt(userId, date);
+        List<Expense> expenses = expenseRepository.findAllByUserUserIdAndExpendedAtWithCategory(userId, date);
 
         return expenses.stream()
-                .filter(expense -> expense.getEvaluationType() == null) // 회고 안 한 것만!
+                .filter(expense -> expense.getEvaluationType() == null)
                 .map(ExpenseResponseDTO::from)
                 .collect(Collectors.toList());
     }
