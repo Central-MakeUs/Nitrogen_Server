@@ -26,12 +26,8 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.math.BigInteger;
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.RSAPublicKeySpec;
+import java.security.*;
+import java.security.spec.*;
 import java.util.*;
 
 @Service
@@ -368,14 +364,21 @@ public class OauthService {
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("일치하는 애플 공개키가 없습니다."));
 
-            byte[] nBytes = Base64.getUrlDecoder().decode(appleKey.getN());
-            byte[] eBytes = Base64.getUrlDecoder().decode(appleKey.getE());
+            byte[] xBytes = Base64.getUrlDecoder().decode(appleKey.getN());
+            byte[] yBytes = Base64.getUrlDecoder().decode(appleKey.getE());
 
-            RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(
-                    new BigInteger(1, nBytes),
-                    new BigInteger(1, eBytes)
+            AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
+            parameters.init(new ECGenParameterSpec("secp256r1"));
+            ECParameterSpec ecParameterSpec = parameters.getParameterSpec(ECParameterSpec.class);
+
+            // EC Point
+            ECPoint ecPoint = new ECPoint(
+                    new BigInteger(1, xBytes),
+                    new BigInteger(1, yBytes)
             );
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+
+            ECPublicKeySpec publicKeySpec = new ECPublicKeySpec(ecPoint, ecParameterSpec);
+            KeyFactory keyFactory = KeyFactory.getInstance("EC");
             return keyFactory.generatePublic(publicKeySpec);
 
         } catch (Exception e) {
