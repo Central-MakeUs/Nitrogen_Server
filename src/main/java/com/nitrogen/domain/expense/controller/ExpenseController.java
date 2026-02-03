@@ -19,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -41,6 +42,20 @@ public class ExpenseController {
         return ApiResponse.onSuccess(ExpenseResponseDTO.IdResponse.builder()
                 .id(savedExpenseId)
                 .build());
+    }
+
+    // 소비기록 회고조회
+    @Operation(summary = "회고 필요 지출 내역 조회", description = "특정 날짜의 지출 중 아직 회고(만족도 조사)가 완료되지 않은 내역만 리스트로 조회합니다.")
+    @GetMapping("/retrospect-list")
+    public ResponseEntity<ApiResponse<List<ExpenseResponseDTO>>> getRetrospectList(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        Long userId = userDetails.getUserId();
+
+        List<ExpenseResponseDTO> response = expenseInquiryService.getPendingRetrospectList(userId, date);
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
     // 소비기록 회고

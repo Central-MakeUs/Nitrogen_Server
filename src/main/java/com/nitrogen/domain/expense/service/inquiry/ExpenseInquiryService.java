@@ -2,6 +2,7 @@ package com.nitrogen.domain.expense.service.inquiry;
 
 import com.nitrogen.domain.expense.dto.expense.DailyExpenseResponseDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseListDTO;
+import com.nitrogen.domain.expense.dto.expense.ExpenseResponseDTO;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import com.nitrogen.domain.user.entity.User;
@@ -54,4 +55,14 @@ public class ExpenseInquiryService {
                 .build();
     }
 
+    // 회고할 소비내역 조회(일별)
+    @Transactional(readOnly = true)
+    public List<ExpenseResponseDTO> getPendingRetrospectList(Long userId, LocalDate date) {
+        List<Expense> expenses = expenseRepository.findAllByUserUserIdAndExpendedAt(userId, date);
+
+        return expenses.stream()
+                .filter(expense -> expense.getEvaluationType() == null) // 회고 안 한 것만!
+                .map(ExpenseResponseDTO::from)
+                .collect(Collectors.toList());
+    }
 }
