@@ -422,4 +422,16 @@ public class OauthService {
             userRepository.delete(user);
         });
     }
+
+    // 공통 로그아웃
+    @Transactional
+    public void logout(String socialId) {
+        User user = userRepository.findBySocialId(socialId)
+                .orElseGet(() -> userRepository.findByAppleSub(socialId)
+                        .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND)));
+        user.setRefreshToken(null);
+        userRepository.save(user);
+
+        log.info("유저 로그아웃 성공 (ID: {})", socialId);
+    }
 }
