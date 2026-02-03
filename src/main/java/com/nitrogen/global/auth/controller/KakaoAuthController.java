@@ -1,6 +1,5 @@
 package com.nitrogen.global.auth.controller;
 
-import com.nitrogen.domain.user.dto.UserRequestDTO;
 import com.nitrogen.domain.user.dto.UserResponseDTO;
 import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.global.apiPayload.ApiResponse;
@@ -8,11 +7,8 @@ import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
 import com.nitrogen.global.apiPayload.exception.UserHandler;
 import com.nitrogen.global.auth.dto.AuthResponse;
 import com.nitrogen.global.auth.security.TokenProvider;
-import com.nitrogen.global.auth.service.OauthService;
+import com.nitrogen.global.auth.service.kakao_apple.OauthService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,8 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +28,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 @Tag(name = "Auth", description = "인증 및 계정 관리 API")
-public class AuthController {
+public class KakaoAuthController {
     private final OauthService oauthService;
     private final TokenProvider tokenProvider;
 
@@ -88,10 +82,7 @@ public class AuthController {
     /**
      * 토큰 재발급
      */
-    @Operation(
-            summary = "토큰 재발급 API",
-            description = "리프레시 토큰으로 액세스 토큰을 재발급하는 API입니다."
-    )
+    @Operation(summary = "토큰 재발급 API", description = "리프레시 토큰으로 액세스 토큰을 재발급하는 API입니다.")
     @PostMapping("/reissue")
     public ApiResponse<UserResponseDTO.TokenReissueResultDTO> reissue(
             HttpServletRequest request) {

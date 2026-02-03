@@ -71,13 +71,6 @@ public class CategoryService {
         if (dto.getIcon() != null) {
             category.updateIcon(dto.getIcon());
         }
-/*
-아이콘 수정 로직 확장 기능 오픈 시 재오픈 예정
- */
-//        if (dto.getIcon() != null) {
-//            category.updateIcon(dto.getIcon());
-//        }
-
         return category.getId();
     }
 
