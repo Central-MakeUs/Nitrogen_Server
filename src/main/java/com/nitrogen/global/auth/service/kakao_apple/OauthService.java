@@ -322,22 +322,6 @@ public class OauthService {
     // server to server
     public void handleAppleServerNotification(String payload) {
         try{
-            String header = payload.split("\\.")[0];
-            String decodedHeader = new String(Base64.getUrlDecoder().decode(header));
-            String kid = new ObjectMapper().readTree(decodedHeader).get("kid").asText();
-
-            Jwts.parserBuilder()
-                    .setSigningKeyResolver(new SigningKeyResolverAdapter() {
-                        @Override
-                        public Key resolveSigningKey(JwsHeader header, Claims claims) {
-                            return getApplePublicKey(header.getKeyId());
-                        }
-                    })
-                    .build()
-                    .parseClaimsJws(payload);
-
-            log.info("애플 서명 검증 성공 for kid: {}", kid);
-
             Jws<Claims> jws = Jwts.parserBuilder()
                     .setSigningKeyResolver(new SigningKeyResolverAdapter() {
                         @Override
