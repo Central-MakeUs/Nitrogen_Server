@@ -55,19 +55,19 @@ public class OauthService {
 
     // apple
 
-    @Value("${apple.client-id}")
+    @Value("${social-login.provider.apple.client-id}")
     private String appleClientId;
 
-    @Value("${apple.team-id}")
+    @Value("${social-login.provider.apple.team-id}")
     private String appleTeamId;
 
-    @Value("${apple.key-id}")
+    @Value("${social-login.provider.apple.key-id}")
     private String appleKeyId;
 
-    @Value("${apple.private-key}")
+    @Value("${social-login.provider.apple.private-key}")
     private String applePrivateKey;
 
-    @Value("${apple.redirect-uri}")
+    @Value("${social-login.provider.apple.redirect-uri}")
     private String appleRedirectUri;
 
     // kakao
