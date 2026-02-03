@@ -7,11 +7,11 @@ import com.nitrogen.domain.user.entity.enums.UserStatus;
 import com.nitrogen.domain.user.repository.UserRepository;
 import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
 import com.nitrogen.global.apiPayload.exception.UserHandler;
+import com.nitrogen.global.auth.dto.apple.ApplePublicKeyResponse;
 import com.nitrogen.global.auth.dto.apple.AppleTokenResponseDTO;
 import com.nitrogen.global.auth.dto.kakao.KakaoUserInfo;
 import com.nitrogen.global.auth.security.TokenProvider;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,9 +25,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.math.BigInteger;
+import java.security.Key;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 
 @Service
@@ -315,5 +319,94 @@ public class OauthService {
         }
     }
 
-    // private void unlinkApple(String appleSub){}
+    // server to server
+    public void handleAppleServerNotification(String payload) {
+        try{
+            String header = payload.split("\\.")[0];
+            String decodedHeader = new String(Base64.getUrlDecoder().decode(header));
+            String kid = new ObjectMapper().readTree(decodedHeader).get("kid").asText();
+
+            Jwts.parserBuilder()
+                    .setSigningKeyResolver(new SigningKeyResolverAdapter() {
+                        @Override
+                        public Key resolveSigningKey(JwsHeader header, Claims claims) {
+                            return getApplePublicKey(header.getKeyId());
+                        }
+                    })
+                    .build()
+                    .parseClaimsJws(payload);
+
+            log.info("애플 서명 검증 성공 for kid: {}", kid);
+
+            Jws<Claims> jws = Jwts.parserBuilder()
+                    .setSigningKeyResolver(new SigningKeyResolverAdapter() {
+                        @Override
+                        public Key resolveSigningKey(JwsHeader header, Claims claims) {
+                            return getApplePublicKey(header.getKeyId());
+                        }
+                    })
+                    .build()
+                    .parseClaimsJws(payload);
+
+            Claims body = jws.getBody();
+            String notificationType = (String) body.get("notification_type");
+            String appleSub = (String) body.get("sub");
+
+            log.info("검증 완료된 애플 알림 - 타입: {}, 서브: {}", notificationType, appleSub);
+
+            if ("consent-revoked".equals(notificationType)) {
+                handleUserRevoke(appleSub);
+            }
+        }catch (Exception e) {
+            log.error("애플 서명 검증 실패: {}", e.getMessage());
+            throw new RuntimeException("신뢰할 수 없는 애플 알림입니다.");
+        }
+    }
+
+    /**
+     * 애플의 공개키 목록조회 -> 특정 kid에 해당하는 PublicKey를 생성
+     */
+    private PublicKey getApplePublicKey(String kid) {
+        try {
+            ApplePublicKeyResponse response = restTemplate.getForObject(
+                    "https://appleid.apple.com/auth/keys",
+                    ApplePublicKeyResponse.class
+            );
+
+            if (response == null || response.getKeys() == null) {
+                throw new RuntimeException("애플 공개키 목록을 가져오는데 실패했습니다.");
+            }
+
+            ApplePublicKeyResponse.AppleKey appleKey = response.getKeys().stream()
+                    .filter(key -> key.getKid().equals(kid))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("일치하는 애플 공개키가 없습니다."));
+
+            byte[] nBytes = Base64.getUrlDecoder().decode(appleKey.getN());
+            byte[] eBytes = Base64.getUrlDecoder().decode(appleKey.getE());
+
+            RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(
+                    new BigInteger(1, nBytes),
+                    new BigInteger(1, eBytes)
+            );
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            return keyFactory.generatePublic(publicKeySpec);
+
+        } catch (Exception e) {
+            log.error("애플 공개키 생성 중 오류: {}", e.getMessage());
+            throw new RuntimeException("애플 서버 인증에 실패했습니다.");
+        }
+    }
+
+    /**
+     *
+     * 실제 유저 처리 로직 호출
+     */
+    private void handleUserRevoke(String appleSub) {
+        userRepository.findByAppleSub(appleSub).ifPresent(user -> {
+            log.info("유저 연결 해제 처리: {}", user.getEmail());
+
+            userRepository.delete(user);
+        });
+    }
 }
