@@ -13,6 +13,11 @@ import java.util.List;
 public class DailyExpenseResponseDTO {
     private LocalDate date;
     private Long monthlyTotalAmount;
-//    private Long dailyTotalAmount;
+
+    // 배너 메시지
+    private String bannerMessage;
+    private String bannerSubMessage;
+    private boolean isRetrospectCompleted;
+
     private List<ExpenseListDTO> expenses;
 }

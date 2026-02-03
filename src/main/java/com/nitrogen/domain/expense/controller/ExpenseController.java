@@ -71,7 +71,7 @@ public class ExpenseController {
     }
     
     // 지출기록 조회
-    @Operation(summary = "일별 지출 내역 조회", description = "특정 날짜의 지출 내역과 월간 총액을 조회합니다.")
+    @Operation(summary = "메인화면 일별 지출내역 조회", description = "특정 날짜의 지출 내역과 월간 총액을 조회합니다.")
     @GetMapping("/daily")
     public ApiResponse<DailyExpenseResponseDTO> getDailyExpense(
             @RequestParam int year,

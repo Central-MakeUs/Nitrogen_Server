@@ -1,5 +1,6 @@
 package com.nitrogen.domain.expense.dto.expense;
 
+import com.nitrogen.domain.expense.entity.enums.CategoryIconType;
 import com.nitrogen.domain.expense.entity.enums.EmotionType;
 import com.nitrogen.domain.expense.entity.enums.EvaluationType;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ public class ExpenseListDTO {
     private Integer amount;
     private String usageHistory;
     private String categoryName;
+    private CategoryIconType categoryIconType;
     private EmotionType emotionType;
     private EvaluationType evaluationType;
 }

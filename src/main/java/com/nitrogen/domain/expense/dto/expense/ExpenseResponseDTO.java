@@ -19,7 +19,7 @@ public class ExpenseResponseDTO {
     private LocalDate date;
     private CategoryIconType categoryIconType;
     private String usageHistory;
-    private String category;
+    private String categoryName;
     private Long amount;
     private String emotionType;
 
@@ -37,7 +37,7 @@ public class ExpenseResponseDTO {
                 .date(expense.getExpendedAt())
                 .categoryIconType(expense.getCategory().getCategoryIconType())
                 .usageHistory(expense.getUsageHistory())
-                .category(expense.getCategory().getName())
+                .categoryName(expense.getCategory().getName())
                 .amount((long) expense.getAmount())
                 .emotionType(expense.getEmotionType().name())
                 .build();

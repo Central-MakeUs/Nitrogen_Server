@@ -27,7 +27,6 @@ public class ExpenseInquiryService {
     // 지출 기록 조회(일별)
     @Transactional(readOnly = true)
     public DailyExpenseResponseDTO inquiryExpense(LocalDate expendedAt, Long userId){
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
@@ -37,12 +36,22 @@ public class ExpenseInquiryService {
 
         List<Expense> expenseList = expenseRepository.findAllByUserUserIdAndExpendedAtWithCategory(userId, expendedAt);
 
+        long pendingCount = expenseList.stream()
+                .filter(e -> e.getEvaluationType() == null)
+                .count();
+
+        String bannerMessage = String.format("%d월 %d일의 소비, 지금은 어떤가요?",
+                expendedAt.getMonthValue(), expendedAt.getDayOfMonth());
+        String bannerSubMessage = pendingCount > 0 ?
+                String.format("아직 돌아보지 않은 소비 %d건", pendingCount) : "모든 회고를 완료했어요!";
+
         List<ExpenseListDTO> dtos = expenseList.stream()
                 .map(e -> ExpenseListDTO.builder()
                         .expenseId(e.getId())
                         .amount(e.getAmount())
                         .usageHistory(e.getUsageHistory())
                         .categoryName(e.getCategory().getName())
+                        .categoryIconType(e.getCategory().getCategoryIconType())
                         .emotionType(e.getEmotionType())
                         .evaluationType(e.getEvaluationType())
                         .build())
@@ -51,6 +60,9 @@ public class ExpenseInquiryService {
         return DailyExpenseResponseDTO.builder()
                 .date(expendedAt)
                 .monthlyTotalAmount(monthlyTotal)
+                .bannerMessage(bannerMessage)
+                .bannerSubMessage(bannerSubMessage)
+                .isRetrospectCompleted(pendingCount == 0)
                 .expenses(dtos)
                 .build();
     }
