@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -61,11 +62,20 @@ public class ExpenseController {
     // 소비기록 회고
     @Operation(summary = "소비기록 회고", description = "유저가 하루일과동안 쓴 지출기록에 소비회고를 추가적으로 남깁니다.")
     @PatchMapping("/remind")
-    public ApiResponse<List<Long>> remindExpenses(@RequestBody List<ExpenseRemindRequestDTO> dtos, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ApiResponse<List<ExpenseResponseDTO.IdResponse>> remindExpenses(
+            @RequestBody List<ExpenseRemindRequestDTO> dtos,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Long userId = userDetails.getUserId();
-        List<Long> updatedIds = expenseService.remindExpense(dtos, userId);
-        return ApiResponse.onSuccess(updatedIds);
+        List<Long> updatedIds = expenseService.remindExpenses(dtos, userId);
+
+        List<ExpenseResponseDTO.IdResponse> responses = updatedIds.stream()
+                .map(id -> ExpenseResponseDTO.IdResponse.builder()
+                        .id(id)
+                        .build())
+                .collect(Collectors.toList());
+
+        return ApiResponse.onSuccess(responses);
     }
     
     // 지출기록 조회

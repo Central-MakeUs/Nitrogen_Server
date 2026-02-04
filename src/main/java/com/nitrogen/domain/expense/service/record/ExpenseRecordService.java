@@ -64,7 +64,7 @@ public class ExpenseRecordService {
     }
 
     // 소비 회고
-    public List<Long> remindExpense(List<ExpenseRemindRequestDTO> dtos, Long userId){
+    public List<Long> remindExpenses(List<ExpenseRemindRequestDTO> dtos, Long userId){
        return dtos.stream()
                .map(dto ->{
                    Expense expense = expenseRepository.findById(dto.getExpenseId())
