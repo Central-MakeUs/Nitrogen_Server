@@ -61,13 +61,11 @@ public class ExpenseController {
     // 소비기록 회고
     @Operation(summary = "소비기록 회고", description = "유저가 하루일과동안 쓴 지출기록에 소비회고를 추가적으로 남깁니다.")
     @PatchMapping("/remind")
-    public ApiResponse<ExpenseResponseDTO.IdResponse> remindExpense(@RequestBody ExpenseRemindRequestDTO dto, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ApiResponse<List<Long>> remindExpenses(@RequestBody List<ExpenseRemindRequestDTO> dtos, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Long userId = userDetails.getUserId();
-        Long updatedId = expenseService.remindExpense(dto, userId);
-        return ApiResponse.onSuccess(ExpenseResponseDTO.IdResponse.builder()
-                .id(updatedId)
-                .build());
+        List<Long> updatedIds = expenseService.remindExpense(dtos, userId);
+        return ApiResponse.onSuccess(updatedIds);
     }
     
     // 지출기록 조회

@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -62,20 +64,23 @@ public class ExpenseRecordService {
     }
 
     // 소비 회고
-    public long remindExpense(ExpenseRemindRequestDTO dto, Long userId){
-        Expense expense = expenseRepository.findById(dto.getExpenseId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출 기록입니다."));
+    public List<Long> remindExpense(List<ExpenseRemindRequestDTO> dtos, Long userId){
+       return dtos.stream()
+               .map(dto ->{
+                   Expense expense = expenseRepository.findById(dto.getExpenseId())
+                           .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출 기록입니다. ID: " + dto.getExpenseId()));
 
-        if (!expense.getUser().getUserId().equals(userId)) {
-            throw new IllegalArgumentException("해당 지출에 대한 접근 권한이 없습니다.");
-        }
+                   if (!expense.getUser().getUserId().equals(userId)) {
+                       throw new IllegalArgumentException("해당 지출에 대한 접근 권한이 없습니다. ID: " + dto.getExpenseId());
+                   }
 
-        if (!expense.getExpendedAt().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("소비 회고는 기록한 다음 날부터 가능합니다.");
-        }
-
-        expense.updateEvaluation(dto.getEvaluationType());
-        return expense.getId();
+                   if (!expense.getExpendedAt().isBefore(LocalDate.now())) {
+                       throw new IllegalArgumentException("소비 회고는 기록한 다음 날부터 가능합니다. ID: " + dto.getExpenseId());
+                   }
+                   expense.updateEvaluation(dto.getEvaluationType());
+                   return expense.getId();
+               })
+               .collect(Collectors.toList());
     }
 
     // 지출 기록 수정
