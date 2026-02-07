@@ -53,7 +53,9 @@ public class WebSecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "https://nitrogen-front-web.vercel.app"
+                "https://nitrogen-front-web.vercel.app",
+                "http://localhost:3000",
+                "https://localhost:3000"
                 // CORS 허용도메인 추가
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
