@@ -50,13 +50,16 @@ public class KakaoAuthController {
         String accessToken = (String) result.get("accessToken");
         String refreshToken = (String) result.get("refreshToken");
 
+        boolean isLocal = request.getHeader("Origin") != null && request.getHeader("Origin").contains("localhost");
+
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-                .httpOnly(true)             // 클라이언트 사이드 스크립트에서 접근 불가 (XSS 방어)
-                .secure(true)               // HTTPS 프로토콜에서만 전송
-                .path("/")                  // 애플리케이션 전체 경로에서 유효
-                .maxAge(7 * 24 * 60 * 60)   // 쿠키 만료 시간 (7일)
-                .sameSite("None")           // 크로스 사이트 요청 허용 (프론트/백 도메인 불일치 대응)
+                .httpOnly(true)
+                .secure(!isLocal)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite(isLocal ? "Lax" : "None")
                 .build();
+
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         AuthResponse authResponse = AuthResponse.builder()
