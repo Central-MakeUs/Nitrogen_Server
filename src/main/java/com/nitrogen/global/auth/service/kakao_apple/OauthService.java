@@ -76,11 +76,11 @@ public class OauthService {
         final String requestUri = (currentUri != null) ? currentUri.split("\\?")[0] : "";
 
         boolean isValidUri = redirectUris.stream()
-                .anyMatch(uri -> requestUri.contains(uri) || uri.contains(requestUri));
+                .anyMatch(uri -> uri.equalsIgnoreCase(requestUri));
 
         String selectedUri = isValidUri ? requestUri : redirectUris.get(0);
 
-        log.info("카카오 인증에 사용될 Redirect URI: {}", selectedUri);
+        log.info("카카오 토큰 요청 URI: {}", selectedUri);
 
         String kakaoAccessToken = getKakaoAccessToken(code, selectedUri);
         KakaoUserInfo userInfo = getKakaoUserInfo(kakaoAccessToken);
