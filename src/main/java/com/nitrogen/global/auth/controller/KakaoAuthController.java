@@ -36,12 +36,15 @@ public class KakaoAuthController {
     @GetMapping("/kakao/callback")
     public ApiResponse<AuthResponse> kakaoCallback(
             @RequestParam("code") String code,
+            @RequestParam(value = "redirect_uri", required = false) String redirectUri,
             HttpServletRequest request,
             HttpServletResponse response) { // 응답 헤더에 쿠키를 추가하기 위해 response 객체 필요
 
-        String currentUrl = request.getRequestURL().toString();
+        String actualRedirectUri = (redirectUri != null && !redirectUri.isBlank())
+                ? redirectUri
+                : "https://api.nitrogen18.store/api/auth/kakao/callback";
 
-        Map<String, Object> result = oauthService.loginOrSignup(code, currentUrl);
+        Map<String, Object> result = oauthService.loginOrSignup(code, actualRedirectUri);
 
         User user = (User) result.get("user");
         String accessToken = (String) result.get("accessToken");
