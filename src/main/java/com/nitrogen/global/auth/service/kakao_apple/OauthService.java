@@ -79,13 +79,7 @@ public class OauthService {
             selectedUri = selectedUri.split("\\?")[0];
         }
 
-        if (selectedUri == null || selectedUri.isEmpty() || selectedUri.contains("localhost:3000")) {
-            selectedUri = "http://localhost:3000/auth/kakao/callback";
-        } else if (selectedUri.contains("nitrogen18.store")) {
-            selectedUri = "https://nitrogen18.store/swagger-ui/index.html";
-        }
-
-        log.info("강제 고정 Redirect URI: {}", selectedUri);
+        log.info("프론트 전달 Redirect URI 사용: {}", selectedUri);
 
         String kakaoAccessToken = getKakaoAccessToken(code, selectedUri);
         KakaoUserInfo userInfo = getKakaoUserInfo(kakaoAccessToken);
