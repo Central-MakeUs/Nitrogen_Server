@@ -73,11 +73,19 @@ public class OauthService {
     // kakao
     public Map<String, Object> loginOrSignup(String code, String currentUri) {
 
-        String selectedUri = (currentUri != null && !currentUri.isEmpty())
-                ? currentUri
-                : redirectUris.get(0);
+        String selectedUri = currentUri;
 
-        log.info("Redirect URI: {}", selectedUri);
+        if (selectedUri != null && selectedUri.contains("?")) {
+            selectedUri = selectedUri.split("\\?")[0];
+        }
+
+        if (selectedUri == null || selectedUri.isEmpty() || selectedUri.contains("localhost:3000")) {
+            selectedUri = "http://localhost:3000/auth/kakao/callback";
+        } else if (selectedUri.contains("nitrogen18.store")) {
+            selectedUri = "https://nitrogen18.store/swagger-ui/index.html";
+        }
+
+        log.info("강제 고정 Redirect URI: {}", selectedUri);
 
         String kakaoAccessToken = getKakaoAccessToken(code, selectedUri);
         KakaoUserInfo userInfo = getKakaoUserInfo(kakaoAccessToken);
