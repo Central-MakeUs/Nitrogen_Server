@@ -73,9 +73,12 @@ public class OauthService {
     // kakao
     public Map<String, Object> loginOrSignup(String code, String currentUri) {
 
-        String selectedUri = "https://api.nitrogen18.store/api/auth/kakao/callback";
+        if (currentUri == null || currentUri.isBlank()) {
+            throw new IllegalArgumentException("currentUri가 유효하지 않습니다.");
+        }
 
-        log.info("강제 고정 Redirect URI 사용: {}", selectedUri);
+        String selectedUri = currentUri.split("\\?")[0];
+        log.info("동적 Redirect URI 사용: {}", selectedUri);
 
         String kakaoAccessToken = getKakaoAccessToken(code, selectedUri);
         KakaoUserInfo userInfo = getKakaoUserInfo(kakaoAccessToken);
