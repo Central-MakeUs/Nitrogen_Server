@@ -56,7 +56,8 @@ public class WebSecurityConfig {
                 "http://localhost:3000",
                 "https://localhost:3000",
                 "https://nitrogen18.store",
-                "https://www.nitrogen18.store"
+                "https://www.nitrogen18.store",
+                "https://api.nitrogen18.store"
                 // CORS 허용도메인 추가
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
