@@ -36,10 +36,13 @@ public class KakaoAuthController {
     @GetMapping("/kakao/callback")
     public ApiResponse<AuthResponse> kakaoCallback(
             @RequestParam("code") String code,
+            @RequestParam(value = "redirect_uri", required = false) String redirectUri,
             HttpServletRequest request,
-            HttpServletResponse response) { // 응답 헤더에 쿠키를 추가하기 위해 response 객체 필요
+            HttpServletResponse response) {
 
-        String currentUrl = request.getRequestURL().toString();
+        String currentUrl = (redirectUri != null) ? redirectUri : request.getRequestURL().toString();
+
+        log.info("최종적으로 카카오에 보낼 Redirect URI: {}", currentUrl);
 
         Map<String, Object> result = oauthService.loginOrSignup(code, currentUrl);
 
