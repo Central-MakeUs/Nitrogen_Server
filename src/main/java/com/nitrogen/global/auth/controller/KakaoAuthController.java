@@ -36,13 +36,17 @@ public class KakaoAuthController {
     @GetMapping("/kakao/callback")
     public ApiResponse<AuthResponse> kakaoCallback(
             @RequestParam("code") String code,
-            @RequestParam(value = "redirect_uri", required = false) String redirectUri,
             HttpServletRequest request,
             HttpServletResponse response) {
 
-        String currentUrl = (redirectUri != null) ? redirectUri : request.getRequestURL().toString();
+        String currentUrl = request.getRequestURL().toString();
 
-        log.info("최종적으로 카카오에 보낼 Redirect URI: {}", currentUrl);
+        String referer = request.getHeader("Referer");
+        if (referer != null && referer.contains("swagger-ui")) {
+            currentUrl = "https://api.nitrogen18.store/swagger-ui/index.html";
+        }
+
+        log.info("카카오에게 검사받을 최종 주소: {}", currentUrl);
 
         Map<String, Object> result = oauthService.loginOrSignup(code, currentUrl);
 
