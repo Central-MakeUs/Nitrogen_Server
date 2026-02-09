@@ -73,15 +73,12 @@ public class OauthService {
     // kakao
     public Map<String, Object> loginOrSignup(String code, String currentUri) {
 
-        final String finalUri = (currentUri != null) ? currentUri.split("\\?")[0] : "";
+        final String requestUri = (currentUri != null) ? currentUri.split("\\?")[0] : "";
 
-        String selectedUri = redirectUris.stream()
-                .filter(uri -> finalUri.equals(uri)) // 정확히 일치하는지 확인
-                .findFirst()
-                .orElseGet(() -> {
-                    log.warn("등록되지 않은 URI 요청: {}. 기본값을 사용합니다.", finalUri);
-                    return redirectUris.get(0); // 정 안 맞으면 첫 번째 주소라도 사용
-                });
+        boolean isValidUri = redirectUris.stream()
+                .anyMatch(uri -> requestUri.contains(uri) || uri.contains(requestUri));
+
+        String selectedUri = isValidUri ? requestUri : redirectUris.get(0);
 
         log.info("카카오 인증에 사용될 Redirect URI: {}", selectedUri);
 
