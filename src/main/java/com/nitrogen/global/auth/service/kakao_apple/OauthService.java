@@ -73,10 +73,11 @@ public class OauthService {
     // kakao
     public Map<String, Object> loginOrSignup(String code, String currentUri) {
 
-        String selectedUri = redirectUris.stream()
-                .filter(uri -> currentUri != null && (currentUri.contains(uri) || uri.contains("swagger-ui")))
-                .findFirst()
-                .orElse(redirectUris.get(0));
+        String selectedUri = (currentUri != null && !currentUri.isEmpty())
+                ? currentUri
+                : redirectUris.get(0);
+
+        log.info("Redirect URI: {}", selectedUri);
 
         String kakaoAccessToken = getKakaoAccessToken(code, selectedUri);
         KakaoUserInfo userInfo = getKakaoUserInfo(kakaoAccessToken);
