@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/expense")
 @Tag(name = "Expense", description = "지출 기록 작성 및 조회")
 public class ExpenseController {
-    private final ExpenseRecordService expenseService;
+    private final ExpenseRecordService expenseRecordService;
     private final ExpenseInquiryService expenseInquiryService;
 
     // 지출기록 작성
@@ -39,7 +39,7 @@ public class ExpenseController {
             @AuthenticationPrincipal CustomUserDetails userDetails){
 
         Long userId = userDetails.getUserId();
-        Long savedExpenseId = expenseService.registerExpense(dto, userId);
+        Long savedExpenseId = expenseRecordService.registerExpense(dto, userId);
         return ApiResponse.onSuccess(ExpenseResponseDTO.IdResponse.builder()
                 .id(savedExpenseId)
                 .build());
@@ -67,7 +67,7 @@ public class ExpenseController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Long userId = userDetails.getUserId();
-        List<Long> updatedIds = expenseService.remindExpenses(dtos, userId);
+        List<Long> updatedIds = expenseRecordService.remindExpenses(dtos, userId);
 
         List<ExpenseResponseDTO.IdResponse> responses = updatedIds.stream()
                 .map(id -> ExpenseResponseDTO.IdResponse.builder()
@@ -103,9 +103,19 @@ public class ExpenseController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Long userId = userDetails.getUserId();
-        Long updatedExpenseId = expenseService.updateExpense(expenseId, dto, userId);
+        Long updatedExpenseId = expenseRecordService.updateExpense(expenseId, dto, userId);
         return ApiResponse.onSuccess(ExpenseResponseDTO.IdResponse.builder()
                 .id(updatedExpenseId)
                 .build());
+    }
+
+    @Operation(summary = "지출 기록 삭제", description = "조회된 리스트의 expenseId를 사용하여 기록을 삭제합니다.")
+    @DeleteMapping("/delete/{expenseId}")
+    public ResponseEntity<ApiResponse<String>> deleteExpense(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long expenseId) {
+
+        expenseRecordService.deleteExpense(expenseId, userDetails.getUserId());
+        return ResponseEntity.ok(ApiResponse.onSuccess("삭제 완료되었습니다."));
     }
 }

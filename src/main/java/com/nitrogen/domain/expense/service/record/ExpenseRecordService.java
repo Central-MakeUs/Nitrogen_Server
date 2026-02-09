@@ -10,6 +10,8 @@ import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import com.nitrogen.domain.expense.service.inquiry.ExpenseInquiryService;
 import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.domain.user.repository.UserRepository;
+import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
+import com.nitrogen.global.apiPayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -100,4 +102,17 @@ public class ExpenseRecordService {
 
         return expense.getId();
     }
+
+    // 지출 기록 삭제
+    @Transactional
+    public void deleteExpense(Long expenseId, Long userId) {
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.EXPENSE_NOT_FOUND));
+
+        if (!expense.getUser().getUserId().equals(userId)) {
+            throw new GeneralException(ErrorStatus.EXPENSE_FORBIDDEN);
+        }
+        expenseRepository.delete(expense);
+    }
+
 }
