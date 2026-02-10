@@ -198,7 +198,9 @@ public class OauthService {
     @Transactional
     public UserResponseDTO.TokenReissueResultDTO reissueToken (String refreshToken){
 
-        if (!tokenProvider.validateToken(refreshToken)) {
+        boolean isValid = tokenProvider.validateToken(refreshToken);
+        System.out.println("토큰 유효성여부: " + isValid);
+        if (!isValid) {
             throw new UserHandler(ErrorStatus.INVALID_TOKEN);
         }
 
@@ -208,6 +210,9 @@ public class OauthService {
 
         User user = userRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
+
+        System.out.println("3. DB 저장 토큰: " + user.getRefreshToken());
+        System.out.println("4. 비교 결과: " + refreshToken.equals(user.getRefreshToken()));
 
         if (!refreshToken.equals(user.getRefreshToken())) {
             throw new UserHandler(ErrorStatus.INVALID_TOKEN);
