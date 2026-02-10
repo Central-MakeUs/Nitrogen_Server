@@ -19,5 +19,7 @@ public class DailyExpenseResponseDTO {
     private String bannerSubMessage;
     private boolean isRetrospectCompleted;
 
+    private boolean hasAnyExpense;
+
     private List<ExpenseListDTO> expenses;
 }
