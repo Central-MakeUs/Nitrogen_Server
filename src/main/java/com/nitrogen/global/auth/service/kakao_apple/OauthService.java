@@ -204,6 +204,7 @@ public class OauthService {
 
         Authentication authentication = tokenProvider.getAuthentication(refreshToken);
         String socialId = authentication.getName();
+        System.out.println("추출된 socialId: " + socialId);
 
         User user = userRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
