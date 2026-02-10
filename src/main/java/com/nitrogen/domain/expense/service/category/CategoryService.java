@@ -86,9 +86,22 @@ public class CategoryService {
                     .name(basic.getDefaultName())
                     .category(basic)
                     .user(user)
-                    .categoryIconType(CategoryIconType.PLUS)
+                    .categoryIconType(matchIcon(basic))
                     .build();
             categoryRepository.save(category);
         }
+    }
+
+    private CategoryIconType matchIcon(BasicCategory basic){
+        return switch (basic){
+            case FOOD -> CategoryIconType.COOK;
+            case CAFE -> CategoryIconType.COFFEE;
+            case SUBSCRIPTION -> CategoryIconType.CREDIT;
+            case EDUCATION -> CategoryIconType.BOOK;
+            case BEAUTY -> CategoryIconType.BEAUTY;
+            case ENTERTAINMENT -> CategoryIconType.BEER;
+            case SHOPPING -> CategoryIconType.SHOPPING;
+            case CUSTOM -> throw new IllegalStateException("커스텀 카테고리는 초기화 매핑 대상이 아닙니다.");
+        };
     }
 }
