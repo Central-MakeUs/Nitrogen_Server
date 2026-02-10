@@ -25,7 +25,6 @@ public class InquiryController {
     public ResponseEntity<String> sendInquiry(@RequestBody InquiryRequest request) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo("nitrogencharger@gmail.com"); // 관리자 이메일
-        message.setSubject("[1:1 문의] " + request.title());
         message.setText("작성자: " + request.userEmail() + "\n\n문의 내용:\n" + request.content());
 
         mailSender.send(message);
