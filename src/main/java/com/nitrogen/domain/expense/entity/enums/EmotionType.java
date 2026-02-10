@@ -1,5 +1,6 @@
 package com.nitrogen.domain.expense.entity.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum EmotionType {
@@ -18,5 +19,15 @@ public enum EmotionType {
     @JsonValue
     public String getEmotion_description() {
         return emotion_description;
+    }
+
+    @JsonCreator
+    public static EmotionType from(String value) {
+        for (EmotionType type : EmotionType.values()) {
+            if (type.getEmotion_description().equals(value)) {
+                return type;
+            }
+        }
+        return null;
     }
 }
