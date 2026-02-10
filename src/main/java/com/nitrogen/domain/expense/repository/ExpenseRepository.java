@@ -56,4 +56,6 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
                                            @Param("start") LocalDate start,
                                            @Param("end") LocalDate end);
 
+    // 전체기간 기준 소비기록 존재 여부
+    boolean existsByUserUserId(Long userId);
 }

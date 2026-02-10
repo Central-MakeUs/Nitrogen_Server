@@ -35,6 +35,7 @@ public class ExpenseInquiryService {
         long monthlyTotal = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
 
         List<Expense> expenseList = expenseRepository.findAllByUserUserIdAndExpendedAtWithCategory(userId, expendedAt);
+        boolean hasAnyExpense = expenseRepository.existsByUserUserId(userId);
 
         long pendingCount = expenseList.stream()
                 .filter(e -> e.getEvaluationType() == null)
@@ -63,6 +64,7 @@ public class ExpenseInquiryService {
                 .bannerMessage(bannerMessage)
                 .bannerSubMessage(bannerSubMessage)
                 .isRetrospectCompleted(pendingCount == 0)
+                .hasAnyExpense(hasAnyExpense)
                 .expenses(dtos)
                 .build();
     }
