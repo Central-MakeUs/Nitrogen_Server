@@ -12,6 +12,8 @@ import com.nitrogen.global.auth.dto.apple.AppleTokenResponseDTO;
 import com.nitrogen.global.auth.dto.kakao.KakaoUserInfo;
 import com.nitrogen.global.auth.security.TokenProvider;
 import io.jsonwebtoken.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -196,24 +198,25 @@ public class OauthService {
             log.error("카카오 통신 중 알 수 없는 오류 발생: {}", e.getMessage());
         }
     }
+
+    @PersistenceContext
+    private EntityManager entityManager;
     @Transactional
     public UserResponseDTO.TokenReissueResultDTO reissueToken (String refreshToken){
 
         boolean isValid = tokenProvider.validateToken(refreshToken);
-        System.out.println("토큰 유효성여부: " + isValid);
         if (!isValid) {
             throw new UserHandler(ErrorStatus.INVALID_TOKEN);
         }
 
-        Authentication authentication = tokenProvider.getAuthentication(refreshToken);
-        String socialId = authentication.getName();
-        System.out.println("추출된 socialId: " + socialId);
+        String socialId = tokenProvider.getSocialIdFromToken(refreshToken);
+        entityManager.clear();
 
         User user = userRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
 
-        System.out.println("3. DB 저장 토큰: " + user.getRefreshToken());
-        System.out.println("4. 비교 결과: " + refreshToken.equals(user.getRefreshToken()));
+        log.info("쿠키에서 온 토큰: {}", refreshToken);
+        log.info("DB에서 방금 긁어온 토큰: {}", user.getRefreshToken());
 
         if (!refreshToken.equals(user.getRefreshToken())) {
             throw new UserHandler(ErrorStatus.INVALID_TOKEN);
