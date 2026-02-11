@@ -18,4 +18,6 @@
 ## 📊 ERD (Entity Relationship Diagram)
 
 ```mermaid
-<img width="708" height="833" alt="image" src="https://github.com/user-attachments/assets/f38e6ba6-899a-410d-9711-41a81d846f68" />
+
+<img width="708" height="833" alt="image" src="https://github.com/user-attachments/assets/5ccb74d1-0e11-4402-8106-5be2a00a5047" />
+
