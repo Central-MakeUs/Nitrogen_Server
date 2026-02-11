@@ -85,8 +85,19 @@ public class KakaoAuthController {
 
     @Operation(summary = "회원 탈퇴", description = "현재 로그인한 유저의 정보를 삭제한다.")
     @DeleteMapping("/withdraw")
-    public ApiResponse<String> withdraw(@AuthenticationPrincipal UserDetails userDetails) {
+    public ApiResponse<String> withdraw(@AuthenticationPrincipal UserDetails userDetails, HttpServletResponse response) {
         oauthService.withdraw(userDetails.getUsername());
+
+        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(0)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+
         log.info("유저 탈퇴 완료: {}", userDetails.getUsername());
         return ApiResponse.onSuccess("회원 탈퇴가 완료되었습니다.");
     }
