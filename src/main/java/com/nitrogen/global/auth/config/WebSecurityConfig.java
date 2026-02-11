@@ -60,7 +60,7 @@ public class WebSecurityConfig {
                 "https://api.nitrogen18.store"
                 // CORS 허용도메인 추가
         ));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // Authorization 헤더, 쿠키 허용
 
