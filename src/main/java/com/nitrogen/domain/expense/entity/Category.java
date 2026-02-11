@@ -33,6 +33,9 @@ public class Category {
     @Column(name = "category_icon_type", nullable = false)
     private CategoryIconType categoryIconType;
 
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Expense> expenses = new ArrayList<>();
+
     public void updateName(String newName) {
         if (newName == null || newName.isBlank()) {
             throw new IllegalArgumentException("이름은 비어있을 수 없습니다.");
