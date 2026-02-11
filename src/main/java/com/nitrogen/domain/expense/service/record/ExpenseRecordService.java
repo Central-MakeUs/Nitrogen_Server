@@ -47,7 +47,7 @@ public class ExpenseRecordService {
             throw new IllegalArgumentException("사용처 기록이 비어있습니다.");
         }
 
-        if(dto.getExpendedAt().isAfter(java.time.LocalDate.now())){
+        if (dto.getExpendedAt().isAfter(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Seoul")))) {
             throw new IllegalArgumentException("미래 날짜로 소비 기록을 작성할 수 없습니다.");
         }
 
@@ -76,7 +76,7 @@ public class ExpenseRecordService {
                        throw new IllegalArgumentException("해당 지출에 대한 접근 권한이 없습니다. ID: " + dto.getExpenseId());
                    }
 
-                   if (!expense.getExpendedAt().isBefore(LocalDate.now())) {
+                   if (!expense.getExpendedAt().isBefore(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Seoul")))) {
                        throw new IllegalArgumentException("소비 회고는 기록한 다음 날부터 가능합니다. ID: " + dto.getExpenseId());
                    }
                    expense.updateEvaluation(dto.getEvaluationType());
