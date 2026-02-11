@@ -14,12 +14,18 @@
 ![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
 
 ### Deployment
-![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHubActions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
-![Auto Deploy](https://img.shields.io/badge/Deploy-Auto%20on%20Push-success?style=for-the-badge)
-![EC2](https://img.shields.io/badge/AWS-EC2-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)
-![Nginx](https://img.shields.io/badge/Nginx-ReverseProxy-009639?style=for-the-badge&logo=nginx&logoColor=white)
-![HTTPS](https://img.shields.io/badge/Security-HTTPS-green?style=for-the-badge&logo=letsencrypt&logoColor=white)
+![CI/CD](https://img.shields.io/badge/GitHubActions-CI%2FCD-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+
+![Auto Deploy](https://img.shields.io/badge/Deployment-Automated-success?style=for-the-badge)
+
+![AWS EC2](https://img.shields.io/badge/AWS-EC2-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)
+
+![Nginx](https://img.shields.io/badge/Nginx-Reverse%20Proxy-009639?style=for-the-badge&logo=nginx&logoColor=white)
+
+![HTTPS](https://img.shields.io/badge/HTTPS-SSL-green?style=for-the-badge&logo=letsencrypt&logoColor=white)
+
 ![Domain](https://img.shields.io/badge/Domain-Gabia-FF6B00?style=for-the-badge)
+
 
 ---
 
