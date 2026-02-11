@@ -36,8 +36,9 @@ public class ExpenseRecordService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-        Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("카테고리가 존재하지 않습니다."));
+        Category category = categoryRepository
+                .findByIdAndUser_UserId(dto.getCategoryId(), userId)
+                .orElseThrow(() -> new IllegalArgumentException("카테고리가 존재하지 않거나 접근 권한이 없습니다."));
 
         if(dto.getAmount() <= 0){
             throw new IllegalArgumentException("지출기록은 0보다 커야합니다.");
@@ -95,8 +96,9 @@ public class ExpenseRecordService {
             throw new IllegalArgumentException("해당 지출에 대한 접근 권한이 없습니다.");
         }
 
-        Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
+        Category category = categoryRepository
+                .findByIdAndUser_UserId(dto.getCategoryId(), userId)
+                .orElseThrow(() -> new IllegalArgumentException("카테고리가 존재하지 않거나 접근 권한이 없습니다."));
 
         expense.updateExpenseRecord(dto.getAmount(), dto.getUsageHistory(), dto.getExpendedAt(), category);
 
