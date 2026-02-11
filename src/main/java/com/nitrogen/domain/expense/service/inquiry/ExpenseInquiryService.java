@@ -1,5 +1,7 @@
 package com.nitrogen.domain.expense.service.inquiry;
 
+import com.nitrogen.domain.expense.dto.calendar.CalendarResponseDTO;
+import com.nitrogen.domain.expense.dto.calendar.DailyAmountDTO;
 import com.nitrogen.domain.expense.dto.expense.DailyExpenseResponseDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseListDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseResponseDTO;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -78,5 +81,18 @@ public class ExpenseInquiryService {
                 .filter(expense -> expense.getEvaluationType() == null)
                 .map(ExpenseResponseDTO::from)
                 .collect(Collectors.toList());
+    }
+
+    // 월별 총액 날짜별 총액
+    @Transactional(readOnly = true)
+    public CalendarResponseDTO getExpenseCalendar(int year, int month, Long userId) {
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+
+        long totalAmount = expenseRepository.calculateMonthlyTotal(userId, start, end);
+
+        List<DailyAmountDTO> dailyAmount = expenseRepository.calculateDailyTotals(userId, start, end);
+
+        return new CalendarResponseDTO(totalAmount, dailyAmount);
     }
 }

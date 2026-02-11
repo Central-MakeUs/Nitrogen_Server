@@ -1,5 +1,6 @@
 package com.nitrogen.domain.expense.controller;
 
+import com.nitrogen.domain.expense.dto.calendar.CalendarResponseDTO;
 import com.nitrogen.domain.expense.dto.expense.DailyExpenseResponseDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseDetailsDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseRemindRequestDTO;
@@ -117,5 +118,18 @@ public class ExpenseController {
 
         expenseRecordService.deleteExpense(expenseId, userDetails.getUserId());
         return ResponseEntity.ok(ApiResponse.onSuccess("삭제 완료되었습니다."));
+    }
+
+    @Operation(summary = "특정 월의 총 소비액 및 일별 지출 합계 반환", description = "특정 월의 총 소비액과 일별 지출 합계를 조회합니다.")
+    @GetMapping("/calendar")
+    public ApiResponse<CalendarResponseDTO> getExpenseCalendar(
+            @RequestParam(name = "year") int year,
+            @RequestParam(name = "month") int month,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getUserId();
+        CalendarResponseDTO response = expenseInquiryService.getExpenseCalendar(year, month, userId);
+
+        return ApiResponse.onSuccess(response);
     }
 }

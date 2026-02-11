@@ -1,5 +1,6 @@
 package com.nitrogen.domain.expense.repository;
 
+import com.nitrogen.domain.expense.dto.calendar.DailyAmountDTO;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.expense.entity.enums.EmotionType;
 import com.nitrogen.domain.expense.entity.enums.EvaluationType;
@@ -58,4 +59,16 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     // 전체기간 기준 소비기록 존재 여부
     boolean existsByUserUserId(Long userId);
+
+    // 일별 지출 합계 계산
+    @Query("SELECT new com.nitrogen.domain.expense.dto.calendar.DailyAmountDTO(e.expendedAt, SUM(e.amount)) " +
+            "FROM Expense e " +
+            "WHERE e.user.userId = :userId AND e.expendedAt BETWEEN :start AND :end " +
+            "GROUP BY e.expendedAt " +
+            "ORDER BY e.expendedAt ASC")
+    List<DailyAmountDTO> calculateDailyTotals(
+            @Param("userId") Long userId,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end
+    );
 }
