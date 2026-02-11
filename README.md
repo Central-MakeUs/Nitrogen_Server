@@ -1,23 +1,27 @@
 ## 🛠 Tech Stack
 
-### **Core**
-- **Framework**: Spring Boot 3.x
-- **Language**: Java 17
-- **Build Tool**: Gradle
+### 🚀 Core
+![Spring Boot](https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Java](https://img.shields.io/badge/Java17-007396?style=for-the-badge&logo=java&logoColor=white)
+![Gradle](https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white)
 
-### **Database & Infrastructure**
-- **RDBMS**: MySQL 8.0
-- **ORM**: Spring Data JPA
-- **Infrastructure**: AWS (EC2, RDS)
+### 🗄 Database & Infra
+![MySQL](https://img.shields.io/badge/MySQL8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![JPA](https://img.shields.io/badge/JPA-Hibernate-orange?style=for-the-badge)
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)
 
-### **API Documentation**
-- **Swagger**: Springdoc OpenAPI 2.x (API 명세 및 테스트 자동화)
+### 📄 API Documentation
+![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
+
+### Deployment
+![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHubActions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+![Auto Deploy](https://img.shields.io/badge/Deploy-Auto%20on%20Push-success?style=for-the-badge)
+![EC2](https://img.shields.io/badge/AWS-EC2-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-ReverseProxy-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![HTTPS](https://img.shields.io/badge/Security-HTTPS-green?style=for-the-badge&logo=letsencrypt&logoColor=white)
+![Domain](https://img.shields.io/badge/Domain-Gabia-FF6B00?style=for-the-badge)
 
 ---
 
 ## 📊 ERD (Entity Relationship Diagram)
-
-<img width="770" height="832" alt="image" src="https://github.com/user-attachments/assets/e10baf72-76d2-4352-a6f3-9522778507a9" />
-
-
 
