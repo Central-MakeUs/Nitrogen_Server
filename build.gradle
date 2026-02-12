@@ -55,6 +55,9 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     // 1:1 문의
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+    // FCM 푸시 알림
+    implementation 'com.google.firebase:firebase-admin:9.2.0'           // Google Firebase Admin
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'     // Jackson Data Bind
 }
 
 tasks.named('test') {

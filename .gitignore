@@ -8,6 +8,10 @@ build/
 # application.yml파일 무시
 application.yml
 
+node_modules/
+# 파이어베이스 키 파일 절대 방어
+src/main/resources/firebase/*.json
+
 ### STS ###
 .apt_generated
 .classpath
