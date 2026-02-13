@@ -229,19 +229,24 @@ public class OauthService {
                 .build();
     }
 
+//------------------------------------------------------------------------------------------------------------------------
+
     // apple
     public Map<String, Object> appleLoginOrSignup(String code){
         AppleTokenResponseDTO tokenResponse = getAppleToken(code);
         String appleSub = decodeIdToken(tokenResponse.getIdToken());
+        log.info("애플 유저 식별자 추출 성공: {}", appleSub);
 
         User user = userRepository.findByAppleSub(appleSub)
-                .orElseGet(() -> userRepository.save(User.builder()
-                        .appleSub(appleSub)
-                        .provider("apple")
-                        .status(UserStatus.ACTIVE)
-                        .build()));
-
-        categoryService.initUserCategories(user);
+                .orElseGet(() -> {
+                    User newUser = userRepository.save(User.builder()
+                            .appleSub(appleSub)
+                            .provider("apple")
+                            .status(UserStatus.ACTIVE)
+                            .build());
+                    categoryService.initUserCategories(newUser);
+                    return newUser;
+                });
 
         String accessToken = tokenProvider.createToken(user.getSocialId());
         String refreshToken = tokenProvider.createRefreshToken(user.getSocialId());
@@ -256,7 +261,6 @@ public class OauthService {
 
         return result;
     }
-
     private AppleTokenResponseDTO getAppleToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
