@@ -21,9 +21,11 @@ public class AppleAuthController {
 
     @Operation(summary = "애플 로그인 및 회원가입", description = "애플 OAuth 코드를 받아 로그인 또는 회원가입을 처리합니다.")
     @PostMapping("/login")
-    public ApiResponse<Map<String, Object>> appleLogin(@RequestParam("code") String code) {
+    public ApiResponse<Map<String, Object>> appleLogin(
+            @RequestParam("code") String code,
+            @RequestParam(value = "platform", defaultValue = "ios") String platform) { // platform 추가
 
-        Map<String, Object> loginResult = oauthService.appleLoginOrSignup(code);
+        Map<String, Object> loginResult = oauthService.appleLoginOrSignup(code, platform);
         return ApiResponse.onSuccess(loginResult);
     }
 

@@ -54,8 +54,11 @@ public class OauthService {
 
     // apple
 
-    @Value("${social-login.provider.apple.client-id}")
-    private String appleClientId;
+    @Value("${social-login.provider.apple.app-client-id}")
+    private String appleAppClientId;
+
+    @Value("${social-login.provider.apple.service-client-id}")
+    private String appleServiceClientId;
 
     @Value("${social-login.provider.apple.team-id}")
     private String appleTeamId;
@@ -169,8 +172,11 @@ public class OauthService {
 //------------------------------------------------------------------------------------------------------------------------
 
     // apple
-    public Map<String, Object> appleLoginOrSignup(String code){
-        AppleTokenResponseDTO tokenResponse = getAppleToken(code);
+    public Map<String, Object> appleLoginOrSignup(String code, String platform){
+
+        String targetClientId = "ios".equalsIgnoreCase(platform) ? appleAppClientId : appleServiceClientId;
+        AppleTokenResponseDTO tokenResponse = getAppleToken(code, targetClientId);
+
         String appleSub = decodeIdToken(tokenResponse.getIdToken());
         log.info("애플 유저 식별자 추출 성공: {}", appleSub);
 
@@ -198,17 +204,17 @@ public class OauthService {
 
         return result;
     }
-    private AppleTokenResponseDTO getAppleToken(String code) {
+    private AppleTokenResponseDTO getAppleToken(String code, String clientId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
-        params.add("client_id", appleClientId);
-        params.add("client_secret", makeClientSecretToken());
+        params.add("client_id", clientId);
+        params.add("client_secret", makeClientSecretToken(clientId));
         params.add("code", code);
 
-        log.info("애플 서버로 쏘는 client_id: {}", appleClientId);
+        log.info("애플 서버로 쏘는 client_id: {}", clientId);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
@@ -239,9 +245,8 @@ public class OauthService {
             throw new RuntimeException("애플 유저 정보 추출 실패");
         }
     }
-    private String makeClientSecretToken() {
+    private String makeClientSecretToken(String clientId) {
         Date now = new Date();
-
         Date expiration = new Date(now.getTime() + 1000 * 60 * 5);
 
         return Jwts.builder()
@@ -251,7 +256,7 @@ public class OauthService {
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .setAudience("https://appleid.apple.com")
-                .setSubject(appleClientId)
+                .setSubject(clientId)
                 .signWith(getPrivateKey(), SignatureAlgorithm.ES256)
                 .compact();
     }
