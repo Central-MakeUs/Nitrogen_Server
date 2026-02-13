@@ -16,6 +16,10 @@ public class ApplePublicKeyResponse {
         private String kid;
         private String use;
         private String alg;
+        // RSA
+        private String n;
+        private String e;
+        // EC
         private String x;
         private String y;
     }
