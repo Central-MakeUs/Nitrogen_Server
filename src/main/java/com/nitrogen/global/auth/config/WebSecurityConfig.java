@@ -58,7 +58,8 @@ public class WebSecurityConfig {
                 "https://nitrogen18.store",
                 "http://192.168.219.103:3000",
                 "https://www.nitrogen18.store",
-                "https://api.nitrogen18.store"
+                "https://api.nitrogen18.store",
+                "https://raul-unentangling-chere.ngrok-free.dev"
                 // CORS 허용도메인 추가
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
