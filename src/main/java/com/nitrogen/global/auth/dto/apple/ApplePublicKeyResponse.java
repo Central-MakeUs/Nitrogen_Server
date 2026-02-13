@@ -16,7 +16,7 @@ public class ApplePublicKeyResponse {
         private String kid;
         private String use;
         private String alg;
-        private String n;
-        private String e;
+        private String x;
+        private String y;
     }
 }

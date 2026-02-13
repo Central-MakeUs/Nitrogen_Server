@@ -406,8 +406,8 @@ public class OauthService {
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("일치하는 애플 공개키가 없습니다."));
 
-            byte[] xBytes = Base64.getUrlDecoder().decode(appleKey.getN());
-            byte[] yBytes = Base64.getUrlDecoder().decode(appleKey.getE());
+            byte[] xBytes = Base64.getUrlDecoder().decode(appleKey.getX());
+            byte[] yBytes = Base64.getUrlDecoder().decode(appleKey.getY());
 
             AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
             parameters.init(new ECGenParameterSpec("secp256r1"));
