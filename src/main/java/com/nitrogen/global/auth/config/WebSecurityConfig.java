@@ -58,6 +58,7 @@ public class WebSecurityConfig {
                 "https://nitrogen18.store",
                 "http://192.168.219.103:3000",
                 "http://192.168.0.100:3000",
+                "http://10.14.15.150:3000",
                 "https://www.nitrogen18.store",
                 "https://api.nitrogen18.store",
                 "https://raul-unentangling-chere.ngrok-free.dev"
