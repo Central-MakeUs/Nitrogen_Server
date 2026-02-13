@@ -69,8 +69,8 @@ public class OauthService {
     @Value("${social-login.provider.apple.private-key}")
     private String applePrivateKey;
 
-    @Value("${social-login.provider.apple.redirect-uri}")
-    private String appleRedirectUri;
+//    @Value("${social-login.provider.apple.redirect-uri}")
+//    private String appleRedirectUri;
 
     // kakao
     public Map<String, Object> loginOrSignup(String code, String currentUri) {
