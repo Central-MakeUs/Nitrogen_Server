@@ -73,36 +73,28 @@ public class OauthService {
 //    private String appleRedirectUri;
 
     // kakao
-    public Map<String, Object> loginOrSignup(String code, String currentUri) {
+    public Map<String, Object> loginOrSignup(Map<String, Object> kakaoAttributes) {
 
-        final String requestUri = (currentUri != null) ? currentUri.split("\\?")[0] : "";
-
-        boolean isValidUri = redirectUris.stream()
-                .anyMatch(uri -> uri.equalsIgnoreCase(requestUri));
-
-        String selectedUri = isValidUri ? requestUri : redirectUris.get(0);
-
-        log.info("카카오 토큰 요청 URI: {}", selectedUri);
-
-        String kakaoAccessToken = getKakaoAccessToken(code, selectedUri);
-        KakaoUserInfo userInfo = getKakaoUserInfo(kakaoAccessToken);
+        KakaoUserInfo userInfo = new KakaoUserInfo(kakaoAttributes);
 
         User user = userRepository.findBySocialId(userInfo.getProviderId())
-                .orElseGet(() -> userRepository.save(User.builder()
-                        .socialId(userInfo.getProviderId())
-                        .email(userInfo.getEmail())
-                        .nickname(userInfo.getName())
-                        .provider(userInfo.getProvider())
-                        .build()));
-
-        categoryService.initUserCategories(user);
+                .orElseGet(() -> {
+                    User newUser = userRepository.save(User.builder()
+                            .socialId(userInfo.getProviderId())
+                            .email(userInfo.getEmail())
+                            .nickname(userInfo.getName())
+                            .provider(userInfo.getProvider())
+                            .status(UserStatus.ACTIVE)
+                            .build());
+                    categoryService.initUserCategories(newUser); // 신규 가입 시에만 카테고리 초기화
+                    return newUser;
+                });
 
         String accessToken = tokenProvider.createToken(user.getSocialId());
         String refreshToken = tokenProvider.createRefreshToken(user.getSocialId());
 
         user.setRefreshToken(refreshToken);
-        userRepository.saveAndFlush(user);
-//        userRepository.save(user);
+        userRepository.save(user);
 
         Map<String, Object> result = new HashMap<>();
         result.put("accessToken", accessToken);
@@ -110,58 +102,6 @@ public class OauthService {
         result.put("user", user);
 
         return result;
-    }
-
-    private String getKakaoAccessToken(String code, String redirectUri) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", clientId);
-        params.add("client_secret", clientSecret);
-        params.add("redirect_uri", redirectUri);
-        params.add("code", code);
-
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-
-        try {
-            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                    "https://kauth.kakao.com/oauth/token",
-                    HttpMethod.POST,
-                    request,
-                    new ParameterizedTypeReference<>() {}
-            );
-
-            Map<String, Object> responseBody = response.getBody();
-            if (responseBody == null || !responseBody.containsKey("access_token")) {
-                throw new RuntimeException("카카오 응답에 액세스 토큰이 없습니다.");
-            }
-
-            return (String) responseBody.get("access_token");
-        } catch (Exception e) {
-            log.error("카카오 토큰 발급 실패: {}", e.getMessage());
-            throw new RuntimeException("카카오 인증 실패: " + e.getMessage());
-        }
-    }
-    private KakaoUserInfo getKakaoUserInfo(String accessToken) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
-
-        HttpEntity<String> request = new HttpEntity<>(headers);
-
-        try {
-            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                    "https://kapi.kakao.com/v2/user/me",
-                    HttpMethod.GET,
-                    request,
-                    new ParameterizedTypeReference<>() {}
-            );
-            return new KakaoUserInfo(response.getBody());
-        } catch (Exception e) {
-            log.error("카카오 사용자 정보 조회 실패: {}", e.getMessage());
-            throw new RuntimeException("카카오 정보 조회 실패");
-        }
     }
     @Transactional
     public void withdraw(String socialId){

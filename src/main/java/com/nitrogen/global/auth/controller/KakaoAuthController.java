@@ -32,34 +32,20 @@ public class KakaoAuthController {
     private final OauthService oauthService;
     private final TokenProvider tokenProvider;
 
-    @Operation(summary = "카카오 로그인 콜백", description = "카카오 인가 코드를 통해 로그인을 진행하고 JWT 및 유저 정보를 반환한다.")
-    @GetMapping("/kakao/callback")
-    public ApiResponse<AuthResponse> kakaoCallback(
-            @RequestParam("code") String code,
-            @RequestParam(value = "redirect_uri", required = false) String redirectUri,
+    @Operation(summary = "카카오 로그인", description = "프론트에서 받은 카카오 유저 정보를 통해 로그인을 진행하고 JWT 및 유저 정보를 반환한다.")
+    @PostMapping("/kakao/login")
+    public ApiResponse<AuthResponse> kakaoLogin(
+            @RequestBody Map<String, Object> kakaoAttributes,
             HttpServletRequest request,
             HttpServletResponse response) {
 
-        String currentUrl = redirectUri;
+        log.info("카카오 로그인 요청 수신");
 
-        if (currentUrl == null || currentUrl.isEmpty()) {
-            String referer = request.getHeader("Referer");
-            if (referer != null && referer.contains("swagger-ui")) {
-                currentUrl = "https://api.nitrogen18.store/swagger-ui/index.html";
-            } else {
-                currentUrl = request.getRequestURL().toString();
-            }
-        }
-
-        log.info("카카오 검증 주소 (최종): {}", currentUrl);
-
-        Map<String, Object> result = oauthService.loginOrSignup(code, currentUrl);
+        Map<String, Object> result = oauthService.loginOrSignup(kakaoAttributes);
 
         User user = (User) result.get("user");
         String accessToken = (String) result.get("accessToken");
         String refreshToken = (String) result.get("refreshToken");
-
-        boolean isLocal = request.getHeader("Origin") != null && request.getHeader("Origin").contains("localhost");
 
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
