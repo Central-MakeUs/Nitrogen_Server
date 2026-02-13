@@ -1,5 +1,6 @@
 package com.nitrogen.domain.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nitrogen.domain.expense.entity.Category;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.user.entity.enums.UserStatus;
@@ -44,6 +45,7 @@ public class User {
     @Column(unique = true)
     private String appleSub; // 애플 고유 식별자
 
+    @JsonIgnore
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();
