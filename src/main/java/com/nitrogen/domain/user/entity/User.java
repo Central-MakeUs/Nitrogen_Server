@@ -31,7 +31,7 @@ public class User {
     @Builder.Default
     private String userRole = "ROLE_USER";
 
-    @Column(unique = true, nullable = false) // 소셜 로그인의 핵심
+    @Column(unique = true) // 소셜 로그인의 핵심
     private String socialId;
 
     public void updateRefreshToken(String refreshToken){
@@ -50,6 +50,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();
 
+    @JsonIgnore
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Expense> expenses = new ArrayList<>();
