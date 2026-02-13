@@ -406,27 +406,49 @@ public class OauthService {
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("일치하는 애플 공개키가 없습니다."));
 
-            byte[] xBytes = Base64.getUrlDecoder().decode(appleKey.getX());
-            byte[] yBytes = Base64.getUrlDecoder().decode(appleKey.getY());
-
-            AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
-            parameters.init(new ECGenParameterSpec("secp256r1"));
-            ECParameterSpec ecParameterSpec = parameters.getParameterSpec(ECParameterSpec.class);
-
-            // EC Point
-            ECPoint ecPoint = new ECPoint(
-                    new BigInteger(1, xBytes),
-                    new BigInteger(1, yBytes)
-            );
-
-            ECPublicKeySpec publicKeySpec = new ECPublicKeySpec(ecPoint, ecParameterSpec);
-            KeyFactory keyFactory = KeyFactory.getInstance("EC");
-            return keyFactory.generatePublic(publicKeySpec);
+            // RSA vs EC 분기
+            if ("RSA".equals(appleKey.getKty())) {
+                return generateRSAPublicKey(appleKey);
+            } else if ("EC".equals(appleKey.getKty())) {
+                return generateECPublicKey(appleKey);
+            } else {
+                throw new RuntimeException("지원하지 않는 키 타입: " + appleKey.getKty());
+            }
 
         } catch (Exception e) {
             log.error("애플 공개키 생성 중 오류: {}", e.getMessage());
             throw new RuntimeException("애플 서버 인증에 실패했습니다.");
         }
+    }
+
+    private PublicKey generateRSAPublicKey(ApplePublicKeyResponse.AppleKey appleKey) throws Exception {
+        byte[] nBytes = Base64.getUrlDecoder().decode(appleKey.getN());
+        byte[] eBytes = Base64.getUrlDecoder().decode(appleKey.getE());
+
+        BigInteger modulus = new BigInteger(1, nBytes);
+        BigInteger exponent = new BigInteger(1, eBytes);
+
+        RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(modulus, exponent);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePublic(publicKeySpec);
+    }
+
+    private PublicKey generateECPublicKey(ApplePublicKeyResponse.AppleKey appleKey) throws Exception {
+        byte[] xBytes = Base64.getUrlDecoder().decode(appleKey.getX());
+        byte[] yBytes = Base64.getUrlDecoder().decode(appleKey.getY());
+
+        AlgorithmParameters parameters = AlgorithmParameters.getInstance("EC");
+        parameters.init(new ECGenParameterSpec("secp256r1"));
+        ECParameterSpec ecParameterSpec = parameters.getParameterSpec(ECParameterSpec.class);
+
+        ECPoint ecPoint = new ECPoint(
+                new BigInteger(1, xBytes),
+                new BigInteger(1, yBytes)
+        );
+
+        ECPublicKeySpec publicKeySpec = new ECPublicKeySpec(ecPoint, ecParameterSpec);
+        KeyFactory keyFactory = KeyFactory.getInstance("EC");
+        return keyFactory.generatePublic(publicKeySpec);
     }
 
     /**
