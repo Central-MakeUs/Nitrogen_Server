@@ -264,9 +264,13 @@ public class OauthService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", appleClientId);
-        params.add("client_secret", makeClientSecretToken());
+
+        if (appleClientId.startsWith("store.")) { // if Service ID
+            params.add("client_secret", makeClientSecretToken());
+            params.add("redirect_uri", appleRedirectUri);
+        }
+
         params.add("code", code);
-        params.add("redirect_uri", appleRedirectUri);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
