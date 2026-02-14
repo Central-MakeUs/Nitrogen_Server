@@ -53,5 +53,26 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Expense> expenses = new ArrayList<>();
 
+    // 0214
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean isTermsAgreed = false;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean hasExpense = false;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean isNewUser = true;
+
+    public void agreeTerms() {
+        this.isTermsAgreed = true;
+    }
+
+    public void onboarded() {
+        this.isNewUser = false;
+    }
+
 
 }
