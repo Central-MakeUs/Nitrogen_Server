@@ -36,7 +36,7 @@ public class TokenProvider {
     }
 
     public String createToken(String socialId) {
-        return createJwt(socialId, expiration);
+        return createJwt(socialId, expiration, "ACCESS");
     }
 
     public String extractToken(HttpServletRequest request) {
@@ -66,11 +66,12 @@ public class TokenProvider {
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
-    private String createJwt(String subject, long expiryTime) {
+    private String createJwt(String subject, long expiryTime, String type) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + expiryTime);
         return Jwts.builder()
                 .setSubject(subject)
+                .claim("type", type)
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -78,13 +79,29 @@ public class TokenProvider {
     }
 
     public String getSocialIdFromToken(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token).getBody();
-        return claims.getSubject();
+        return parseClaims(token).getSubject();
     }
 
-    public String createRefreshToken(String username) {
-        return createJwt(username, refreshExpiration);
+    public String createRefreshToken(String socialId) {
+        return createJwt(socialId, refreshExpiration, "REFRESH");
+    }
+
+    public String getTokenType(String token) {
+        return parseClaims(token).get("type", String.class);
+    }
+
+    private Claims parseClaims(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        } catch (JwtException e) {
+            throw new RuntimeException("유효하지 않은 토큰입니다.");
+        }
     }
 
 }

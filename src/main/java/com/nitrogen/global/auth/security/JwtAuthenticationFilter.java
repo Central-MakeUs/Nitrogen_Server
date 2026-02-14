@@ -29,9 +29,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = tokenProvider.extractToken(request);
 
         if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
-            Authentication authentication = tokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("Security Context에 '{}' 인증 정보를 저장했습니다.", authentication.getName());
+            String tokenType = tokenProvider.getTokenType(token);
+
+            if ("ACCESS".equals(tokenType)) {
+                Authentication authentication = tokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.debug("Security Context에 '{}' 인증 정보를 저장했습니다.", authentication.getName());
+            } else {
+                log.warn("ACCESS 토큰이 아닙니다. 타입: {}", tokenType);
+            }
         }
 
         filterChain.doFilter(request, response);

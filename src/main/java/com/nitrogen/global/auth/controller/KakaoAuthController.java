@@ -109,18 +109,15 @@ public class KakaoAuthController {
     @Operation(summary = "토큰 재발급 API", description = "헤더의 RefreshToken(Bearer 형기)으로 토큰을 재발급합니다.")
     @PostMapping("/reissue")
     public ApiResponse<UserResponseDTO.TokenReissueResultDTO> reissue(
-            @RequestHeader(value = "RefreshToken", required = false) String refreshToken) {
+            @RequestHeader("RefreshToken") String refreshToken) {
 
         if (refreshToken == null || refreshToken.isBlank()) {
             throw new UserHandler(ErrorStatus.INVALID_TOKEN);
         }
 
-        String pureToken = refreshToken;
-        if (refreshToken.startsWith("Bearer ")) {
-            pureToken = refreshToken.substring(7);
-        } else {
-            throw new UserHandler(ErrorStatus.INVALID_TOKEN);
-        }
+        String pureToken = refreshToken.startsWith("Bearer ") ?
+                refreshToken.substring(7).trim() : refreshToken.trim();
+
         return ApiResponse.onSuccess(oauthService.reissueToken(pureToken));
     }
 

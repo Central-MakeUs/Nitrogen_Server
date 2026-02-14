@@ -163,9 +163,11 @@ public class OauthService {
 
     @Transactional
     public UserResponseDTO.TokenReissueResultDTO reissueToken(String refreshToken) {
+        if (!tokenProvider.validateToken(refreshToken)) {
+            throw new UserHandler(ErrorStatus.INVALID_TOKEN);
+        }
 
         String identifier = tokenProvider.getSocialIdFromToken(refreshToken);
-        if (identifier == null) throw new UserHandler(ErrorStatus.INVALID_TOKEN);
 
         User user = userRepository.findBySocialId(identifier)
                 .or(() -> userRepository.findByAppleSub(identifier))
@@ -173,7 +175,6 @@ public class OauthService {
 
         String dbRefreshToken = user.getRefreshToken();
         if (dbRefreshToken == null || !dbRefreshToken.equals(refreshToken)) {
-            log.warn("토큰 불일치 - DB: {}, 요청: {}", dbRefreshToken, refreshToken);
             throw new UserHandler(ErrorStatus.INVALID_TOKEN);
         }
 
@@ -181,7 +182,6 @@ public class OauthService {
         String newRefreshToken = tokenProvider.createRefreshToken(identifier);
 
         user.updateRefreshToken(newRefreshToken);
-
         userRepository.save(user);
 
         return UserResponseDTO.TokenReissueResultDTO.builder()
