@@ -107,6 +107,7 @@ public class OauthService {
         result.put("isNewUser", user.isNewUser());
         result.put("isTermsAgreed", user.isTermsAgreed());
         result.put("hasExpense", user.isHasExpense());
+        result.put("user", user);
 
         return result;
     }
