@@ -34,11 +34,16 @@ public class KakaoAuthController {
     private final TokenProvider tokenProvider;
 
     @Operation(summary = "카카오 로그인", description = "프론트에서 받은 카카오 유저 정보를 통해 로그인을 진행하고 JWT 및 유저 정보를 반환한다.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                            value = "{\"accessToken\": \"인가코드\"}"
+                    )
+            )
+    )
     @PostMapping("/kakao/login")
     public ApiResponse<AuthResponse> kakaoLogin(
-            @RequestBody Map<String, Object> kakaoAttributes,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+            @RequestBody Map<String, Object> kakaoAttributes) {
 
         log.info("카카오 로그인 요청 수신");
 
@@ -47,6 +52,10 @@ public class KakaoAuthController {
         User user = (User) result.get("user");
         String accessToken = (String) result.get("accessToken");
         String refreshToken = (String) result.get("refreshToken");
+
+        boolean isNewUser = (boolean) result.get("isNewUser");
+        boolean isTermsAgreed = (boolean) result.get("isTermsAgreed");
+        boolean hasExpense = (boolean) result.get("hasExpense");
 
         // 쿠키 방식 백업
 //        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
@@ -66,6 +75,9 @@ public class KakaoAuthController {
                         .userId(user.getUserId())
                         .nickname(user.getNickname())
                         .type(user.getProvider())
+                        .isNewUser(isNewUser)
+                        .isTermsAgreed(isTermsAgreed)
+                        .hasExpense(hasExpense)
                         .build())
                 .build();
 

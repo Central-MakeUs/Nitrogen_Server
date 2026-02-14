@@ -23,6 +23,14 @@ public class AppleAuthController {
     private final OauthService oauthService;
 
     @Operation(summary = "애플 로그인 및 회원가입", description = "애플 OAuth 코드를 받아 로그인 또는 회원가입을 처리합니다.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                            name = "애플 로그인 예시",
+                            value = "{\"code\": \"애플_인증_코드\", \"platform\": \"ios\"}" // 실제 프론트가 보내주는 필드에 맞춰 수정하세요!
+                    )
+            )
+    )
     @PostMapping("/login")
     public ApiResponse<AppleUserResponseDTO> appleLogin(
             @RequestParam("code") String code,
@@ -34,6 +42,14 @@ public class AppleAuthController {
 
     // server to server
     @Operation(summary = "애플 서버 알림 처리", description = "애플 서버에서 전송된 알림을 처리합니다.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            content = @io.swagger.v3.oas.annotations.media.Content(
+                    examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                            name = "애플 알림 예시",
+                            value = "{\"signedPayload\": \"apple_signed_payload_sample\"}"
+                    )
+            )
+    )
     @PostMapping("/callback")
     public ApiResponse<String> handleAppleNotification(
             @RequestBody Map<String, String> body
