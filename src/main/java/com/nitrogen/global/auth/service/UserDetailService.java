@@ -15,9 +15,9 @@ public class UserDetailService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String socialId) throws UsernameNotFoundException {
-        // 이메일이 아닌 SocialId로 조회
-        User user = userRepository.findBySocialId(socialId)
+    public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
+        User user = userRepository.findBySocialId(identifier)
+                .or(() -> userRepository.findByAppleSub(identifier))
                 .orElseThrow(() -> new UsernameNotFoundException("해당 소셜 계정을 찾을 수 없습니다."));
 
         return new CustomUserDetails(user);
