@@ -4,7 +4,6 @@ import com.nitrogen.global.auth.oAuth.OAuth2UserInfo;
 import lombok.AllArgsConstructor;
 
 import java.util.Map;
-
 @AllArgsConstructor
 public class KakaoUserInfo implements OAuth2UserInfo {
 
@@ -12,7 +11,9 @@ public class KakaoUserInfo implements OAuth2UserInfo {
 
     @Override
     public String getProviderId() {
-        return attributes.get("id").toString();
+        return attributes != null && attributes.get("id") != null
+                ? String.valueOf(attributes.get("id"))
+                : "unknown";
     }
 
     @Override
@@ -22,11 +23,18 @@ public class KakaoUserInfo implements OAuth2UserInfo {
 
     @Override
     public String getName() {
-        // kakao_account라는 Map에서 추출
-        return (String) ((Map) attributes.get("properties")).get("nickname");
+        try {
+            return (String) ((Map) attributes.get("properties")).get("nickname");
+        } catch (Exception e) {
+            return "UnknownUser";
+        }
     }
 
     public String getEmail(){
-        return (String)((Map) attributes.get("kakao_account")).get("email");
+        try {
+            return (String)((Map) attributes.get("kakao_account")).get("email");
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
