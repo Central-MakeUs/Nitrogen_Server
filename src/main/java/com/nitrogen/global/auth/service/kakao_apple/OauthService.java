@@ -7,8 +7,10 @@ import com.nitrogen.domain.user.entity.enums.UserStatus;
 import com.nitrogen.domain.user.repository.UserRepository;
 import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
 import com.nitrogen.global.apiPayload.exception.UserHandler;
+import com.nitrogen.global.auth.converter.AppleUserConverter;
 import com.nitrogen.global.auth.dto.apple.ApplePublicKeyResponse;
 import com.nitrogen.global.auth.dto.apple.AppleTokenResponseDTO;
+import com.nitrogen.global.auth.dto.apple.AppleUserResponseDTO;
 import com.nitrogen.global.auth.dto.kakao.KakaoUserInfo;
 import com.nitrogen.global.auth.security.TokenProvider;
 import io.jsonwebtoken.*;
@@ -172,37 +174,37 @@ public class OauthService {
 //------------------------------------------------------------------------------------------------------------------------
 
     // apple
-    public Map<String, Object> appleLoginOrSignup(String code, String platform){
+    public AppleUserResponseDTO appleLoginOrSignup(String code, String platform){
 
         String targetClientId = "ios".equalsIgnoreCase(platform) ? appleAppClientId : appleServiceClientId;
         AppleTokenResponseDTO tokenResponse = getAppleToken(code, targetClientId);
 
-        String appleSub = decodeIdToken(tokenResponse.getIdToken());
+        Map<String, String> appleInfo = decodeIdToken(tokenResponse.getIdToken());
+        String appleSub = appleInfo.get("sub");
+        String emailFromApple = appleInfo.get("email");
         log.info("애플 유저 식별자 추출 성공: {}", appleSub);
 
-        User user = userRepository.findByAppleSub(appleSub)
-                .orElseGet(() -> {
-                    User newUser = userRepository.save(User.builder()
-                            .appleSub(appleSub)
-                            .provider("apple")
-                            .status(UserStatus.ACTIVE)
-                            .build());
-                    categoryService.initUserCategories(newUser);
-                    return newUser;
-                });
+        Optional<User> userOptional = userRepository.findByAppleSub(appleSub);
+        boolean isNewUser = userOptional.isEmpty();
 
-        String accessToken = tokenProvider.createToken(user.getSocialId());
-        String refreshToken = tokenProvider.createRefreshToken(user.getSocialId());
+        User user = userOptional.orElseGet(() -> {
+            User newUser = userRepository.save(User.builder()
+                    .appleSub(appleSub)
+                    .email(emailFromApple)
+                    .provider("apple")
+                    .status(UserStatus.ACTIVE)
+                    .build());
+            categoryService.initUserCategories(newUser);
+            return newUser;
+        });
+
+        String accessToken = tokenProvider.createToken(user.getSocialId() != null ? user.getSocialId() : appleSub);
+        String refreshToken = tokenProvider.createRefreshToken(user.getSocialId() != null ? user.getSocialId() : appleSub);
 
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("accessToken", accessToken);
-        result.put("refreshToken", refreshToken);
-        result.put("user", user);
-
-        return result;
+        return AppleUserConverter.toLoginResultDTO(user, accessToken, isNewUser);
     }
     private AppleTokenResponseDTO getAppleToken(String code, String clientId) {
         HttpHeaders headers = new HttpHeaders();
@@ -227,7 +229,7 @@ public class OauthService {
             throw new RuntimeException("애플 인증 서버 통신 실패");
         }
     }
-    private String decodeIdToken(String idToken) {
+    private Map<String, String> decodeIdToken(String idToken) {
         try {
             Jws<Claims> jws = Jwts.parserBuilder()
                     .setSigningKeyResolver(new SigningKeyResolverAdapter() {
@@ -239,7 +241,12 @@ public class OauthService {
                     .build()
                     .parseClaimsJws(idToken);
 
-            return jws.getBody().getSubject();
+            Claims body = jws.getBody();
+            Map<String, String> userInfo = new HashMap<>();
+            userInfo.put("sub", body.getSubject());
+            userInfo.put("email", body.get("email", String.class)); // 이메일 추출! (없으면 null)
+
+            return userInfo;
         } catch (Exception e) {
             log.error("ID 토큰 디코딩 실패: {}", e.getMessage());
             throw new RuntimeException("애플 유저 정보 추출 실패");

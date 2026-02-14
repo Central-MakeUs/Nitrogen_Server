@@ -1,6 +1,7 @@
 package com.nitrogen.global.auth.controller;
 
 import com.nitrogen.global.apiPayload.ApiResponse;
+import com.nitrogen.global.auth.dto.apple.AppleUserResponseDTO;
 import com.nitrogen.global.auth.service.kakao_apple.OauthService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,11 +22,11 @@ public class AppleAuthController {
 
     @Operation(summary = "애플 로그인 및 회원가입", description = "애플 OAuth 코드를 받아 로그인 또는 회원가입을 처리합니다.")
     @PostMapping("/login")
-    public ApiResponse<Map<String, Object>> appleLogin(
+    public ApiResponse<AppleUserResponseDTO> appleLogin(
             @RequestParam("code") String code,
-            @RequestParam(value = "platform", defaultValue = "ios") String platform) { // platform 추가
+            @RequestParam(value = "platform", defaultValue = "ios") String platform) {
 
-        Map<String, Object> loginResult = oauthService.appleLoginOrSignup(code, platform);
+        AppleUserResponseDTO loginResult = oauthService.appleLoginOrSignup(code, platform);
         return ApiResponse.onSuccess(loginResult);
     }
 

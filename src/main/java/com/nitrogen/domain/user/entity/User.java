@@ -17,7 +17,7 @@ public class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String email;
 
     private String provider; // "kakao" 또는 "apple" 저장용 필드
@@ -45,12 +45,10 @@ public class User {
     @Column(unique = true)
     private String appleSub; // 애플 고유 식별자
 
-    @JsonIgnore
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();
 
-    @JsonIgnore
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Expense> expenses = new ArrayList<>();
