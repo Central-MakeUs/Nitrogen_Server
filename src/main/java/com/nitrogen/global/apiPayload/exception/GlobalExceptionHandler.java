@@ -44,6 +44,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         log.error("Unhandled exception occurred", e);
+        log.error("--- Critical Error: {} ---", e.getMessage(), e);
         ErrorResponse response = new ErrorResponse("5999", "알 수 없는 서버 오류가 발생했습니다.");
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }

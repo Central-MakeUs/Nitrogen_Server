@@ -163,22 +163,26 @@ public class OauthService {
 
     @Transactional
     public UserResponseDTO.TokenReissueResultDTO reissueToken(String refreshToken) {
-        if (!tokenProvider.validateToken(refreshToken)) {
-            throw new UserHandler(ErrorStatus.INVALID_TOKEN);
-        }
 
-        String socialId = tokenProvider.getSocialIdFromToken(refreshToken);
+        String identifier = tokenProvider.getSocialIdFromToken(refreshToken);
+        if (identifier == null) throw new UserHandler(ErrorStatus.INVALID_TOKEN);
 
-        User user = userRepository.findBySocialId(socialId)
+        User user = userRepository.findBySocialId(identifier)
+                .or(() -> userRepository.findByAppleSub(identifier))
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
 
-        if (!refreshToken.equals(user.getRefreshToken())) {
+        String dbRefreshToken = user.getRefreshToken();
+        if (dbRefreshToken == null || !dbRefreshToken.equals(refreshToken)) {
+            log.warn("토큰 불일치 - DB: {}, 요청: {}", dbRefreshToken, refreshToken);
             throw new UserHandler(ErrorStatus.INVALID_TOKEN);
         }
 
-        String newAccessToken = tokenProvider.createToken(socialId);
-        String newRefreshToken = tokenProvider.createRefreshToken(socialId); // 리프레시도 새로 생성
+        String newAccessToken = tokenProvider.createToken(identifier);
+        String newRefreshToken = tokenProvider.createRefreshToken(identifier);
+
         user.updateRefreshToken(newRefreshToken);
+
+        userRepository.save(user);
 
         return UserResponseDTO.TokenReissueResultDTO.builder()
                 .accessToken(newAccessToken)
