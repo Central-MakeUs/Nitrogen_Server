@@ -104,10 +104,10 @@ public class OauthService {
         Map<String, Object> result = new HashMap<>();
         result.put("accessToken", accessToken);
         result.put("refreshToken", refreshToken);
+        result.put("user", user);
         result.put("isNewUser", user.isNewUser());
         result.put("isTermsAgreed", user.isTermsAgreed());
         result.put("hasExpense", user.isHasExpense());
-        result.put("user", user);
 
         return result;
     }
