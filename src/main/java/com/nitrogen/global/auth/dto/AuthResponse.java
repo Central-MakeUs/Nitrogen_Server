@@ -7,16 +7,17 @@ import lombok.Getter;
 @Builder
 public class AuthResponse {
     private String accessToken;
+    private String refreshToken;
     private UserInfo user;
 
     @Getter
     @Builder
     public static class UserInfo {
-        private Long userId;     // 우리 DB의 고유 ID (PK)
+        private Long userId;
         private String nickname;
-        private Integer age;
-        private String gender;
-        private String region;
+//        private Integer age;
+//        private String gender;
+//        private String region;
         private String type;     // kakao, apple
     }
 }
