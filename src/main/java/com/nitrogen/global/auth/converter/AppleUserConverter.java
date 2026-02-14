@@ -12,7 +12,9 @@ public class AppleUserConverter {
                 .accessToken(accessToken)
                 .refreshToken(user.getRefreshToken())
                 .appleSub(user.getAppleSub())
-                .isNewUser(isNewUser)
+                .isNewUser(String.valueOf(user.isNewUser()))
+                .isTermsAgreed(user.isTermsAgreed())
+                .hasExpense(user.isHasExpense())
                 .build();
     }
 }

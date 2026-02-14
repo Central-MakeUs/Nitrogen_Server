@@ -17,4 +17,7 @@ public class AppleUserResponseDTO {
     private String refreshToken;
     private String appleSub;
     private String isNewUser;
+
+    private boolean isTermsAgreed;
+    private boolean hasExpense;
 }
