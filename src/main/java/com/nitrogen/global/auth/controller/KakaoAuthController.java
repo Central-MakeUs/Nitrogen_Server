@@ -48,18 +48,20 @@ public class KakaoAuthController {
         String accessToken = (String) result.get("accessToken");
         String refreshToken = (String) result.get("refreshToken");
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(7 * 24 * 60 * 60)
-                .sameSite("Lax")
-                .build();
+        // 쿠키 방식 백업
+//        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+//                .httpOnly(true)
+//                .secure(true)
+//                .path("/")
+//                .maxAge(7 * 24 * 60 * 60)
+//                .sameSite("Lax")
+//                .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+//        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         AuthResponse authResponse = AuthResponse.builder()
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .user(AuthResponse.UserInfo.builder()
                         .userId(user.getUserId())
                         .nickname(user.getNickname())
