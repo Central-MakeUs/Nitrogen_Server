@@ -106,28 +106,22 @@ public class KakaoAuthController {
     /**
      * 토큰 재발급
      */
-    @Operation(summary = "토큰 재발급 API", description = "리프레시 토큰으로 액세스 토큰을 재발급하는 API입니다.")
+    @Operation(summary = "토큰 재발급 API", description = "헤더의 RefreshToken(Bearer 형기)으로 토큰을 재발급합니다.")
     @PostMapping("/reissue")
     public ApiResponse<UserResponseDTO.TokenReissueResultDTO> reissue(
-            HttpServletRequest request) {
+            @RequestHeader("RefreshToken") String refreshToken) {
 
-        String refreshToken = null;
-        Cookie[] cookies = request.getCookies();
-        System.out.println("쿠키 배열 존재 여부: " + (request.getCookies() != null));
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("refreshToken".equals(cookie.getName())) {
-                    System.out.println("쿠키 이름: " + cookie.getName() + ", 값: " + cookie.getValue());
-                    refreshToken = cookie.getValue();
-                    break;
-                }
-            }
-        }
-
-        if(refreshToken == null){
+        if (refreshToken == null || refreshToken.isBlank()) {
             throw new UserHandler(ErrorStatus.INVALID_TOKEN);
         }
-        return ApiResponse.onSuccess(oauthService.reissueToken(refreshToken));
+
+        String pureToken = refreshToken;
+        if (refreshToken.startsWith("Bearer ")) {
+            pureToken = refreshToken.substring(7);
+        } else {
+            throw new UserHandler(ErrorStatus.INVALID_TOKEN);
+        }
+        return ApiResponse.onSuccess(oauthService.reissueToken(pureToken));
     }
 
     // 약관동의

@@ -161,33 +161,28 @@ public class OauthService {
         }
     }
 
-    @PersistenceContext
-    private EntityManager entityManager;
     @Transactional
-    public UserResponseDTO.TokenReissueResultDTO reissueToken (String refreshToken){
-
-        boolean isValid = tokenProvider.validateToken(refreshToken);
-        if (!isValid) {
+    public UserResponseDTO.TokenReissueResultDTO reissueToken(String refreshToken) {
+        if (!tokenProvider.validateToken(refreshToken)) {
             throw new UserHandler(ErrorStatus.INVALID_TOKEN);
         }
 
         String socialId = tokenProvider.getSocialIdFromToken(refreshToken);
-        entityManager.clear();
 
         User user = userRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
-
-        log.info("쿠키에서 온 토큰: {}", refreshToken);
-        log.info("DB에서 방금 긁어온 토큰: {}", user.getRefreshToken());
 
         if (!refreshToken.equals(user.getRefreshToken())) {
             throw new UserHandler(ErrorStatus.INVALID_TOKEN);
         }
 
         String newAccessToken = tokenProvider.createToken(socialId);
+        String newRefreshToken = tokenProvider.createRefreshToken(socialId); // 리프레시도 새로 생성
+        user.updateRefreshToken(newRefreshToken);
 
         return UserResponseDTO.TokenReissueResultDTO.builder()
                 .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
                 .build();
     }
 
