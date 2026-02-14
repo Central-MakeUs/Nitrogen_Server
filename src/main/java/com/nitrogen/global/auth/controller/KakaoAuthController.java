@@ -37,7 +37,7 @@ public class KakaoAuthController {
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             content = @io.swagger.v3.oas.annotations.media.Content(
                     examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
-                            value = "{\"accessToken\": \"인가코드\"}"
+                            value = "{\"accessToken\": \"\"}"
                     )
             )
     )

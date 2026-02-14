@@ -1,5 +1,6 @@
 package com.nitrogen.global.auth.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 

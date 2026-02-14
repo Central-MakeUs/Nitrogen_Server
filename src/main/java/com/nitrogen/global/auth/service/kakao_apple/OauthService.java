@@ -1,5 +1,6 @@
 package com.nitrogen.global.auth.service.kakao_apple;
 
+import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import com.nitrogen.domain.expense.service.category.CategoryService;
 import com.nitrogen.domain.user.dto.UserResponseDTO;
 import com.nitrogen.domain.user.entity.User;
@@ -36,6 +37,7 @@ import java.util.*;
 @Slf4j
 public class OauthService {
     private final UserRepository userRepository;
+    private final ExpenseRepository expenseRepository;
     private final TokenProvider tokenProvider;
     private final CategoryService categoryService;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -75,29 +77,41 @@ public class OauthService {
 //    private String appleRedirectUri;
 
     // kakao
-    public Map<String, Object> loginOrSignup(Map<String, Object> kakaoAttributes) {
+    public Map<String, Object> loginOrSignup(Map<String, Object> body) {
+        String kakaoAccessToken = (String) body.get("accessToken");
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + kakaoAccessToken);
+        Map<String, Object> kakaoAttributes = restTemplate.exchange(
+                "https://kapi.kakao.com/v2/user/me", HttpMethod.GET, new HttpEntity<>(headers), Map.class
+        ).getBody();
 
         KakaoUserInfo userInfo = new KakaoUserInfo(kakaoAttributes);
 
-        User user = userRepository.findBySocialId(userInfo.getProviderId())
-                .orElseGet(() -> {
-                    User newUser = userRepository.save(User.builder()
-                            .socialId(userInfo.getProviderId())
-                            .email(userInfo.getEmail())
-                            .nickname(userInfo.getName())
-                            .provider(userInfo.getProvider())
-                            .status(UserStatus.ACTIVE)
-                            .isNewUser(true)
-                            .isTermsAgreed(true)
-                            .hasExpense(false)
-                            .build());
-                    categoryService.initUserCategories(newUser); // 신규 가입 시에만 카테고리 초기화
-                    return newUser;
-                });
+        Optional<User> optionalUser = userRepository.findBySocialId(userInfo.getProviderId());
+        boolean isNewUser = optionalUser.isEmpty();
+
+        User user = optionalUser.orElseGet(() -> {
+            User newUser = User.builder()
+                    .socialId(userInfo.getProviderId())
+                    .email(userInfo.getEmail())
+                    .nickname(userInfo.getName())
+                    .provider(userInfo.getProvider())
+                    .status(UserStatus.ACTIVE)
+                    .isTermsAgreed(true)
+                    .hasExpense(false)
+                    .build();
+
+            User savedUser = userRepository.save(newUser);
+            categoryService.initUserCategories(savedUser);
+            return savedUser;
+        });
+
+        boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
 
         String accessToken = tokenProvider.createToken(user.getSocialId());
         String refreshToken = tokenProvider.createRefreshToken(user.getSocialId());
-
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
 
@@ -105,9 +119,9 @@ public class OauthService {
         result.put("accessToken", accessToken);
         result.put("refreshToken", refreshToken);
         result.put("user", user);
-        result.put("isNewUser", user.isNewUser());
+        result.put("isNewUser", isNewUser);
         result.put("isTermsAgreed", user.isTermsAgreed());
-        result.put("hasExpense", user.isHasExpense());
+        result.put("hasExpense", hasExpense);
 
         return result;
     }
@@ -190,20 +204,23 @@ public class OauthService {
         String emailFromApple = appleInfo.get("email");
         log.info("애플 유저 식별자 추출 성공: {}", appleSub);
 
-        User user = userRepository.findByAppleSub(appleSub)
-                .orElseGet(() -> {
-                    User newUser = userRepository.save(User.builder()
-                            .appleSub(appleSub)
-                            .email(emailFromApple)
-                            .provider("apple")
-                            .status(UserStatus.ACTIVE)
-                            .isNewUser(true)
-                            .isTermsAgreed(false)
-                            .hasExpense(false)
-                            .build());
-                    categoryService.initUserCategories(newUser);
-                    return newUser;
-                });
+        Optional<User> optionalUser = userRepository.findByAppleSub(appleSub);
+        boolean isNewUser = optionalUser.isEmpty();
+
+        User user = optionalUser.orElseGet(() -> {
+            User newUser = userRepository.save(User.builder()
+                    .appleSub(appleSub)
+                    .email(emailFromApple)
+                    .provider("apple")
+                    .status(UserStatus.ACTIVE)
+                    .isTermsAgreed(false) // 애플은 나중에 API로 동의 받을 거니까 false
+                    .hasExpense(false)
+                    .build());
+            categoryService.initUserCategories(newUser);
+            return newUser;
+        });
+
+        boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
 
         String tokenKey = user.getSocialId() != null ? user.getSocialId() : appleSub;
         String accessToken = tokenProvider.createToken(tokenKey);
@@ -212,7 +229,7 @@ public class OauthService {
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
 
-        return AppleUserConverter.toLoginResultDTO(user, accessToken, refreshToken);
+        return AppleUserConverter.toLoginResultDTO(user, accessToken, refreshToken, isNewUser, hasExpense);
     }
     private AppleTokenResponseDTO getAppleToken(String code, String clientId) {
         HttpHeaders headers = new HttpHeaders();

@@ -4,17 +4,17 @@ import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.global.auth.dto.apple.AppleUserResponseDTO;
 
 public class AppleUserConverter {
-    public static AppleUserResponseDTO toLoginResultDTO(User user, String accessToken, String isNewUser) {
+    public static AppleUserResponseDTO toLoginResultDTO(User user, String accessToken, String refreshToken, boolean isNewUser, boolean hasExpense) {
         return AppleUserResponseDTO.builder()
                 .userId(user.getUserId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .accessToken(accessToken)
-                .refreshToken(user.getRefreshToken())
+                .refreshToken(refreshToken)
                 .appleSub(user.getAppleSub())
-                .isNewUser(String.valueOf(user.isNewUser()))
+                .isNewUser(String.valueOf(isNewUser))
                 .isTermsAgreed(user.isTermsAgreed())
-                .hasExpense(user.isHasExpense())
+                .hasExpense(hasExpense)
                 .build();
     }
 }
