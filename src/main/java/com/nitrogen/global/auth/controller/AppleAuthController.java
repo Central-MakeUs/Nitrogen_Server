@@ -1,5 +1,6 @@
 package com.nitrogen.global.auth.controller;
 
+import com.nitrogen.domain.user.entity.CustomUserDetails;
 import com.nitrogen.global.apiPayload.ApiResponse;
 import com.nitrogen.global.auth.dto.apple.AppleUserResponseDTO;
 import com.nitrogen.global.auth.service.kakao_apple.OauthService;
@@ -8,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -50,6 +52,14 @@ public class AppleAuthController {
             log.error("Apple Notification 처리 실패", e);
             return ApiResponse.onSuccess("IGNORED");
         }
+    }
+
+    // 약관동의
+    @Operation(summary = "약관 동의 완료 API", description = "로그인한 유저의 약관 동의 상태를 true로 변경합니다.")
+    @PatchMapping("/terms")
+    public ApiResponse<String> patchTerms(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        oauthService.agreeUserTerms(userDetails.getUserId());
+        return ApiResponse.onSuccess("약관 동의 처리가 완료되었습니다.");
     }
 
 }
