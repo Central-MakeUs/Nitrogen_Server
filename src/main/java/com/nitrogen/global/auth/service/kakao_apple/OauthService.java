@@ -87,6 +87,9 @@ public class OauthService {
                             .nickname(userInfo.getName())
                             .provider(userInfo.getProvider())
                             .status(UserStatus.ACTIVE)
+                            .isNewUser(true)
+                            .isTermsAgreed(true)
+                            .hasExpense(false)
                             .build());
                     categoryService.initUserCategories(newUser); // 신규 가입 시에만 카테고리 초기화
                     return newUser;
@@ -101,7 +104,9 @@ public class OauthService {
         Map<String, Object> result = new HashMap<>();
         result.put("accessToken", accessToken);
         result.put("refreshToken", refreshToken);
-        result.put("user", user);
+        result.put("isNewUser", user.isNewUser());
+        result.put("isTermsAgreed", user.isTermsAgreed());
+        result.put("hasExpense", user.isHasExpense());
 
         return result;
     }
@@ -184,27 +189,29 @@ public class OauthService {
         String emailFromApple = appleInfo.get("email");
         log.info("애플 유저 식별자 추출 성공: {}", appleSub);
 
-        Optional<User> userOptional = userRepository.findByAppleSub(appleSub);
-        boolean isNewUser = userOptional.isEmpty();
+        User user = userRepository.findByAppleSub(appleSub)
+                .orElseGet(() -> {
+                    User newUser = userRepository.save(User.builder()
+                            .appleSub(appleSub)
+                            .email(emailFromApple)
+                            .provider("apple")
+                            .status(UserStatus.ACTIVE)
+                            .isNewUser(true)
+                            .isTermsAgreed(false)
+                            .hasExpense(false)
+                            .build());
+                    categoryService.initUserCategories(newUser);
+                    return newUser;
+                });
 
-        User user = userOptional.orElseGet(() -> {
-            User newUser = userRepository.save(User.builder()
-                    .appleSub(appleSub)
-                    .email(emailFromApple)
-                    .provider("apple")
-                    .status(UserStatus.ACTIVE)
-                    .build());
-            categoryService.initUserCategories(newUser);
-            return newUser;
-        });
-
-        String accessToken = tokenProvider.createToken(user.getSocialId() != null ? user.getSocialId() : appleSub);
-        String refreshToken = tokenProvider.createRefreshToken(user.getSocialId() != null ? user.getSocialId() : appleSub);
+        String tokenKey = user.getSocialId() != null ? user.getSocialId() : appleSub;
+        String accessToken = tokenProvider.createToken(tokenKey);
+        String refreshToken = tokenProvider.createRefreshToken(tokenKey);
 
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
 
-        return AppleUserConverter.toLoginResultDTO(user, accessToken, isNewUser);
+        return AppleUserConverter.toLoginResultDTO(user, accessToken, refreshToken);
     }
     private AppleTokenResponseDTO getAppleToken(String code, String clientId) {
         HttpHeaders headers = new HttpHeaders();

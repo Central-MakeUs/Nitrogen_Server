@@ -4,7 +4,7 @@ import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.global.auth.dto.apple.AppleUserResponseDTO;
 
 public class AppleUserConverter {
-    public static AppleUserResponseDTO toLoginResultDTO(User user, String accessToken, boolean isNewUser) {
+    public static AppleUserResponseDTO toLoginResultDTO(User user, String accessToken, String isNewUser) {
         return AppleUserResponseDTO.builder()
                 .userId(user.getUserId())
                 .email(user.getEmail())
