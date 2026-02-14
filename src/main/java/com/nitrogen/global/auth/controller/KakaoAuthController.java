@@ -106,10 +106,10 @@ public class KakaoAuthController {
     /**
      * 토큰 재발급
      */
-    @Operation(summary = "토큰 재발급 API", description = "헤더의 RefreshToken(Bearer 형기)으로 토큰을 재발급합니다.")
+    @Operation(summary = "토큰 재발급 API", description = "쿠키의 RefreshToken으로 토큰을 재발급합니다.")
     @PostMapping("/reissue")
     public ApiResponse<UserResponseDTO.TokenReissueResultDTO> reissue(
-            @RequestHeader("RefreshToken") String refreshToken) {
+            @CookieValue(value = "RefreshToken", required = false) String refreshToken) {
 
         if (refreshToken == null || refreshToken.isBlank()) {
             throw new UserHandler(ErrorStatus.INVALID_TOKEN);
