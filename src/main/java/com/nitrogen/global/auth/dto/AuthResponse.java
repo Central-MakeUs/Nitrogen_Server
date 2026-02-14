@@ -19,5 +19,9 @@ public class AuthResponse {
 //        private String gender;
 //        private String region;
         private String type;     // kakao, apple
+
+        private boolean isNewUser;
+        private boolean isTermsAgreed;
+        private boolean hasExpense;
     }
 }
