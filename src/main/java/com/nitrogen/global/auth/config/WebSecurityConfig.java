@@ -27,7 +27,8 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) //cors 에러 배포 주소 허용
+                .cors(AbstractHttpConfigurer::disable)
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource())) //cors 에러 배포 주소 허용
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
