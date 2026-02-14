@@ -431,4 +431,12 @@ public class OauthService {
 
         log.info("유저 로그아웃 성공 (ID: {})", socialId);
     }
+
+    // 약관동의(동의하는 메서드이므로 true)
+    @Transactional
+    public void agreeUserTerms(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
+        user.agreeTerms();
+    }
 }
