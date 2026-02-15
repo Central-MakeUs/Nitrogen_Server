@@ -125,15 +125,45 @@ public class OauthService {
 
         return result;
     }
-    @Transactional
-    public void withdraw(String socialId){
-        User user = userRepository.findBySocialId(socialId)
-                .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
 
-        unlinkKakao(socialId);
+    // apple kakao 공통 로그아웃
+    @Transactional
+    public void withdraw(String identifier) {
+        User user = userRepository.findBySocialId(identifier)
+                .orElseGet(() -> userRepository.findByAppleSub(identifier)
+                        .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다.")));
+
+        if ("kakao".equals(user.getProvider())) {
+            unlinkKakao(user.getSocialId());
+        } else if ("apple".equals(user.getProvider())) {
+            unlinkApple(user.getRefreshToken());
+        }
 
         userRepository.delete(user);
     }
+
+    private void unlinkApple(String appleRefreshToken) {
+        if (appleRefreshToken == null) return;
+
+        String clientId = appleAppClientId;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", clientId);
+        params.add("client_secret", makeClientSecretToken(clientId));
+        params.add("token", appleRefreshToken);
+        params.add("token_type_hint", "refresh_token");
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        try {
+            restTemplate.postForEntity("https://appleid.apple.com/auth/revoke", request, String.class);
+        } catch (Exception e) {
+            log.error("Apple unlink failed: {}", e.getMessage());
+        }
+    }
+
     private void unlinkKakao(String socialId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

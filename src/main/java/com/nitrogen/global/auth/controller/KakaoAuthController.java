@@ -99,7 +99,7 @@ public class KakaoAuthController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
 
-        log.info("유저 탈퇴 완료: {}", userDetails.getUsername());
+        log.info("유저 탈퇴 완료 (Identifier: {})", userDetails.getUsername());
         return ApiResponse.onSuccess("회원 탈퇴가 완료되었습니다.");
     }
 
