@@ -38,7 +38,7 @@ public class ExpenseInquiryService {
         long monthlyTotal = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
 
         List<Expense> expenseList = expenseRepository.findAllByUserUserIdAndExpendedAtWithCategory(userId, expendedAt);
-        boolean hasAnyExpense = expenseRepository.existsByUserUserId(user);
+        boolean hasAnyExpense = expenseRepository.existsByUserUserId(user.getUserId());
 
         long pendingCount = expenseList.stream()
                 .filter(e -> e.getEvaluationType() == null)

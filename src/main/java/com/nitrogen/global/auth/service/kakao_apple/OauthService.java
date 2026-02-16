@@ -108,7 +108,7 @@ public class OauthService {
             return savedUser;
         });
 
-        boolean hasExpense = expenseRepository.existsByUserUserId(user);
+        boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
         user.setHasExpense(hasExpense);
 
         String accessToken = tokenProvider.createToken(user.getSocialId());
@@ -252,7 +252,7 @@ public class OauthService {
             return newUser;
         });
 
-        boolean hasExpense = expenseRepository.existsByUserUserId(user);
+        boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
         user.setHasExpense(hasExpense);
 
         String tokenKey = user.getSocialId() != null ? user.getSocialId() : appleSub;
