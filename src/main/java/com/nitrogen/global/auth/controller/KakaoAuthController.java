@@ -87,6 +87,12 @@ public class KakaoAuthController {
     @Operation(summary = "회원 탈퇴", description = "현재 로그인한 유저의 정보를 삭제한다.")
     @DeleteMapping("/withdraw")
     public ApiResponse<String> withdraw(@AuthenticationPrincipal UserDetails userDetails, HttpServletResponse response) {
+        if (userDetails == null) {
+            log.error("AuthenticationPrincipal이 null입니다! 인증 필터를 확인하세요.");
+            return ApiResponse.onFailure("AUTH_ERROR", "인증 정보가 없습니다.", null);
+        }
+
+        log.info("Controller UserDetails Username: [{}]", userDetails.getUsername());
         oauthService.withdraw(userDetails.getUsername());
 
         ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
