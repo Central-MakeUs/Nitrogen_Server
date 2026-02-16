@@ -130,6 +130,7 @@ public class OauthService {
     // apple kakao 공통 로그아웃
     @Transactional
     public void withdraw(String identifier) {
+        log.info("identifier 확인: [{}]", identifier);
         User user = userRepository.findBySocialId(identifier)
                 .orElseGet(() -> userRepository.findByAppleSub(identifier)
                         .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다.")));
