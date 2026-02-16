@@ -139,7 +139,7 @@ public class OauthService {
         } else if ("apple".equals(user.getProvider())) {
             unlinkApple(user.getRefreshToken());
         }
-        userRepository.delete(user);
+        userRepository.deleteById(user.getUserId());
     }
 
     private void unlinkApple(String appleRefreshToken) {
