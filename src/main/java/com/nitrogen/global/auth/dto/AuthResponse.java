@@ -1,8 +1,10 @@
 package com.nitrogen.global.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
@@ -13,6 +15,8 @@ public class AuthResponse {
 
     @Getter
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class UserInfo {
         private Long userId;
         private String nickname;
@@ -21,8 +25,11 @@ public class AuthResponse {
 //        private String region;
         private String type;     // kakao, apple
 
+        @JsonProperty("isNewUser")
         private boolean isNewUser;
+        @JsonProperty("isTermsAgreed")
         private boolean isTermsAgreed;
+        @JsonProperty("hasExpense")
         private boolean hasExpense;
     }
 }
