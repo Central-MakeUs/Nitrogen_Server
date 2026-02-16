@@ -99,7 +99,7 @@ public class OauthService {
                     .nickname(userInfo.getName())
                     .provider(userInfo.getProvider())
                     .status(UserStatus.ACTIVE)
-                    .isTermsAgreed(true)
+                    .isTermsAgreed(false)
                     .hasExpense(false)
                     .build();
 
