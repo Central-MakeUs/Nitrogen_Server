@@ -238,25 +238,24 @@ public class OauthService {
         boolean isNewUser = optionalUser.isEmpty();
 
         User user = optionalUser.orElseGet(() -> {
-            User newUser = userRepository.save(User.builder()
+            User newUser = User.builder()
                     .appleSub(appleSub)
                     .email(emailFromApple)
                     .provider("apple")
                     .status(UserStatus.ACTIVE)
                     .isTermsAgreed(false) // 애플은 나중에 API로 동의 받을 거니까 false
-                    .build());
+                    .build();
             categoryService.initUserCategories(newUser);
             return newUser;
         });
 
-        boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
-
         String tokenKey = user.getSocialId() != null ? user.getSocialId() : appleSub;
         String accessToken = tokenProvider.createToken(tokenKey);
         String refreshToken = tokenProvider.createRefreshToken(tokenKey);
-
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
+
+        boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
 
         return AppleUserConverter.toLoginResultDTO(user, accessToken, refreshToken, isNewUser, hasExpense);
     }
