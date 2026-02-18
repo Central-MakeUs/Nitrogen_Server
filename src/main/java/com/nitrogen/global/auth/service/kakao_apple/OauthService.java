@@ -9,6 +9,7 @@ import com.nitrogen.domain.user.repository.UserRepository;
 import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
 import com.nitrogen.global.apiPayload.exception.UserHandler;
 import com.nitrogen.global.auth.converter.AppleUserConverter;
+import com.nitrogen.global.auth.dto.AuthResponse;
 import com.nitrogen.global.auth.dto.apple.ApplePublicKeyResponse;
 import com.nitrogen.global.auth.dto.apple.AppleTokenResponseDTO;
 import com.nitrogen.global.auth.dto.apple.AppleUserResponseDTO;
@@ -77,12 +78,12 @@ public class OauthService {
 //    private String appleRedirectUri;
 
     // kakao
-    public Map<String, Object> loginOrSignup(Map<String, Object> body) {
-        String kakaoAccessToken = (String) body.get("accessToken");
+    public AuthResponse loginOrSignup(String kakaoAccessToken) {
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + kakaoAccessToken);
+
         Map<String, Object> kakaoAttributes = restTemplate.exchange(
                 "https://kapi.kakao.com/v2/user/me", HttpMethod.GET, new HttpEntity<>(headers), Map.class
         ).getBody();
@@ -116,15 +117,17 @@ public class OauthService {
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("accessToken", accessToken);
-        result.put("refreshToken", refreshToken);
-        result.put("user", user);
-        result.put("isNewUser", isNewUser);
-        result.put("isTermsAgreed", user.isTermsAgreed());
-        result.put("hasExpense", hasExpense);
-
-        return result;
+        return AuthResponse.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .type(user.getProvider())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .newUser(isNewUser)
+                .termsAgreed(user.isTermsAgreed())
+                .hasExpense(hasExpense)
+                .build();
     }
 
     // apple kakao 공통 로그아웃

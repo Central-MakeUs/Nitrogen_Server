@@ -43,21 +43,14 @@ public class KakaoAuthController {
     )
     @PostMapping("/kakao/login")
     public ApiResponse<AuthResponse> kakaoLogin(
-            @RequestBody Map<String, Object> kakaoAttributes) {
+            @RequestBody Map<String, Object> body) {
 
-        log.info("카카오 로그인 요청 수신");
+        String kakaoAccessToken = (String) body.get("accessToken");
+        AuthResponse response = oauthService.loginOrSignup(kakaoAccessToken);
+        return ApiResponse.onSuccess(response);
+    }
 
-        Map<String, Object> result = oauthService.loginOrSignup(kakaoAttributes);
-
-        User user = (User) result.get("user");
-        String accessToken = (String) result.get("accessToken");
-        String refreshToken = (String) result.get("refreshToken");
-
-        boolean isNewUser = (boolean) result.get("isNewUser");
-        boolean isTermsAgreed = (boolean) result.get("isTermsAgreed");
-        boolean hasExpense = (boolean) result.get("hasExpense");
-
-        // 쿠키 방식 백업
+    // 쿠키 방식 백업
 //        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
 //                .httpOnly(true)
 //                .secure(true)
@@ -67,22 +60,6 @@ public class KakaoAuthController {
 //                .build();
 
 //        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-        AuthResponse authResponse = AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .user(AuthResponse.UserInfo.builder()
-                        .userId(user.getUserId())
-                        .nickname(user.getNickname())
-                        .type(user.getProvider())
-                        .isNewUser(isNewUser)
-                        .isTermsAgreed(isTermsAgreed)
-                        .hasExpense(hasExpense)
-                        .build())
-                .build();
-
-        return ApiResponse.onSuccess(authResponse);
-    }
 
     @Operation(summary = "회원 탈퇴", description = "현재 로그인한 유저의 정보를 삭제한다.")
     @DeleteMapping("/withdraw")
