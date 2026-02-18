@@ -101,7 +101,6 @@ public class OauthService {
                     .provider(userInfo.getProvider())
                     .status(UserStatus.ACTIVE)
                     .isTermsAgreed(false)
-                    .hasExpense(false)
                     .build();
 
             User savedUser = userRepository.save(newUser);
@@ -110,7 +109,6 @@ public class OauthService {
         });
 
         boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
-        user.setHasExpense(hasExpense);
 
         String accessToken = tokenProvider.createToken(user.getSocialId());
         String refreshToken = tokenProvider.createRefreshToken(user.getSocialId());
@@ -246,14 +244,12 @@ public class OauthService {
                     .provider("apple")
                     .status(UserStatus.ACTIVE)
                     .isTermsAgreed(false) // 애플은 나중에 API로 동의 받을 거니까 false
-                    .hasExpense(false)
                     .build());
             categoryService.initUserCategories(newUser);
             return newUser;
         });
 
         boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
-        user.setHasExpense(hasExpense);
 
         String tokenKey = user.getSocialId() != null ? user.getSocialId() : appleSub;
         String accessToken = tokenProvider.createToken(tokenKey);
