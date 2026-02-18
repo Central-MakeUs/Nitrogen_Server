@@ -6,6 +6,7 @@ import com.nitrogen.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,5 +48,12 @@ public class Category {
         if (newIcon != null) {
             this.categoryIconType = newIcon;
         }
+    }
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    public void updateTimestamp() {
+        this.updatedAt = LocalDateTime.now(); // @LastModifiedDate가 있어도 명시적으로 호출 가능
     }
 }
