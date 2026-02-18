@@ -17,6 +17,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     @Query("SELECT c FROM Category c WHERE c.user.userId = :userId")
     List<Category> findAllByUserId(@Param("userId") Long userId);
 
+    List<Category> findAllByUser_UserIdOrderByUpdatedAtDesc(Long userId);
+
     boolean existsByUser(User user);
 
     // 카테고리 아이디와 유저 아이디 매칭
