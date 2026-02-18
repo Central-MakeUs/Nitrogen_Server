@@ -61,6 +61,7 @@ public class ExpenseRecordService {
                 .user(user)
                 .build();
         Expense saved = expenseRepository.save(expense);
+        category.updateTimestamp();
 
         log.info("지출 기록 완료: ID={}, 금액={}", saved.getId(), saved.getAmount());
         return saved.getId();
@@ -101,6 +102,7 @@ public class ExpenseRecordService {
                 .orElseThrow(() -> new IllegalArgumentException("카테고리가 존재하지 않거나 접근 권한이 없습니다."));
 
         expense.updateExpenseRecord(dto.getAmount(), dto.getUsageHistory(), dto.getExpendedAt(), category);
+        category.updateTimestamp();
 
         return expense.getId();
     }

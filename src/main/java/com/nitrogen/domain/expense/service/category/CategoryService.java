@@ -39,6 +39,8 @@ public class CategoryService {
                 .user(user)
                 .build();
 
+        newCategory.updateTimestamp();
+
         return categoryRepository.save(newCategory).getId();
     }
 
@@ -46,8 +48,8 @@ public class CategoryService {
     // 카테고리 조회
     @Transactional(readOnly = true)
     public List<CategoryListResponseDTO> getAllCategories(Long userId) {
-        // fetch join
-        List<Category> categories = categoryRepository.findAllByUserId(userId);
+
+        List<Category> categories = categoryRepository.findAllByUser_UserIdOrderByUpdatedAtDesc(userId);
 
         return categories.stream()
                 .map(cat -> new CategoryListResponseDTO(
@@ -71,6 +73,7 @@ public class CategoryService {
         if (dto.getIcon() != null) {
             category.updateIcon(dto.getIcon());
         }
+        category.updateTimestamp();
         return category.getId();
     }
 
@@ -88,6 +91,8 @@ public class CategoryService {
                     .user(user)
                     .categoryIconType(matchIcon(basic))
                     .build();
+
+            category.updateTimestamp();
             categoryRepository.save(category);
         }
     }
