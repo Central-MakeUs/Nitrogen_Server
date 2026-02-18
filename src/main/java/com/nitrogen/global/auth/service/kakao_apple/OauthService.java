@@ -245,13 +245,16 @@ public class OauthService {
                     .status(UserStatus.ACTIVE)
                     .isTermsAgreed(false) // 애플은 나중에 API로 동의 받을 거니까 false
                     .build();
-            categoryService.initUserCategories(newUser);
-            return newUser;
+
+            User savedUser = userRepository.save(newUser);
+            categoryService.initUserCategories(savedUser);
+            return savedUser;
         });
 
         String tokenKey = user.getSocialId() != null ? user.getSocialId() : appleSub;
         String accessToken = tokenProvider.createToken(tokenKey);
         String refreshToken = tokenProvider.createRefreshToken(tokenKey);
+
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
 
