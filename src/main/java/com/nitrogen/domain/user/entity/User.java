@@ -54,12 +54,12 @@ public class User {
     private List<Expense> expenses = new ArrayList<>();
 
     // 0214
-    @Builder.Default
-    @Column(nullable = false)
-    private boolean isTermsAgreed = false;
-
-    public void agreeTerms() {
-        this.isTermsAgreed = true;
-    }
+//    @Builder.Default
+//    @Column(nullable = false)
+//    private boolean isTermsAgreed = false;
+//
+//    public void agreeTerms() {
+//        this.isTermsAgreed = true;
+//    }
 
 }

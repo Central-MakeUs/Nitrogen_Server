@@ -13,7 +13,7 @@ public class AppleUserConverter {
                 .refreshToken(refreshToken)
                 .appleSub(user.getAppleSub())
                 .newUser(isNewUser)
-                .termsAgreed(user.isTermsAgreed())
+//                .termsAgreed(user.isTermsAgreed())
                 .hasExpense(hasExpense)
                 .build();
     }

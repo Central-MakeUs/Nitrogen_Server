@@ -100,7 +100,7 @@ public class OauthService {
                     .nickname(userInfo.getName())
                     .provider(userInfo.getProvider())
                     .status(UserStatus.ACTIVE)
-                    .isTermsAgreed(false)
+//                    .isTermsAgreed(false)
                     .build();
 
             User savedUser = userRepository.save(newUser);
@@ -123,7 +123,7 @@ public class OauthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .newUser(isNewUser)
-                .termsAgreed(user.isTermsAgreed())
+//                .termsAgreed(user.isTermsAgreed())
                 .hasExpense(hasExpense)
                 .build();
     }
@@ -243,7 +243,7 @@ public class OauthService {
                     .email(emailFromApple)
                     .provider("apple")
                     .status(UserStatus.ACTIVE)
-                    .isTermsAgreed(false) // 애플은 나중에 API로 동의 받을 거니까 false
+//                    .isTermsAgreed(false) // 애플은 나중에 API로 동의 받을 거니까 false
                     .build();
 
             User savedUser = userRepository.save(newUser);
@@ -482,10 +482,10 @@ public class OauthService {
     }
 
     // 약관동의(동의하는 메서드이므로 true)
-    @Transactional
-    public void agreeUserTerms(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
-        user.agreeTerms();
-    }
+//    @Transactional
+//    public void agreeUserTerms(Long userId) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
+//        user.agreeTerms();
+//    }
 }
