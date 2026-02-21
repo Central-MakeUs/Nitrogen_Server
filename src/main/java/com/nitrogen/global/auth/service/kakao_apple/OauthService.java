@@ -224,7 +224,7 @@ public class OauthService {
 //------------------------------------------------------------------------------------------------------------------------
 
     // apple
-    public AppleUserResponseDTO appleLoginOrSignup(String code, String platform){
+    public AppleUserResponseDTO appleLoginOrCheck(String code, String platform){
 
         String targetClientId = "ios".equalsIgnoreCase(platform) ? appleAppClientId : appleServiceClientId;
         AppleTokenResponseDTO tokenResponse = getAppleToken(code, targetClientId);
@@ -235,33 +235,52 @@ public class OauthService {
         log.info("애플 유저 식별자 추출 성공: {}", appleSub);
 
         Optional<User> optionalUser = userRepository.findByAppleSub(appleSub);
-        boolean isNewUser = optionalUser.isEmpty();
+        if (optionalUser.isPresent()) {
 
-        User user = optionalUser.orElseGet(() -> {
-            User newUser = User.builder()
+            User user = optionalUser.get();
+            String accessToken = tokenProvider.createToken(appleSub);
+            String refreshToken = tokenProvider.createRefreshToken(appleSub);
+            user.setRefreshToken(refreshToken);
+            userRepository.save(user);
+
+            boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
+            return AppleUserConverter.toLoginResultDTO(user, accessToken, refreshToken, false, hasExpense);
+        } else {
+            String registerToken = tokenProvider.createRegisterToken(appleSub, emailFromApple);
+
+            return AppleUserResponseDTO.builder()
                     .appleSub(appleSub)
                     .email(emailFromApple)
-                    .provider("apple")
-                    .status(UserStatus.ACTIVE)
-//                    .isTermsAgreed(false) // 애플은 나중에 API로 동의 받을 거니까 false
+                    .accessToken(registerToken)
+                    .newUser(true)
                     .build();
-
-            User savedUser = userRepository.save(newUser);
-            categoryService.initUserCategories(savedUser);
-            return savedUser;
-        });
-
-        String tokenKey = user.getSocialId() != null ? user.getSocialId() : appleSub;
-        String accessToken = tokenProvider.createToken(tokenKey);
-        String refreshToken = tokenProvider.createRefreshToken(tokenKey);
-
-        user.setRefreshToken(refreshToken);
-        userRepository.save(user);
-
-        boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
-
-        return AppleUserConverter.toLoginResultDTO(user, accessToken, refreshToken, isNewUser, hasExpense);
+        }
     }
+
+    @Transactional
+    public  AppleUserResponseDTO signUpApple(String registerToken) {
+
+        Claims claims = tokenProvider.parseRegisterToken(registerToken);
+        String appleSub = claims.getSubject();
+        String email = claims.get("email", String.class);
+
+        User newUser = User.builder()
+                .appleSub(appleSub)
+                .email(email)
+                .provider("apple")
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        User savedUser = userRepository.save(newUser);
+        categoryService.initUserCategories(savedUser);
+
+        String accessToken = tokenProvider.createToken(appleSub);
+        String refreshToken = tokenProvider.createRefreshToken(appleSub);
+        savedUser.setRefreshToken(refreshToken);
+
+        return AppleUserConverter.toLoginResultDTO(savedUser, accessToken, refreshToken, false, false);
+    }
+
     private AppleTokenResponseDTO getAppleToken(String code, String clientId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

@@ -23,6 +23,8 @@ public class TokenProvider {
     private final long expiration;
     private final long refreshExpiration;
 
+    private final long registerExpiration = 1000 * 60 * 10;
+
     public TokenProvider(
             UserDetailService userDetailsService,
             @Value("${jwt.secret}") String secret,
@@ -101,6 +103,42 @@ public class TokenProvider {
             return e.getClaims();
         } catch (JwtException e) {
             throw new RuntimeException("유효하지 않은 토큰입니다.");
+        }
+    }
+
+    public String createRegisterToken(String appleSub, String email) {
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + registerExpiration);
+
+        return Jwts.builder()
+                .setSubject(appleSub)
+                .claim("email", email)
+                .claim("type", "REGISTER")
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    /**
+     * 임시 토큰 파싱 및 검증
+     */
+    public Claims parseRegisterToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            if (!"REGISTER".equals(claims.get("type"))) {
+                throw new RuntimeException("회원가입 전용 임시 토큰이 아닙니다.");
+            }
+            return claims;
+        } catch (ExpiredJwtException e) {
+            throw new RuntimeException("임시 토큰이 만료되었습니다. 다시 로그인해주세요.");
+        } catch (JwtException e) {
+            throw new RuntimeException("유효하지 않은 임시 토큰입니다.");
         }
     }
 
