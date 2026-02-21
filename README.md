@@ -29,5 +29,7 @@
 
 ---
 
-## 📊 ERD (Entity Relationship Diagram)
+## 📊 ERD (Entity Relationship Diagram) 0111기준
+<img width="592" height="681" alt="image" src="https://github.com/user-attachments/assets/4783dc4d-0df7-4283-8780-5ee29681ee0a" />
+
 
