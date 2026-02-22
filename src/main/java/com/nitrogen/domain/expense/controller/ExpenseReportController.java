@@ -5,6 +5,8 @@ import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportSummaryRespon
 import com.nitrogen.domain.expense.dto.report.summary.SummaryRecordResponse;
 import com.nitrogen.domain.expense.dto.report.summary.WeeklyReportResponse;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
+import com.nitrogen.domain.expense.service.inquiry.ExpenseInquiryService;
+import com.nitrogen.domain.expense.service.record.ExpenseRecordService;
 import com.nitrogen.domain.expense.service.report.DailyRetrospectReportService;
 import com.nitrogen.domain.expense.service.report.WeeklyRecordService;
 import com.nitrogen.domain.expense.service.report.WeeklyDetailRecordService;
@@ -25,6 +27,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/expense")
@@ -36,6 +39,7 @@ public class ExpenseReportController {
     private final WeeklyDetailRecordService weeklyDetailRecordService;
     private final DailyRetrospectReportService dailyRetrospectReportService;
     private final ExpenseRepository expenseRepository;
+    private final ExpenseInquiryService expenseInquiryService;
 
     @Operation(summary = "메인화면 분석 리포트 조회", description = "이번 달 총 소비 금액과 지난주 주간 분석 리포트를 한 번에 조회합니다.")
     @GetMapping("/summary_record")
@@ -99,5 +103,16 @@ public class ExpenseReportController {
         String satisfactionMessage = dailyRetrospectReportService.getDailyAverageSatisfaction(userId, date);
 
         return ApiResponse.onSuccess(satisfactionMessage);
+    }
+
+    @Operation(summary = "월별 지출 총액 조회", description = "소비 기록이 존재하는 모든 달의 지출 총액 목록을 최신순으로 조회합니다.")
+    @GetMapping("/monthly_totals")
+    public ApiResponse<List<MonthlyReportSummaryResponse>> getMonthlyTotalList(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getUserId();
+        List<MonthlyReportSummaryResponse> response = expenseInquiryService.getMonthlyTotalList(userId);
+
+        return ApiResponse.onSuccess(response);
     }
 }

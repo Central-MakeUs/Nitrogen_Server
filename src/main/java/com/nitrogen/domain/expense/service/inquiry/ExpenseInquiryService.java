@@ -5,6 +5,8 @@ import com.nitrogen.domain.expense.dto.calendar.DailyAmountDTO;
 import com.nitrogen.domain.expense.dto.expense.DailyExpenseResponseDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseListDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseResponseDTO;
+import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportSummaryResponse;
+import com.nitrogen.domain.expense.dto.report.summary.WeeklyReportResponse;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import com.nitrogen.domain.user.entity.User;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -94,5 +97,30 @@ public class ExpenseInquiryService {
         List<DailyAmountDTO> dailyAmount = expenseRepository.calculateDailyTotals(userId, start, end);
 
         return new CalendarResponseDTO(totalAmount, dailyAmount);
+    }
+
+    // 월별 총액 리스트
+    @Transactional(readOnly = true)
+    public List<MonthlyReportSummaryResponse> getMonthlyTotalList(Long userId) {
+        List<String> monthsWithExpenses = expenseRepository.findDistinctMonthsByUserId(userId);
+        LocalDate now = LocalDate.now();
+
+        return monthsWithExpenses.stream()
+                .map(monthStr -> {
+                    LocalDate startOfMonth = LocalDate.parse(monthStr);
+                    LocalDate endOfMonth = startOfMonth.withDayOfMonth(startOfMonth.lengthOfMonth());
+
+                    long totalAmount = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
+
+                    LocalDate reportOpenDate = startOfMonth.plusMonths(1);
+                    boolean isOpened = now.isAfter(reportOpenDate) || now.isEqual(reportOpenDate);
+
+                    return new MonthlyReportSummaryResponse(
+                            String.valueOf(startOfMonth.getMonthValue()),
+                            totalAmount,
+                            isOpened
+                    );
+                })
+                .collect(Collectors.toList());
     }
 }

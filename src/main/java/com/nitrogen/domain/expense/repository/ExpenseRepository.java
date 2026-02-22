@@ -71,4 +71,10 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
             @Param("start") LocalDate start,
             @Param("end") LocalDate end
     );
+
+    // 사용자가 지출한 월 목록 조회(내림차순)
+    @Query("SELECT DISTINCT FUNCTION('DATE_FORMAT', e.expendedAt, '%Y-%m-01') " +
+            "FROM Expense e WHERE e.user.userId = :userId " +
+            "ORDER BY e.expendedAt DESC")
+    List<String> findDistinctMonthsByUserId(@Param("userId") Long userId);
 }
