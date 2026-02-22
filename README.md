@@ -1,3 +1,6 @@
+feature/apple-login-split : 운영서버 배포전 신규기능 업데이트및 테스트용
+dev : 운영서버 배포용
+
 ## 🛠 Tech Stack
 
 ### 🚀 Core
@@ -29,5 +32,7 @@
 
 ---
 
-## 📊 ERD (Entity Relationship Diagram)
+## 📊 ERD (Entity Relationship Diagram) 0111기준
+<img width="592" height="681" alt="image" src="https://github.com/user-attachments/assets/4783dc4d-0df7-4283-8780-5ee29681ee0a" />
+
 
