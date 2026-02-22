@@ -3,6 +3,8 @@ name: Java CI/CD - Test Server (Port 8081)
 on:
   push:
     branches: [ "feature/apple-login-split" ] # 이 브랜치에 푸시할 때만 작동
+    paths-ignore:
+      - 'README.md'
 
 jobs:
   build-and-deploy:
