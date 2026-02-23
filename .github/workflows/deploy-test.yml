@@ -36,7 +36,7 @@ jobs:
           target: "~/app/Nitrogen_Server/build/libs"
           strip_components: 2
 
-      # 2. 서버에 접속해서 8081 서버만 교체
+      # 2. 8081 서버만 교체
       - name: Execute Remote SSH Commands
         uses: appleboy/ssh-action@v1.0.3
         with:
