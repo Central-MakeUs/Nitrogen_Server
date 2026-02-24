@@ -1,6 +1,7 @@
 package com.nitrogen.domain.alert.service;
 
 
+import com.nitrogen.domain.alert.converter.AlertConverter;
 import com.nitrogen.domain.alert.dto.AlertResponseDTO;
 import com.nitrogen.domain.alert.entity.Alert;
 import com.nitrogen.domain.alert.repository.AlertRepository;
@@ -20,9 +21,8 @@ public class AlertService {
     private final AlertRepository alertRepository;
 
     public List<AlertResponseDTO> getAlertList(User user){
-        return alertRepository.findAllByUserOrderByCreatedAtDesc(user).stream()
-                .map(AlertResponseDTO::from)
-                .collect(Collectors.toList());
+        List<Alert> alerts = alertRepository.findAllByUserOrderByCreatedAtDesc(user);
+        return AlertConverter.toAlertResponseDTOList(alerts);
     }
 
     @Transactional

@@ -2,9 +2,11 @@ package com.nitrogen.domain.alert.dto;
 
 import com.nitrogen.domain.alert.entity.Alert;
 import com.nitrogen.domain.alert.entity.enums.AlertType;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
+@Builder
 public record AlertResponseDTO(
         Long alertId,
         AlertType alertType,
