@@ -4,6 +4,7 @@ import com.nitrogen.domain.expense.dto.calendar.DailyAmountDTO;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.expense.entity.enums.EmotionType;
 import com.nitrogen.domain.expense.entity.enums.EvaluationType;
+import com.nitrogen.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -77,4 +78,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
             "FROM Expense e WHERE e.user.userId = :userId " +
             "ORDER BY e.expendedAt DESC")
     List<String> findDistinctMonthsByUserId(@Param("userId") Long userId);
+
+    // 유저의 지출 중 오늘 이전 날짜이면서 아직 평가가 되지 않은 것이 있는지 확인
+    boolean existsByEvaluationTypeIsNullAndUserAndExpendedAtBefore(User user, LocalDate date);
 }

@@ -1,5 +1,8 @@
 package com.nitrogen.domain.expense.service.record;
 
+import com.nitrogen.domain.alert.dto.FCMRequestDTO;
+import com.nitrogen.domain.alert.entity.enums.AlertType;
+import com.nitrogen.domain.alert.service.FcmService;
 import com.nitrogen.domain.expense.dto.expense.ExpenseDetailsDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseListDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseRemindRequestDTO;
@@ -30,6 +33,7 @@ public class ExpenseRecordService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final ExpenseRepository expenseRepository;
+    private final FcmService fcmService;
 
     // 지출 기록 작성
     public long registerExpense(ExpenseDetailsDTO dto, Long userId){
@@ -69,22 +73,37 @@ public class ExpenseRecordService {
 
     // 소비 회고
     public List<Long> remindExpenses(List<ExpenseRemindRequestDTO> dtos, Long userId){
-       return dtos.stream()
-               .map(dto ->{
-                   Expense expense = expenseRepository.findById(dto.getExpenseId())
-                           .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출 기록입니다. ID: " + dto.getExpenseId()));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-                   if (!expense.getUser().getUserId().equals(userId)) {
-                       throw new IllegalArgumentException("해당 지출에 대한 접근 권한이 없습니다. ID: " + dto.getExpenseId());
-                   }
+        List<Long> updatedIds = dtos.stream()
+                .map(dto ->{
+                    Expense expense = expenseRepository.findById(dto.getExpenseId())
+                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출 기록입니다. ID: " + dto.getExpenseId()));
 
-                   if (!expense.getExpendedAt().isBefore(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Seoul")))) {
-                       throw new IllegalArgumentException("소비 회고는 기록한 다음 날부터 가능합니다. ID: " + dto.getExpenseId());
-                   }
-                   expense.updateEvaluation(dto.getEvaluationType());
-                   return expense.getId();
-               })
-               .collect(Collectors.toList());
+                    if (!expense.getUser().getUserId().equals(userId)) {
+                        throw new IllegalArgumentException("해당 지출에 대한 접근 권한이 없습니다. ID: " + dto.getExpenseId());
+                    }
+
+                    if (!expense.getExpendedAt().isBefore(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Seoul")))) {
+                        throw new IllegalArgumentException("소비 회고는 기록한 다음 날부터 가능합니다. ID: " + dto.getExpenseId());
+                    }
+                    expense.updateEvaluation(dto.getEvaluationType());
+                    return expense.getId();
+                })
+                .collect(Collectors.toList());
+
+        if (expenseRepository.existsByEvaluationTypeIsNullAndUserAndExpendedAtBefore(user, java.time.LocalDate.now(java.time.ZoneId.of("Asia/Seoul")))) {
+            String targetId = user.getSocialId() != null ? user.getSocialId() : user.getAppleSub();
+
+            fcmService.sendAndSaveAlert(new FCMRequestDTO(
+                    targetId,
+                    "돌아보기 알림",
+                    "아직 돌아보지 않은 소비가 있어요!",
+                    "/retrospect-list"
+            ), AlertType.RETROSPECT);
+        }
+        return updatedIds;
     }
 
     // 지출 기록 수정
