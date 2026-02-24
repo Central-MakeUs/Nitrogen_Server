@@ -41,16 +41,25 @@ public class ExpenseInquiryService {
         long monthlyTotal = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
 
         List<Expense> expenseList = expenseRepository.findAllByUserUserIdAndExpendedAtWithCategory(userId, expendedAt);
-        boolean hasAnyExpense = expenseRepository.existsByUserUserId(user.getUserId());
+        boolean hasAnyExpense = !expenseList.isEmpty();
 
         long pendingCount = expenseList.stream()
                 .filter(e -> e.getEvaluationType() == null)
                 .count();
 
-        String bannerMessage = String.format("%d월 %d일의 소비, 지금은 어떤가요?",
-                expendedAt.getMonthValue(), expendedAt.getDayOfMonth());
-        String bannerSubMessage = pendingCount > 0 ?
-                String.format("아직 돌아보지 않은 소비 %d건", pendingCount) : "모든 회고를 완료했어요!";
+        String bannerMessage;
+        String bannerSubMessage;
+
+        if (!hasAnyExpense) {
+            bannerMessage = String.format("%d월 %d일의 소비가 남겨지지 않았어요.",
+                    expendedAt.getMonthValue(), expendedAt.getDayOfMonth());
+            bannerSubMessage = "소비를 기록한 뒤 만족도를 남겨보세요";
+        } else {
+            bannerMessage = String.format("%d월 %d일의 소비, 지금은 어떤가요?",
+                    expendedAt.getMonthValue(), expendedAt.getDayOfMonth());
+            bannerSubMessage = pendingCount > 0 ?
+                    String.format("아직 돌아보지 않은 소비 %d건", pendingCount) : "모든 회고를 완료했어요!";
+        }
 
         List<ExpenseListDTO> dtos = expenseList.stream()
                 .map(e -> ExpenseListDTO.builder()
