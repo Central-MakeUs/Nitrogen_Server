@@ -12,4 +12,7 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
 
     // 전체 알림 최신순
     List<Alert> findAllByUserOrderByCreatedAtDesc(User user);
+
+    // 읽지 않은 알림만 조회
+    List<Alert> findAllByUserAndIsReadFalse(User user);
 }

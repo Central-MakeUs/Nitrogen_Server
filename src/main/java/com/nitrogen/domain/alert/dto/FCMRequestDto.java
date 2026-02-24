@@ -1,6 +1,6 @@
 package com.nitrogen.domain.alert.dto;
 
-public record FCMRequestDto(
+public record FCMRequestDTO(
         String targetUserId,
         String title,
         String body,

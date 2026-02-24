@@ -1,65 +1,44 @@
 package com.nitrogen.domain.alert.service;
 
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
-import com.nitrogen.domain.alert.dto.FCMRequestDto;
+import com.nitrogen.domain.alert.dto.AlertResponseDTO;
 import com.nitrogen.domain.alert.entity.Alert;
-import com.nitrogen.domain.alert.entity.enums.AlertType;
 import com.nitrogen.domain.alert.repository.AlertRepository;
 import com.nitrogen.domain.user.entity.User;
-import com.nitrogen.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional(readOnly = true)
 public class AlertService {
+
     private final AlertRepository alertRepository;
-    private final UserRepository userRepository;
 
-    @Transactional
-    public void sendAndSaveAlert(FCMRequestDto fcmRequestDto, AlertType type){
-
-        User user = userRepository.findBySocialId(fcmRequestDto.targetUserId())
-                .orElseGet(() -> userRepository.findByAppleSub(fcmRequestDto.targetUserId())
-                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다.")));
-
-        Alert alert = Alert.builder()
-                .user(user)
-                .alertType(type)
-                .title(fcmRequestDto.title())
-                .message(fcmRequestDto.body())
-                .redirectUrl(fcmRequestDto.redirectUrl())
-                .isRead(false)
-                .build();
-        alertRepository.save(alert);
-
-
-        if (user.getFcmToken() != null && !user.getFcmToken().isEmpty()) {
-            sendFcmPush(user.getFcmToken(), fcmRequestDto);
-        }
+    public List<AlertResponseDTO> getAlertList(User user){
+        return alertRepository.findAllByUserOrderByCreatedAtDesc(user).stream()
+                .map(AlertResponseDTO::from)
+                .collect(Collectors.toList());
     }
 
-    private void sendFcmPush(String token, FCMRequestDto fcmRequestDto) {
-        Message message = Message.builder()
-                .setToken(token)
-                .setNotification(Notification.builder()
-                        .setTitle(fcmRequestDto.title())
-                        .setBody(fcmRequestDto.body())
-                        .build())
-                .putData("url", fcmRequestDto.redirectUrl() != null ? fcmRequestDto.redirectUrl() : "")
-                .build();
+    @Transactional
+    public void markAsRead(Long alertId, User user){
+        Alert alert = alertRepository.findById(alertId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림입니다."));
 
-        try {
-            FirebaseMessaging.getInstance().send(message);
-        } catch (Exception e) {
-            log.error("FCM 발송 에러: " + e.getMessage());
+        if(!alert.getUser().getUserId().equals(user.getUserId())){
+            throw new IllegalStateException("해당 알림에 대한 권한이 없습니다.");
         }
+        alert.markAsRead();
+    }
+
+    @Transactional
+    public void markAllAsRead(User user) {
+        List<Alert> unreadAlerts = alertRepository.findAllByUserAndIsReadFalse(user);
+        unreadAlerts.forEach(Alert::markAsRead);
     }
 }
