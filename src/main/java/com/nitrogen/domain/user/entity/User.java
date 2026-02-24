@@ -1,6 +1,7 @@
 package com.nitrogen.domain.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nitrogen.domain.alert.entity.Alert;
 import com.nitrogen.domain.expense.entity.Category;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.user.entity.enums.UserStatus;
@@ -55,6 +56,10 @@ public class User {
 
     @Column
     private String fcmToken;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Alert> alerts = new ArrayList<>();
 
     // 0214
 //    @Builder.Default
