@@ -53,6 +53,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Expense> expenses = new ArrayList<>();
 
+    @Column
+    private String fcmToken;
+
     // 0214
 //    @Builder.Default
 //    @Column(nullable = false)
