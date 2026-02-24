@@ -36,6 +36,12 @@ jobs:
           target: "~/app/Nitrogen_Server/build/libs"
           strip_components: 2
 
+      # Resources are ignored, but this code creates the file physically on the build server.
+      - name: Create Firebase Key File
+        run: |
+          mkdir -p src/main/resources/firebase
+          echo "${{ secrets.FIREBASE_KEY_JSON }}" > src/main/resources/firebase/monit-934c1-firebase-adminsdk-fbsvc-e4f3348b8c.json
+
       # 2. 8081 서버만 교체
       - name: Execute Remote SSH Commands
         uses: appleboy/ssh-action@v1.0.3

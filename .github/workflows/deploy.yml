@@ -25,6 +25,11 @@ jobs:
           mkdir -p src/main/resources
           echo "${{ secrets.APPLICATION_PROD_YML }}" > src/main/resources/application-prod.yml
 
+      - name: Create Firebase Key File
+        run: |
+          mkdir -p src/main/resources/firebase
+          echo "${{ secrets.FIREBASE_KEY_JSON }}" > src/main/resources/firebase/monit-934c1-firebase-adminsdk-fbsvc-e4f3348b8c.json
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
