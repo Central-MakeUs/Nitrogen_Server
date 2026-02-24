@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/alerts")
 @RequiredArgsConstructor
-@Tag(name = "Alert", description = "알림 관련 API")
+@Tag(name = "Alert", description = "알림 API")
 public class AlertController {
 
     private final AlertService alertService;
