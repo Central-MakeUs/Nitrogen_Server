@@ -39,6 +39,7 @@ public class ExpenseInquiryService {
         LocalDate startOfMonth = expendedAt.withDayOfMonth(1);
         LocalDate endOfMonth = expendedAt.withDayOfMonth(expendedAt.lengthOfMonth());
         long monthlyTotal = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
+        LocalDate today = LocalDate.now();
 
         List<Expense> expenseList = expenseRepository.findAllByUserUserIdAndExpendedAtWithCategory(userId, expendedAt);
         boolean hasAnyExpense = !expenseList.isEmpty();
@@ -57,8 +58,12 @@ public class ExpenseInquiryService {
         } else {
             bannerMessage = String.format("%d월 %d일의 소비, 지금은 어떤가요?",
                     expendedAt.getMonthValue(), expendedAt.getDayOfMonth());
-            bannerSubMessage = pendingCount > 0 ?
-                    String.format("아직 돌아보지 않은 소비 %d건", pendingCount) : "모든 회고를 완료했어요!";
+            if (expendedAt.isEqual(today)) {
+                bannerSubMessage = "오늘의 소비는 내일 돌아볼 수 있습니다";
+            } else {
+                bannerSubMessage = pendingCount > 0 ?
+                        String.format("아직 돌아보지 않은 소비 %d건", pendingCount) : "모든 회고를 완료했어요!";
+            }
         }
 
         List<ExpenseListDTO> dtos = expenseList.stream()
