@@ -52,7 +52,7 @@ public class ExpenseInquiryService {
         String bannerSubMessage;
 
         if (!hasAnyExpense) {
-            bannerMessage = String.format("%d월 %d일의 소비가 남겨지지 않았어요.",
+            bannerMessage = String.format("%d월 %d일의 소비회고가 이뤄지지 않았어요.",
                     expendedAt.getMonthValue(), expendedAt.getDayOfMonth());
             bannerSubMessage = "소비를 기록한 뒤 만족도를 남겨보세요";
         } else {
