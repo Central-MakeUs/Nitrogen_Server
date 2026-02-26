@@ -22,7 +22,7 @@ public class AlertService {
     private final AlertRepository alertRepository;
 
     public List<AlertResponseDTO> getAlertList(User user){
-        List<Alert> alerts = alertRepository.findAllByUserOrderByCreatedAtDesc(user);
+        List<Alert> alerts = alertRepository.findAllByUserOrderByIsReadAscCreatedAtDesc(user);
         return AlertConverter.toAlertResponseDTOList(alerts);
     }
 
@@ -47,5 +47,10 @@ public class AlertService {
     public void updateAlarmStatus(User user, boolean isAlarmOn){
         user.updateAlarmSetting(isAlarmOn);
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsUnreadAlerts(User user){
+        return alertRepository.existsByUserAndIsReadFalse(user);
     }
 }

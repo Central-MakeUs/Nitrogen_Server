@@ -15,4 +15,7 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
 
     // 읽지 않은 알림만 조회
     List<Alert> findAllByUserAndIsReadFalse(User user);
+
+    // 읽지 않은 알림이 하나라도 존재하는지 여부 판단
+    boolean existsByUserAndIsReadFalse(User user);
 }

@@ -57,4 +57,13 @@ public class AlertController {
         String status = isAlarmOn ? "허용" : "거부";
         return ApiResponse.onSuccess("알림 수신 상태가 " + status + "로 변경되었습니다.");
     }
+
+    @Operation(summary = "읽지 않은 알림 존재 여부 확인", description = "빨간 점(Badge) 표시 여부")
+    @GetMapping("/unread-status")
+    public ApiResponse<Boolean> hasUnreadAlerts(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        boolean hasUnread = alertService.existsUnreadAlerts(userDetails.getUser());
+        return ApiResponse.onSuccess(hasUnread);
+    }
 }
