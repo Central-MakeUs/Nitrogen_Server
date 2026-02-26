@@ -19,8 +19,9 @@ public class AppleUserResponseDTO {
     private String appleSub;
     @JsonProperty("isNewUser")
     private boolean newUser;
-//    @JsonProperty("isTermsAgreed")
-//    private boolean termsAgreed;
     @JsonProperty("hasExpense")
     private boolean hasExpense;
+    private boolean isHomeOnboarding;
+    private boolean isCategoryOnboarding;
+    private boolean isRemindOnboarding;
 }

@@ -13,7 +13,9 @@ public class AppleUserConverter {
                 .refreshToken(refreshToken)
                 .appleSub(user.getAppleSub())
                 .newUser(isNewUser)
-//                .termsAgreed(user.isTermsAgreed())
+                .isHomeOnboarding(user.isHomeOnboarding())
+                .isCategoryOnboarding(user.isCategoryOnboarding())
+                .isRemindOnboarding(user.isRemindOnboarding())
                 .hasExpense(hasExpense)
                 .build();
     }

@@ -97,12 +97,4 @@ public class KakaoAuthController {
 
         return ApiResponse.onSuccess(oauthService.reissueToken(pureToken));
     }
-
-    // 약관동의
-//    @Operation(summary = "약관 동의 완료 API", description = "로그인한 유저의 약관 동의 상태를 true로 변경합니다.")
-//    @PatchMapping("/terms")
-//    public ApiResponse<String> patchTerms(@AuthenticationPrincipal CustomUserDetails userDetails) {
-//        oauthService.agreeUserTerms(userDetails.getUserId());
-//        return ApiResponse.onSuccess("약관 동의 처리가 완료되었습니다.");
-//    }
 }

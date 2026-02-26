@@ -7,6 +7,7 @@ import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.domain.user.entity.enums.UserStatus;
 import com.nitrogen.domain.user.repository.UserRepository;
 import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
+import com.nitrogen.global.apiPayload.exception.GeneralException;
 import com.nitrogen.global.apiPayload.exception.UserHandler;
 import com.nitrogen.global.auth.converter.AppleUserConverter;
 import com.nitrogen.global.auth.dto.AuthResponse;
@@ -100,7 +101,6 @@ public class OauthService {
                     .nickname(userInfo.getName())
                     .provider(userInfo.getProvider())
                     .status(UserStatus.ACTIVE)
-//                    .isTermsAgreed(false)
                     .build();
 
             User savedUser = userRepository.save(newUser);
@@ -123,7 +123,9 @@ public class OauthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .newUser(isNewUser)
-//                .termsAgreed(user.isTermsAgreed())
+                .isHomeOnboarding(user.isHomeOnboarding())
+                .isCategoryOnboarding(user.isCategoryOnboarding())
+                .isRemindOnboarding(user.isRemindOnboarding())
                 .hasExpense(hasExpense)
                 .build();
     }
@@ -247,13 +249,15 @@ public class OauthService {
             return AppleUserConverter.toLoginResultDTO(user, accessToken, refreshToken, false, hasExpense);
         } else {
             String registerToken = tokenProvider.createRegisterToken(appleSub, emailFromApple);
-            boolean isHomeOnboarding, isCategoryOnboarding, isRemindOnboarding = optionalUser.isEmpty();
 
             return AppleUserResponseDTO.builder()
                     .appleSub(appleSub)
                     .email(emailFromApple)
                     .accessToken(registerToken)
                     .newUser(true)
+                    .isHomeOnboarding(true)
+                    .isCategoryOnboarding(true)
+                    .isRemindOnboarding(true)
                     .build();
         }
     }
@@ -501,11 +505,27 @@ public class OauthService {
         log.info("유저 로그아웃 성공 (ID: {})", socialId);
     }
 
-    // 약관동의(동의하는 메서드이므로 true)
-//    @Transactional
-//    public void agreeUserTerms(Long userId) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
-//        user.agreeTerms();
-//    }
+    // 온보딩 완료 처리
+    @Transactional
+    public void finishOnboarding(Long userId, String type) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_NOT_FOUND));
+
+        switch (type.toUpperCase()) {
+            case "HOME":
+                user.setHomeOnboarding(false);
+                break;
+
+            case "REMIND":
+                user.setRemindOnboarding(false);
+                break;
+
+            case "CATEGORY":
+                user.setCategoryOnboarding(false);
+                break;
+
+            default:
+                throw new GeneralException(ErrorStatus.INVALID_ONBOARDING_TYPE);
+        }
+    }
 }

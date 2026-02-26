@@ -26,7 +26,6 @@ public class AuthResponse {
     private boolean isHomeOnboarding;
     private boolean isCategoryOnboarding;
     private boolean isRemindOnboarding;
-
 }
 
 //@Getter
