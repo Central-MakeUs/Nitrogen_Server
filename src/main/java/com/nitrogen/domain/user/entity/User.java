@@ -66,4 +66,12 @@ public class User {
     private boolean isCategoryOnboarding = true;
     private boolean isRemindOnboarding = true;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isAlarmOn = true;
+
+    public void updateAlarmSetting(boolean status) {
+        this.isAlarmOn = status;
+    }
+
 }
