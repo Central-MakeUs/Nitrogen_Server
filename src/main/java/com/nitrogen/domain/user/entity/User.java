@@ -68,7 +68,7 @@ public class User {
 
     @Column(nullable = false)
     @Builder.Default
-    private boolean isAlarmOn = true;
+    private boolean isAlarmOn = false;
 
     public void updateAlarmSetting(boolean status) {
         this.isAlarmOn = status;

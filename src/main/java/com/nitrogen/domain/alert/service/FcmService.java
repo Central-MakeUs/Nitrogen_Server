@@ -40,8 +40,7 @@ public class FcmService {
                 .build();
         alertRepository.save(alert);
 
-
-        if (user.getFcmToken() != null && !user.getFcmToken().isEmpty()) {
+        if (user.isAlarmOn() && user.getFcmToken() != null && !user.getFcmToken().isEmpty()) {
             sendFcmPush(user.getFcmToken(), fcmRequestDto);
         }
     }
