@@ -61,13 +61,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Alert> alerts = new ArrayList<>();
 
-    // 0214
-//    @Builder.Default
-//    @Column(nullable = false)
-//    private boolean isTermsAgreed = false;
-//
-//    public void agreeTerms() {
-//        this.isTermsAgreed = true;
-//    }
+    // 0226
+    private boolean isHomeOnboarding = true;
+    private boolean isCategoryOnboarding = true;
+    private boolean isRemindOnboarding = true;
 
 }

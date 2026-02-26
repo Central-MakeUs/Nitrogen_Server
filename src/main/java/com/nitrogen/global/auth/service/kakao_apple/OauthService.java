@@ -247,6 +247,7 @@ public class OauthService {
             return AppleUserConverter.toLoginResultDTO(user, accessToken, refreshToken, false, hasExpense);
         } else {
             String registerToken = tokenProvider.createRegisterToken(appleSub, emailFromApple);
+            boolean isHomeOnboarding, isCategoryOnboarding, isRemindOnboarding = optionalUser.isEmpty();
 
             return AppleUserResponseDTO.builder()
                     .appleSub(appleSub)
