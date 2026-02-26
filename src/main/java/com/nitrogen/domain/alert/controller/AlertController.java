@@ -52,6 +52,9 @@ public class AlertController {
     public ApiResponse<String> updateAlarmStatus(
             @RequestParam boolean isAlarmOn,
             @AuthenticationPrincipal CustomUserDetails userDetails){
+        alertService.updateAlarmStatus(userDetails.getUser(), isAlarmOn);
 
+        String status = isAlarmOn ? "허용" : "거부";
+        return ApiResponse.onSuccess("알림 수신 상태가 " + status + "로 변경되었습니다.");
     }
 }
