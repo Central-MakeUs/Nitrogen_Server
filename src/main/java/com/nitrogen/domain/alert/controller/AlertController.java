@@ -22,7 +22,7 @@ public class AlertController {
     private final FcmService fcmService;
     private final AlertService alertService;
 
-    @Operation(summary = "FCM 토큰 업데이트", description = "로그인 직후 기기의 FCM 토큰을 서버에 등록합니다.")
+    @Operation(summary = "FCM 토큰 업데이트(등록)", description = "로그인 직후 기기의 FCM 토큰을 서버에 등록합니다.")
     @PatchMapping("/fcm-token")
     public ApiResponse<String> updateFcmToken(
             @RequestParam String fcmToken,
