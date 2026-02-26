@@ -47,4 +47,11 @@ public class AlertController {
 //        alertService.markAllAsRead(userDetails.getUser());
 //        return ApiResponse.onSuccess("모든 알림이 읽음 처리되었습니다.");
 //    }
+    @Operation(summary = "알림 수신 동의 상태 변경", description = "유저의 알림 수신 허용/거부 상태를 업데이트합니다.")
+    @PatchMapping("/settings")
+    public ApiResponse<String> updateAlarmStatus(
+            @RequestParam boolean isAlarmOn,
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+
+    }
 }

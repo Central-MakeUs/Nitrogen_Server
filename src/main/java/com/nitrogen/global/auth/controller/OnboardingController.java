@@ -1,5 +1,6 @@
 package com.nitrogen.global.auth.controller;
 
+import com.nitrogen.domain.user.entity.CustomUserDetails;
 import com.nitrogen.global.apiPayload.ApiResponse;
 import com.nitrogen.global.auth.service.kakao_apple.OauthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,16 +22,16 @@ public class OnboardingController {
      * 홈 온보딩
      */
     @PatchMapping("/home")
-    public ApiResponse<String> completeHomeOnboarding(@AuthenticationPrincipal Long userId) {
-        oauthService.finishOnboarding(userId, "HOME");
+    public ApiResponse<String> completeHomeOnboarding(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        oauthService.finishOnboarding(userDetails.getUserId(), "HOME");
         return ApiResponse.onSuccess("홈 온보딩 완료");
     }
     /**
      * 카테고리 온보딩
      */
     @PatchMapping("/category")
-    public ApiResponse<String> completeCategoryOnboarding(@AuthenticationPrincipal Long userId) {
-        oauthService.finishOnboarding(userId, "CATEGORY");
+    public ApiResponse<String> completeCategoryOnboarding(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        oauthService.finishOnboarding(userDetails.getUserId(), "CATEGORY");
         return ApiResponse.onSuccess("카테고리 온보딩 완료");
     }
 
@@ -38,8 +39,8 @@ public class OnboardingController {
      * 소비회고 온보딩
      */
     @PatchMapping("/remind")
-    public ApiResponse<String> completeRemindOnboarding(@AuthenticationPrincipal Long userId) {
-        oauthService.finishOnboarding(userId, "REMIND");
+    public ApiResponse<String> completeRemindOnboarding(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        oauthService.finishOnboarding(userDetails.getUserId(), "REMIND");
         return ApiResponse.onSuccess("소비회고 온보딩 완료");
     }
 }
