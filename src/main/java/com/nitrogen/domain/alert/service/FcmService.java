@@ -24,6 +24,12 @@ public class FcmService {
     private final UserRepository userRepository;
 
     @Transactional
+    public void updateFcmToken(User user, String fcmToken) {
+        user.setFcmToken(fcmToken);
+        userRepository.save(user);
+    }
+
+    @Transactional
     public void sendAndSaveAlert(FCMRequestDTO fcmRequestDto, AlertType type){
 
         User user = userRepository.findBySocialId(fcmRequestDto.targetUserId())

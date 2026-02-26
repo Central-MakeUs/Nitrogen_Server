@@ -2,6 +2,7 @@ package com.nitrogen.domain.alert.controller;
 
 import com.nitrogen.domain.alert.dto.AlertResponseDTO;
 import com.nitrogen.domain.alert.service.AlertService;
+import com.nitrogen.domain.alert.service.FcmService;
 import com.nitrogen.domain.user.entity.CustomUserDetails;
 import com.nitrogen.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,7 +19,18 @@ import java.util.List;
 @Tag(name = "Alert", description = "푸쉬알림 API")
 public class AlertController {
 
+    private final FcmService fcmService;
     private final AlertService alertService;
+
+    @Operation(summary = "FCM 토큰 업데이트", description = "로그인 직후 기기의 FCM 토큰을 서버에 등록합니다.")
+    @PatchMapping("/fcm-token")
+    public ApiResponse<String> updateFcmToken(
+            @RequestParam String fcmToken,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        fcmService.updateFcmToken(userDetails.getUser(), fcmToken);
+        return ApiResponse.onSuccess("FCM 토큰이 성공적으로 등록되었습니다.");
+    }
 
     @Operation(summary = "알림 목록 조회", description = "유저의 알림 목록을 최신순으로 조회합니다.")
     @GetMapping
