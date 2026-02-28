@@ -48,7 +48,17 @@ public class KakaoAuthController {
         String kakaoAccessToken = (String) body.get("accessToken");
         AuthResponse authResponse = oauthService.loginOrSignup(kakaoAccessToken);
 
-        response.addHeader("RefreshToken", "Bearer " + authResponse.getRefreshToken());
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", authResponse.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        authResponse.setRefreshToken(null); // 응답에서 RefreshToken 제거
+
         return ApiResponse.onSuccess(authResponse);
     }
 
@@ -85,18 +95,29 @@ public class KakaoAuthController {
     /**
      * 토큰 재발급
      */
-    @Operation(summary = "토큰 재발급 API", description = "헤더의 RefreshToken(Bearer 형기)으로 토큰을 재발급합니다.")
+    @Operation(summary = "토큰 재발급 API", description = "요청 헤더 대신 쿠키에서 refreshToken을 재발급합니다.")
     @PostMapping("/reissue")
     public ApiResponse<UserResponseDTO.TokenReissueResultDTO> reissue(
-            @RequestHeader("RefreshToken") String refreshToken) {
+            @CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse response) {
 
         if (refreshToken == null || refreshToken.isBlank()) {
             throw new UserHandler(ErrorStatus.INVALID_TOKEN);
         }
 
-        String pureToken = refreshToken.startsWith("Bearer ") ?
-                refreshToken.substring(7).trim() : refreshToken.trim();
+        String pureToken = refreshToken.trim();
+        UserResponseDTO.TokenReissueResultDTO reissueResult = oauthService.reissueToken(pureToken);
 
-        return ApiResponse.onSuccess(oauthService.reissueToken(pureToken));
+        ResponseCookie newCookie = ResponseCookie.from("refreshToken", reissueResult.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, newCookie.toString());
+        reissueResult.setRefreshToken(null); // 응답에서 RefreshToken 제거
+
+        return ApiResponse.onSuccess(reissueResult);
     }
 }
