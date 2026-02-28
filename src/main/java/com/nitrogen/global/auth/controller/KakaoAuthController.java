@@ -43,11 +43,13 @@ public class KakaoAuthController {
     )
     @PostMapping("/kakao/login")
     public ApiResponse<AuthResponse> kakaoLogin(
-            @RequestBody Map<String, Object> body) {
+            @RequestBody Map<String, Object> body, HttpServletResponse response) {
 
         String kakaoAccessToken = (String) body.get("accessToken");
-        AuthResponse response = oauthService.loginOrSignup(kakaoAccessToken);
-        return ApiResponse.onSuccess(response);
+        AuthResponse authResponse = oauthService.loginOrSignup(kakaoAccessToken);
+
+        response.addHeader("RefreshToken", "Bearer " + authResponse.getRefreshToken());
+        return ApiResponse.onSuccess(authResponse);
     }
 
     // 쿠키 방식 백업
