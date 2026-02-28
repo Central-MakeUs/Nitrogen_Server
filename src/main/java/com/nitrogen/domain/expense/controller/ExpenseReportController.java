@@ -84,7 +84,7 @@ public class ExpenseReportController {
         LocalDate end = start.plusDays(6);
 
         int month = date.getMonthValue();
-        int weekOfMonth = date.get(WeekFields.ISO.weekOfMonth());
+        int weekOfMonth = date.get(WeekFields.ISO.weekOfMonth()) + 1;
         String weekRange = String.format("%d년 %d월 %d주차 분석 리포트", date.getYear(), month, weekOfMonth);
 
         WeeklyDetailReportResponse response = weeklyDetailRecordService.generateWeeklyDetailReport(
