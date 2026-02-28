@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
 import java.util.Comparator;
 import java.util.List;
@@ -26,6 +27,10 @@ public class WeeklyRecordService {
         List<Expense> weeklyExpenses = expenseRepository.findAllByUserIdAndExpendedAtBetweenWithCategory(userId, start, end);
 
         long weeklyTotalAmount = weeklyExpenses.stream().mapToLong(Expense::getAmount).sum();
+
+        DateTimeFormatter startFormatter = DateTimeFormatter.ofPattern("yy.MM.dd");
+        DateTimeFormatter endFormatter = DateTimeFormatter.ofPattern("MM.dd");
+        String weekPeriod = String.format("%s ~ %s", start.format(startFormatter), end.format(endFormatter));
 
         LocalDate thursday = start.plusDays(3);
         int isoYear = thursday.get(WeekFields.ISO.weekBasedYear());
@@ -46,7 +51,7 @@ public class WeeklyRecordService {
         EmotionSummary topEmotion = emotionDetails.isEmpty() ? null : emotionDetails.get(0);
 
         String weekRange = String.format("%d년 %d월 %d주차", isoYear, isoMonth, week);
-        return new WeeklyReportResponse(weekRange, weeklyTotalAmount, topEmotion, emotionDetails);
+        return new WeeklyReportResponse(weekRange, weekPeriod, weeklyTotalAmount, topEmotion, emotionDetails);
     }
     /**
      * 지출 금액 내림차순 -> 소비 건수 내림차순 -> 이름(ㄱㄴㄷ) 오름차순
