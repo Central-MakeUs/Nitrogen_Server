@@ -106,6 +106,8 @@ public class TokenProvider {
         }
     }
 
+
+    // apple
     public String createRegisterToken(String appleSub, String email) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + registerExpiration);
@@ -113,6 +115,22 @@ public class TokenProvider {
         return Jwts.builder()
                 .setSubject(appleSub)
                 .claim("email", email)
+                .claim("type", "REGISTER")
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    // kakao
+    public String createKakaoRegisterToken(String socialId, String email, String nickname) {
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + registerExpiration);
+
+        return Jwts.builder()
+                .setSubject(socialId)
+                .claim("email", email)
+                .claim("nickname", nickname)
                 .claim("type", "REGISTER")
                 .setIssuedAt(now)
                 .setExpiration(validity)

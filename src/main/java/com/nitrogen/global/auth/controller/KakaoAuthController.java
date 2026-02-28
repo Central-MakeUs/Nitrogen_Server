@@ -33,20 +33,37 @@ public class KakaoAuthController {
     private final OauthService oauthService;
     private final TokenProvider tokenProvider;
 
-    @Operation(summary = "카카오 로그인", description = "프론트에서 받은 카카오 유저 정보를 통해 로그인을 진행하고 JWT 및 유저 정보를 반환한다.")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            content = @io.swagger.v3.oas.annotations.media.Content(
-                    examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
-                            value = "{\"accessToken\": \"\"}"
-                    )
-            )
-    )
+    @Operation(summary = "카카오 로그인/체크", description = "카카오 토큰으로 기존 유저인지 확인한다. 신규 유저면 newUser: true와 임시 토큰을 반환한다.")
     @PostMapping("/kakao/login")
     public ApiResponse<AuthResponse> kakaoLogin(
             @RequestBody Map<String, Object> body, HttpServletResponse response) {
 
         String kakaoAccessToken = (String) body.get("accessToken");
-        AuthResponse authResponse = oauthService.loginOrSignup(kakaoAccessToken);
+        AuthResponse authResponse = oauthService.kakaoLoginOrCheck(kakaoAccessToken);
+
+        if (!authResponse.isNewUser()) {
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", authResponse.getRefreshToken())
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60)
+                    .sameSite("Lax")
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            authResponse.setRefreshToken(null);
+        }
+
+        return ApiResponse.onSuccess(authResponse);
+    }
+
+    @Operation(summary = "카카오 회원가입", description = "임시 토큰을 이용해 카카오 가입을 완료하고 정식 JWT를 발급한다.")
+    @PostMapping("/kakao/signup")
+    public ApiResponse<AuthResponse> kakaoSignup(
+            @RequestBody Map<String, Object> body, HttpServletResponse response) {
+
+        String registerToken = (String) body.get("registerToken");
+        AuthResponse authResponse = oauthService.signUpKakao(registerToken);
 
         ResponseCookie cookie = ResponseCookie.from("refreshToken", authResponse.getRefreshToken())
                 .httpOnly(true)
@@ -57,21 +74,10 @@ public class KakaoAuthController {
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        authResponse.setRefreshToken(null); // 응답에서 RefreshToken 제거
+        authResponse.setRefreshToken(null);
 
         return ApiResponse.onSuccess(authResponse);
     }
-
-    // 쿠키 방식 백업
-//        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-//                .httpOnly(true)
-//                .secure(true)
-//                .path("/")
-//                .maxAge(7 * 24 * 60 * 60)
-//                .sameSite("Lax")
-//                .build();
-
-//        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
     @Operation(summary = "회원 탈퇴", description = "현재 로그인한 유저의 정보를 삭제한다.")
     @DeleteMapping("/withdraw")
@@ -120,4 +126,16 @@ public class KakaoAuthController {
 
         return ApiResponse.onSuccess(reissueResult);
     }
+
+    // 쿠키 방식 백업
+//        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+//                .httpOnly(true)
+//                .secure(true)
+//                .path("/")
+//                .maxAge(7 * 24 * 60 * 60)
+//                .sameSite("Lax")
+//                .build();
+
+//        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
 }
