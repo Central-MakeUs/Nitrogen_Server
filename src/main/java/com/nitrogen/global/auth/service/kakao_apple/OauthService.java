@@ -79,8 +79,8 @@ public class OauthService {
 //    private String appleRedirectUri;
 
     // kakao
-    public AuthResponse loginOrSignup(String kakaoAccessToken) {
-
+    public AuthResponse kakaoLoginOrCheck(String kakaoAccessToken) {
+        // 1. 카카오 사용자 정보 조회 (RestTemplate)
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + kakaoAccessToken);
@@ -90,43 +90,80 @@ public class OauthService {
         ).getBody();
 
         KakaoUserInfo userInfo = new KakaoUserInfo(kakaoAttributes);
+        String socialId = userInfo.getProviderId();
 
-        Optional<User> optionalUser = userRepository.findBySocialId(userInfo.getProviderId());
-        boolean isNewUser = optionalUser.isEmpty();
+        Optional<User> optionalUser = userRepository.findBySocialId(socialId);
 
-        User user = optionalUser.orElseGet(() -> {
-            User newUser = User.builder()
-                    .socialId(userInfo.getProviderId())
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            String accessToken = tokenProvider.createToken(user.getSocialId());
+            String refreshToken = tokenProvider.createRefreshToken(user.getSocialId());
+
+            user.setRefreshToken(refreshToken);
+            userRepository.save(user);
+
+            boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
+
+            return AuthResponse.builder()
+                    .userId(user.getUserId())
+                    .email(user.getEmail())
+                    .nickname(user.getNickname())
+                    .type(user.getProvider())
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .newUser(false)
+                    .hasExpense(hasExpense)
+                    .isHomeOnboarding(user.isHomeOnboarding())
+                    .isCategoryOnboarding(user.isCategoryOnboarding())
+                    .isRemindOnboarding(user.isRemindOnboarding())
+                    .build();
+        } else {
+            String registerToken = tokenProvider.createKakaoRegisterToken(socialId, userInfo.getEmail(), userInfo.getName());
+
+            return AuthResponse.builder()
                     .email(userInfo.getEmail())
                     .nickname(userInfo.getName())
-                    .provider(userInfo.getProvider())
-                    .status(UserStatus.ACTIVE)
+                    .type("kakao")
+                    .accessToken(registerToken)
+                    .newUser(true)
                     .build();
+        }
+    }
 
-            User savedUser = userRepository.save(newUser);
-            categoryService.initUserCategories(savedUser);
-            return savedUser;
-        });
+    @Transactional
+    public AuthResponse signUpKakao(String registerToken) {
+        Claims claims = tokenProvider.parseRegisterToken(registerToken);
+        String socialId = claims.getSubject();
+        String email = claims.get("email", String.class);
+        String nickname = claims.get("nickname", String.class);
 
-        boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
+        User newUser = User.builder()
+                .socialId(socialId)
+                .email(email)
+                .nickname(nickname)
+                .provider("kakao")
+                .status(UserStatus.ACTIVE)
+                .build();
 
-        String accessToken = tokenProvider.createToken(user.getSocialId());
-        String refreshToken = tokenProvider.createRefreshToken(user.getSocialId());
-        user.setRefreshToken(refreshToken);
-        userRepository.save(user);
+        User savedUser = userRepository.save(newUser);
+        categoryService.initUserCategories(savedUser);
+
+        String accessToken = tokenProvider.createToken(socialId);
+        String refreshToken = tokenProvider.createRefreshToken(socialId);
+        savedUser.setRefreshToken(refreshToken);
 
         return AuthResponse.builder()
-                .userId(user.getUserId())
-                .email(user.getEmail())
-                .nickname(user.getNickname())
-                .type(user.getProvider())
+                .userId(savedUser.getUserId())
+                .email(savedUser.getEmail())
+                .nickname(savedUser.getNickname())
+                .type(savedUser.getProvider())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .newUser(isNewUser)
-                .isHomeOnboarding(user.isHomeOnboarding())
-                .isCategoryOnboarding(user.isCategoryOnboarding())
-                .isRemindOnboarding(user.isRemindOnboarding())
-                .hasExpense(hasExpense)
+                .newUser(false)
+                .hasExpense(false)
+                .isHomeOnboarding(savedUser.isHomeOnboarding())
+                .isCategoryOnboarding(savedUser.isCategoryOnboarding())
+                .isRemindOnboarding(savedUser.isRemindOnboarding())
                 .build();
     }
 

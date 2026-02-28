@@ -6,6 +6,7 @@ import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.expense.entity.enums.EmotionType;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,6 +22,11 @@ import java.util.stream.Collectors;
 public class WeeklyRecordService {
 
     private final ExpenseRepository expenseRepository;
+
+    // 분석리포트 도착메세지 api
+//    public WeeklyCard generateWeeklyCard(Long UserId, LocalDate start, LocalDate start, LocalDate end, int week){
+//
+//    }
 
     public WeeklyReportResponse generateWeeklyReport(Long userId, LocalDate start, LocalDate end, int week) {
 
