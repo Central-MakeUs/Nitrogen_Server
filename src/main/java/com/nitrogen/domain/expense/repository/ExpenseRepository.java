@@ -81,4 +81,6 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     // 유저의 지출 중 오늘 이전 날짜이면서 아직 평가가 되지 않은 것이 있는지 확인
     boolean existsByEvaluationTypeIsNullAndUserAndExpendedAtBefore(User user, LocalDate date);
+
+    boolean existsByUserUserIdAndExpendedAtBetween(Long userId, LocalDate start, LocalDate end);
 }

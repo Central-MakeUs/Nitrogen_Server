@@ -27,6 +27,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -57,19 +58,23 @@ public class ExpenseReportController {
         String monthTitle = String.format("%d년 %d월 소비 현황", now.getYear(), now.getMonthValue());
         MonthlyReportSummaryResponse monthlyReport = new MonthlyReportSummaryResponse(monthTitle, monthlyTotalAmount, isOpened);
 
+        List<WeeklyReportResponse> weeklyReports = new ArrayList<>();
+
         // 주간 리포트 데이터 준비 (직전 주차 계산)
-        LocalDate lastMonday = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(1);
-        LocalDate lastSunday = lastMonday.plusDays(6);
-        int weekOfMonth = lastMonday.get(WeekFields.ISO.weekOfMonth());
+        LocalDate checkDate = startOfMonth.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate currentWeekMonday = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-        WeeklyReportResponse weeklyReport = weeklyRecordService.generateWeeklyReport(
-                userId,
-                lastMonday,
-                lastSunday,
-                weekOfMonth
-        );
+        while (checkDate.isBefore(currentWeekMonday)) {
+            LocalDate sunday = checkDate.plusDays(6);
 
-        return ApiResponse.onSuccess(new SummaryRecordResponse(monthlyReport, weeklyReport));
+            if (expenseRepository.existsByUserUserIdAndExpendedAtBetween(userId, checkDate, sunday)) {
+                int weekOfMonth = checkDate.get(WeekFields.ISO.weekOfMonth());
+                weeklyReports.add(weeklyRecordService.generateWeeklyReport(userId, checkDate, sunday, weekOfMonth));
+            }
+            checkDate = checkDate.plusWeeks(1);
+        }
+
+        return ApiResponse.onSuccess(new SummaryRecordResponse(monthlyReport, weeklyReports));
     }
 
     @Operation(summary = "주간 분석 상세 리포트 조회", description = "특정 주차의 감정 분석, 만족도 통계, TOP 3 지출 내역 등 상세 데이터를 조회합니다.")
