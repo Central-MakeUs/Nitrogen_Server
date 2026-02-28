@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
@@ -46,25 +47,31 @@ public class ExpenseReportController {
     @GetMapping("/summary_record")
     public ApiResponse<SummaryRecordResponse> getSummaryRecord(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
-        LocalDate now = LocalDate.now();
+        LocalDateTime nowDateTime = LocalDateTime.now();
+        LocalDate nowDate = nowDateTime.toLocalDate();
 
         // 월별 리포트 데이터 준비 https://m.blog.naver.com/seek316/222319652865
-        LocalDate startOfMonth = now.withDayOfMonth(1);
-        LocalDate endOfMonth = now.withDayOfMonth(now.lengthOfMonth());
+        LocalDate startOfMonth = nowDate.withDayOfMonth(1);
+        LocalDate endOfMonth = nowDate.withDayOfMonth(nowDate.lengthOfMonth());
         long monthlyTotalAmount = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
 
         // 월별 리포트는 다음달 1일에 오픈
         boolean isOpened = false;
-        String monthTitle = String.format("%d년 %d월 소비 현황", now.getYear(), now.getMonthValue());
+        String monthTitle = String.format("%d년 %d월 소비 현황", nowDate.getYear(), nowDate.getMonthValue());
         MonthlyReportSummaryResponse monthlyReport = new MonthlyReportSummaryResponse(monthTitle, monthlyTotalAmount, isOpened);
 
         List<WeeklyReportResponse> weeklyReports = new ArrayList<>();
 
-        // 주간 리포트 데이터 준비 (직전 주차 계산)
-        LocalDate checkDate = startOfMonth.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        LocalDate currentWeekMonday = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        // 월요일 오전 8시 생성 기준점 계산
+        LocalDateTime thisWeekGenTime = nowDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atTime(8, 0);
 
-        while (checkDate.isBefore(currentWeekMonday)) {
+        LocalDate lastAvailableMonday = nowDateTime.isBefore(thisWeekGenTime)
+                ? nowDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(2)
+                : nowDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(1);
+
+        LocalDate checkDate = startOfMonth.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        while (!checkDate.isAfter(lastAvailableMonday)) {
             LocalDate sunday = checkDate.plusDays(6);
 
             if (expenseRepository.existsByUserUserIdAndExpendedAtBetween(userId, checkDate, sunday)) {
