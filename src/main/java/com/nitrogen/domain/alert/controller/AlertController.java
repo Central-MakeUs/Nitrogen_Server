@@ -41,24 +41,25 @@ public class AlertController {
         return ApiResponse.onSuccess(responses);
     }
 
-    @Operation(summary = "알림 개별 읽음 처리", description = "특정 알림을 읽음 상태로 변경합니다.")
-    @PatchMapping("/{alertId}/read")
-    public ApiResponse<String> markAsRead(
-            @PathVariable Long alertId,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-
-        alertService.markAsRead(alertId, userDetails.getUser());
-        return ApiResponse.onSuccess("알림이 읽음 처리되었습니다.");
-    }
-
-//    @Operation(summary = "알림 전체 읽음 처리", description = "읽지 않은 모든 알림을 읽음 상태로 변경합니다.")
-//    @PatchMapping("/read-all")
-//    public ApiResponse<String> markAllAsRead(
+//    @Operation(summary = "알림 개별 읽음 처리", description = "특정 알림을 읽음 상태로 변경합니다.")
+//    @PatchMapping("/{alertId}/read")
+//    public ApiResponse<String> markAsRead(
+//            @PathVariable Long alertId,
 //            @AuthenticationPrincipal CustomUserDetails userDetails) {
 //
-//        alertService.markAllAsRead(userDetails.getUser());
-//        return ApiResponse.onSuccess("모든 알림이 읽음 처리되었습니다.");
+//        alertService.markAsRead(alertId, userDetails.getUser());
+//        return ApiResponse.onSuccess("알림이 읽음 처리되었습니다.");
 //    }
+
+    @Operation(summary = "알림 전체 읽음 처리", description = "읽지 않은 모든 알림을 읽음 상태로 변경합니다.")
+    @PatchMapping("/read-all")
+    public ApiResponse<String> markAllAsRead(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        alertService.markAllAsRead(userDetails.getUser());
+        return ApiResponse.onSuccess("모든 알림이 읽음 처리되었습니다.");
+    }
+
     @Operation(summary = "알림 수신 동의 상태 변경", description = "유저의 알림 수신 허용/거부 상태를 업데이트합니다.")
     @PatchMapping("/settings")
     public ApiResponse<String> updateAlarmStatus(
