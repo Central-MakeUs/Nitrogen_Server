@@ -62,8 +62,11 @@ public class User {
     private List<Alert> alerts = new ArrayList<>();
 
     // 0226
+    @Builder.Default
     private boolean isHomeOnboarding = true;
+    @Builder.Default
     private boolean isCategoryOnboarding = true;
+    @Builder.Default
     private boolean isRemindOnboarding = true;
 
     @Column(nullable = false)

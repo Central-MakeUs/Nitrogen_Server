@@ -143,6 +143,9 @@ public class OauthService {
                 .nickname(nickname)
                 .provider("kakao")
                 .status(UserStatus.ACTIVE)
+                .isHomeOnboarding(true)
+                .isCategoryOnboarding(true)
+                .isRemindOnboarding(true)
                 .build();
 
         User savedUser = userRepository.save(newUser);
@@ -311,6 +314,9 @@ public class OauthService {
                 .email(email)
                 .provider("apple")
                 .status(UserStatus.ACTIVE)
+                .isHomeOnboarding(true)
+                .isCategoryOnboarding(true)
+                .isRemindOnboarding(true)
                 .build();
 
         User savedUser = userRepository.save(newUser);
