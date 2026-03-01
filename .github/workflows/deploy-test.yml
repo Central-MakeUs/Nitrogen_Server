@@ -22,10 +22,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Create Firebase Key File
+        run: |
+          mkdir -p src/main/resources/firebase
+          echo "${{ secrets.FIREBASE_KEY_JSON }}" > src/main/resources/firebase/monit-934c1-firebase-adminsdk-fbsvc-e4f3348b8c.json
+
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      # 1. 빌드된 JAR 파일을 EC2로 전송
       - name: Copy JAR to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -33,16 +37,9 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "build/libs/NITROGEN-0.0.1-SNAPSHOT.jar"
-          target: "~/app/Nitrogen_Server/build/libs"
+          target: "~/app/Nitrogen_Server/test"
           strip_components: 2
 
-      # Resources are ignored, but this code creates the file physically on the build server.
-      - name: Create Firebase Key File
-        run: |
-          mkdir -p src/main/resources/firebase
-          echo "${{ secrets.FIREBASE_KEY_JSON }}" > src/main/resources/firebase/monit-934c1-firebase-adminsdk-fbsvc-e4f3348b8c.json
-
-      # 2. 8081 서버만 교체
       - name: Execute Remote SSH Commands
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -50,16 +47,11 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd ~/app/Nitrogen_Server/build/libs
-
-            # 8081 포트를 사용 중인 프로세스만 종료 (운영 서버 8080은 유지)
+            cd ~/app/Nitrogen_Server/test
             sudo fuser -k 8081/tcp || true
-            
-            # 불필요한 파일 삭제
             find . -name "*-plain.jar" -delete
             
-            # 테스트 서버 실행 (포트 8081, 테스트용 yml 사용, 로그 파일 분리)
             nohup java -Xms128M -Xmx512M -jar NITROGEN-0.0.1-SNAPSHOT.jar \
             --spring.config.location=file:./application-test.yml \
             --server.port=8081 \
-            > nohup_dev.out 2>&1 &
+            > test_nohup.out 2>&1 &
