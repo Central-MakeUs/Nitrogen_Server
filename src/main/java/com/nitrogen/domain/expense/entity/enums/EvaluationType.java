@@ -1,5 +1,8 @@
 package com.nitrogen.domain.expense.entity.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum EvaluationType {
     VERY_SATISFIED("정말 만족했어요"),
     SATISFIED("대체로 만족해요"),
