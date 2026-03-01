@@ -1,7 +1,3 @@
-feature/apple-login-split : 운영서버 배포전 신규기능 업데이트및 테스트용
-<p></p>
-dev : 운영서버 배포용
-
 ## 🛠 Tech Stack
 
 ### 🚀 Core
@@ -29,11 +25,3 @@ dev : 운영서버 배포용
 ![HTTPS](https://img.shields.io/badge/HTTPS-SSL-green?style=for-the-badge&logo=letsencrypt&logoColor=white)
 
 ![Domain](https://img.shields.io/badge/Domain-Gabia-FF6B00?style=for-the-badge)
-
-
----
-
-## 📊 ERD (Entity Relationship Diagram) 0111기준
-<img width="592" height="681" alt="image" src="https://github.com/user-attachments/assets/4783dc4d-0df7-4283-8780-5ee29681ee0a" />
-
-
