@@ -24,7 +24,8 @@ public class WeeklyRecordService {
     private final ExpenseRepository expenseRepository;
 
     // 분석리포트 도착메세지 api
-//    public WeeklyCard generateWeeklyCard(Long UserId, LocalDate start, LocalDate start, LocalDate end, int week){
+//    public MonthlyReportSummaryResponse generateWeeklyCard(Long UserId, LocalDate start, LocalDate start, LocalDate end, int week){
+//          List<Expense> currentMonthExpenses = expenseRepository.findAllByUserIdAndExpendedAtBetweenWithCategory(userId, start, end);
 //
 //    }
 
