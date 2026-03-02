@@ -14,8 +14,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
-    // 특정 날짜 지출내역 조회
-    @Query("SELECT e FROM Expense e JOIN FETCH e.category WHERE e.user.userId = :userId AND e.expendedAt = :expendedAt")
+    // 특정 날짜 지출내역 최신순 조회
+    @Query("SELECT e FROM Expense e JOIN FETCH e.category WHERE e.user.userId = :userId AND e.expendedAt = :expendedAt " + "ORDER BY e.id DESC")
     List<Expense> findAllByUserUserIdAndExpendedAtWithCategory(@Param("userId") Long userId, @Param("expendedAt") LocalDate expendedAt);
 
     // 월별 총액을 위한 계산
