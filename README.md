@@ -3,17 +3,15 @@
 <br/>
 
 <div align="center">
-  <img src="https://avatars.githubusercontent.com/huggywuggy1289" width="180px;" alt="huggywuggy1289 profile"/>
+  <img src="https://avatars.githubusercontent.com/huggywuggy1289" width="160px" style="border-radius: 50%;" alt="huggywuggy1289 profile"/>
   
   ## 💻 Backend Architect & DevOps
-  **[huggywuggy1289](https://github.com/huggywuggy1289)**
+  ### **[huggywuggy1289](https://github.com/huggywuggy1289)**
   
+  > **"안녕하세요"**
+
   <br/>
-
-  > "안녕하세요"
 </div>
-
-<br/>
 
 ---
 
