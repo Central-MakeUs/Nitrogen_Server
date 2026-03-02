@@ -36,19 +36,3 @@
 ![CI/CD](https://img.shields.io/badge/GitHubActions(CI%2FCD)--2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 ![Deployment](https://img.shields.io/badge/Deployment--Automated--success?style=for-the-badge)
 ![FCM](https://img.shields.io/badge/FCM(Firebase%20Cloud%20Messaging)--FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
-
----
-
-## 📊 ERD (Entity Relationship Diagram)
-<br/>
-<div align="center">
-  <img width="637" height="709" alt="image" src="https://github.com/user-attachments/assets/4dbf6bb0-44a6-4fd5-a85b-285a6adc2140" />
-</div>
-<br/>
-
----
-
-## 🚀 Roadmap (Future Enhancements)
-- [ ] **`Containerization`**: Docker 도입을 통한 배포 환경 일관성 확보
-- [ ] **`Monitoring`**: Prometheus & Grafana 연동을 통한 실시간 지표 시각화
-- [ ] **`Zero-Downtime`**: Nginx 스위칭을 활용한 완전한 무중단 배포 구현
