@@ -1,3 +1,27 @@
+# 🏗️ System Architecture & Roadmap
+
+## 1. Overall System Design
+> 본 프로젝트는 단일 EC2 인스턴스 내에서 **Nginx를 활용한 환경 격리(Isolation)**를 통해 운영 안정성과 개발 효율성을 동시에 확보한 아키텍처를 지향합니다.
+
+## 🛠️ Key Implementation Details
+
+### 🔒 Environment Isolation (Blue-Green Logic)
+* **Production (`Port 8080`)**: 실제 유저가 사용하는 안정적인 서비스 환경입니다.
+* **Staging/Test (`Port 8081`)**: `FCM`, `Apple Login` 등 신규 기능을 배포 전 검증하는 격리된 테스트 환경입니다.
+
+### 🤖 Automation Workflow
+* **`main` 브랜치**: 푸시 시 운영 서버(`application-prod.yml`)로 자동 배포됩니다.
+* **`develop` 브랜치**: 푸시 시 테스트 서버(`application-test.yml`)로 자동 배포됩니다.
+
+---
+
+## 🚀 Roadmap (Future Enhancements)
+- [ ] **`Containerization`**: Docker 도입을 통한 배포 환경 일관성 확보
+- [ ] **`Monitoring`**: Prometheus & Grafana 연동을 통한 실시간 지표 시각화
+- [ ] **`Zero-Downtime`**: Nginx 스위칭을 활용한 완전한 무중단 배포 구현
+
+---
+
 ## 🛠 Tech Stack
 
 ### 🚀 Core
@@ -32,38 +56,3 @@
 ## 📊 ERD (Entity Relationship Diagram)
 
 <img width="637" height="709" alt="image" src="https://github.com/user-attachments/assets/4dbf6bb0-44a6-4fd5-a85b-285a6adc2140" />
-
----
-
-# 🏗️ System Architecture & Roadmap
-
-## 1. Overall System Design
-> 본 프로젝트는 단일 EC2 인스턴스 내에서 **Nginx를 활용한 환경 격리(Isolation)**를 통해 운영 안정성과 개발 효율성을 동시에 확보한 아키텍처를 지향합니다.
-
-| 구분 | 기술 스택 | 주요 역할 |
-| :--- | :--- | :--- |
-| **Infra** | `AWS EC2`, `VPC` | 가상 네트워크 환경 내 단일 인스턴스 호스팅 |
-| **Proxy** | `Nginx` | Reverse Proxy를 통한 포트 기반 트래픽 라우팅 (8080/8081) |
-| **Backend** | `Spring Boot 3.x` | 서비스 로직 및 API 제공 |
-| **Database** | `AWS RDS (MySQL)` | 데이터 영속성 관리 및 환경 간 데이터 공유 |
-| **CI/CD** | `GitHub Actions` | 브랜치별 독립 배포 자동화 파이프라인 구축 |
-
----
-
-## 🛠️ Key Implementation Details
-
-### 🔒 Environment Isolation (Blue-Green Logic)
-* **Production (`Port 8080`)**: 실제 유저가 사용하는 안정적인 서비스 환경입니다.
-* **Staging/Test (`Port 8081`)**: `FCM`, `Apple Login` 등 신규 기능을 배포 전 검증하는 격리된 테스트 환경입니다.
-
-### 🤖 Automation Workflow
-* **`main` 브랜치**: 푸시 시 운영 서버(`application-prod.yml`)로 자동 배포됩니다.
-* **`develop` 브랜치**: 푸시 시 테스트 서버(`application-test.yml`)로 자동 배포됩니다.
-
----
-
-## 🚀 Roadmap (Future Enhancements)
-- [ ] **`Containerization`**: Docker 도입을 통한 배포 환경 일관성 확보
-- [ ] **`Security`**: Certbot(SSL)을 통한 HTTPS 보안 프로토콜 적용
-- [ ] **`Monitoring`**: Prometheus & Grafana 연동을 통한 실시간 지표 시각화
-- [ ] **`Zero-Downtime`**: Nginx 스위칭을 활용한 완전한 무중단 배포 구현
