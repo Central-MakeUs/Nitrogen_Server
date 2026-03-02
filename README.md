@@ -7,8 +7,8 @@
 ## 💻 BACKEND Developer
 | <center>손재윤 (huggywuggy1289)</center> |
 | :---: |
-| <center><img width="180px" src="https://avatars.githubusercontent.com/leewatertrue" /></center> |
-| <center>[@leewatertrue](https://github.com/leewatertrue)</center> |
+| <center><img width="180px" src="https://avatars.githubusercontent.com/huggywuggy1289" /></center> |
+| <center>[@huggywuggy1289](https://github.com/huggywuggy1289)</center> |
 
 <br/>
 
@@ -36,15 +36,6 @@
 ![CI/CD](https://img.shields.io/badge/GitHubActions(CI%2FCD)--2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 ![Deployment](https://img.shields.io/badge/Deployment--Automated--success?style=for-the-badge)
 ![FCM](https://img.shields.io/badge/FCM(Firebase%20Cloud%20Messaging)--FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
-
----
-
-## 🏗️ Architecture Layout
-<br/>
-<div align="center">
-  <img src="https://path/to/your/architecture_image.png" alt="System Architecture Diagram" width="100%"/>
-</div>
-<br/>
 
 ---
 
