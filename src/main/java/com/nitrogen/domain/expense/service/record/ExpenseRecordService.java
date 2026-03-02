@@ -96,11 +96,17 @@ public class ExpenseRecordService {
         if (expenseRepository.existsByEvaluationTypeIsNullAndUserAndExpendedAtBefore(user, java.time.LocalDate.now(java.time.ZoneId.of("Asia/Seoul")))) {
             String targetId = user.getSocialId() != null ? user.getSocialId() : user.getAppleSub();
 
+            String yesterday = java.time.LocalDate.now(java.time.ZoneId.of("Asia/Seoul"))
+                    .minusDays(1)
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            String redirectUrl = "/review/" + yesterday;
+
             fcmService.sendAndSaveAlert(new FCMRequestDTO(
                     targetId,
                     "돌아보기 알림",
                     "아직 돌아보지 않은 소비가 있어요!",
-                    "/retrospect-list"
+                    redirectUrl
             ), AlertType.RETROSPECT);
         }
         return updatedIds;
