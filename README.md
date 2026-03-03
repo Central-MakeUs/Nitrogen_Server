@@ -25,3 +25,14 @@
 ![HTTPS](https://img.shields.io/badge/HTTPS-SSL-green?style=for-the-badge&logo=letsencrypt&logoColor=white)
 
 ![Domain](https://img.shields.io/badge/Domain-Gabia-FF6B00?style=for-the-badge)
+<<<<<<< HEAD
+=======
+
+![FCM](https://img.shields.io/badge/FCM-Firebase%20Cloud%20Messaging-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+---
+
+## 📊 ERD (Entity Relationship Diagram)
+
+<img width="637" height="709" alt="image" src="https://github.com/user-attachments/assets/4dbf6bb0-44a6-4fd5-a85b-285a6adc2140" />
+
+>>>>>>> feature/apple-login-split

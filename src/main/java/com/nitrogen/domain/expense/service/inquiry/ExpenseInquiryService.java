@@ -58,7 +58,9 @@ public class ExpenseInquiryService {
         } else {
             bannerMessage = String.format("%d월 %d일의 소비, 지금은 어떤가요?",
                     expendedAt.getMonthValue(), expendedAt.getDayOfMonth());
-            if (expendedAt.isEqual(today)) {
+            if (expendedAt.isAfter(today)) {
+                bannerSubMessage = "미래의 소비는 미리 돌아볼 수 없습니다";
+            } else if (expendedAt.isEqual(today)) {
                 bannerSubMessage = "오늘의 소비는 내일 돌아볼 수 있습니다";
             } else {
                 bannerSubMessage = pendingCount > 0 ?
