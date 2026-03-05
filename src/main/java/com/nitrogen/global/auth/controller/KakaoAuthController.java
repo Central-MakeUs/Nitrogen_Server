@@ -41,10 +41,10 @@ public class KakaoAuthController {
         String kakaoAccessToken = (String) body.get("accessToken");
         AuthResponse authResponse = oauthService.kakaoLoginOrCheck(kakaoAccessToken);
 
-        if (!authResponse.isNewUser() && authResponse.getRefreshToken() != null) {
-            response.addHeader("RefreshToken", "Bearer " + authResponse.getRefreshToken());
-            authResponse.setRefreshToken(null);
-        }
+//        if (!authResponse.isNewUser() && authResponse.getRefreshToken() != null) {
+//            response.addHeader("RefreshToken", "Bearer " + authResponse.getRefreshToken());
+//            authResponse.setRefreshToken(null);
+//        }
 
         return ApiResponse.onSuccess(authResponse);
     }
