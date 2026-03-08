@@ -22,6 +22,7 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -463,7 +464,8 @@ public class OauthService {
     /**
      * 애플의 공개키 목록조회 -> 특정 kid에 해당하는 PublicKey를 생성
      */
-    private PublicKey getApplePublicKey(String kid) {
+    @Cacheable(value = "applePublicKeys", key = "#kid")
+    public PublicKey getApplePublicKey(String kid) {
         try {
             ApplePublicKeyResponse response = restTemplate.getForObject(
                     "https://appleid.apple.com/auth/keys",
