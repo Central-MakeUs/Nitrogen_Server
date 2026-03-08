@@ -1,3 +1,15 @@
+## Copyright Notice & Contribution Scope
+
+This repository contains the backend server source code for the **Monit** application.
+
+* The author of this repository contributed to the **server-side implementation** of the Monit service.
+* The copyright registration submitted for this project applies **only to the server-side source code included in this repository**.
+* Other components of the Monit application (such as mobile client, UI/UX design, or external services) are **not included in this copyright registration unless explicitly stated**.
+
+© 2026 Jaeyun. All rights reserved.
+
+<br>
+
 ### 🚀 Core
 ![Spring Boot](https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
 ![Java](https://img.shields.io/badge/Java17-007396?style=for-the-badge&logo=java&logoColor=white)
