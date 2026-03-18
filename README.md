@@ -47,4 +47,4 @@ This repository contains the backend server source code for the **Monit** applic
 <br>
 
 ### 🏗️ System Architecture
-<img width="948" height="1679" alt="image" src="https://github.com/user-attachments/assets/88b8e097-31a3-457e-a412-12f551aa2cc0" />
+<img width="700" height="624" alt="image" src="https://github.com/user-attachments/assets/ea053544-48eb-44b2-ad93-d34edc8b4e12" />
