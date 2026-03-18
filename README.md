@@ -35,3 +35,10 @@ This repository contains the backend server source code for the **Monit** applic
 ![HTTPS](https://img.shields.io/badge/HTTPS-SSL-green?style=for-the-badge&logo=letsencrypt&logoColor=white)
 
 ![Domain](https://img.shields.io/badge/Domain-Gabia-FF6B00?style=for-the-badge)
+
+![FCM](https://img.shields.io/badge/FCM-Push%20Notification-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+
+<br>
+
+### ERD
+<img width="902" height="845" alt="image" src="https://github.com/user-attachments/assets/ecb3844b-ef76-4a23-b8a9-208b8e3e21a8" />
