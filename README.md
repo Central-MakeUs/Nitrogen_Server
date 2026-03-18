@@ -20,6 +20,7 @@ This repository contains the backend server source code for the **Monit** applic
 ![JPA](https://img.shields.io/badge/JPA-Hibernate-orange?style=for-the-badge)
 ![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)
 
+
 ### 📄 API Documentation
 ![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
 
@@ -42,3 +43,8 @@ This repository contains the backend server source code for the **Monit** applic
 
 ### ERD
 <img width="902" height="845" alt="image" src="https://github.com/user-attachments/assets/ecb3844b-ef76-4a23-b8a9-208b8e3e21a8" />
+
+<br>
+
+### 🏗️ System Architecture
+<img width="948" height="1679" alt="image" src="https://github.com/user-attachments/assets/88b8e097-31a3-457e-a412-12f551aa2cc0" />
