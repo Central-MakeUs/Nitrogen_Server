@@ -3,6 +3,7 @@ package com.nitrogen.domain.expense.entity;
 import com.nitrogen.domain.expense.entity.enums.BasicCategory;
 import com.nitrogen.domain.expense.entity.enums.CategoryIconType;
 import com.nitrogen.domain.user.entity.User;
+import com.nitrogen.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Category {
+public class Category extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,10 +51,7 @@ public class Category {
         }
     }
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
     public void updateTimestamp() {
-        this.updatedAt = LocalDateTime.now(); // @LastModifiedDate가 있어도 명시적으로 호출 가능
+        this.updatedAt = LocalDateTime.now();
     }
 }

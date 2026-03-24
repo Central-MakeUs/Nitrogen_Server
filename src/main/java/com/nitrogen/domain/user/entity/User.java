@@ -8,10 +8,7 @@ import com.nitrogen.domain.user.entity.enums.UserStatus;
 import com.nitrogen.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,14 +73,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     @Builder.Default
     private boolean isAlarmOn = false;
-
-    //0324
-    @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
 
     public void updateAlarmSetting(boolean status) {
         this.isAlarmOn = status;

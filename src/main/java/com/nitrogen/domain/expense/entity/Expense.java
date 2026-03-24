@@ -6,11 +6,8 @@ import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "expense", indexes = {
@@ -49,13 +46,6 @@ public class Expense extends BaseEntity {
 
     @Column(nullable = false, length = 40)
     private String usageHistory;
-
-    @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
 
     public void updateExpenseRecord(Integer newAmount, String newUsageHistory, LocalDate newExpendedAt, Category newCategory) {
         if (newAmount == null || newAmount.intValue() <= 0) {
