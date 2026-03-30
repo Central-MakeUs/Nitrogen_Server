@@ -129,7 +129,7 @@ public class ExpenseInquiryService {
                     long totalAmount = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
 
                     LocalDate reportOpenDate = startOfMonth.plusMonths(1);
-                    boolean isOpened = now.isAfter(reportOpenDate) || now.isEqual(reportOpenDate);
+                    boolean isOpened = !now.isBefore(reportOpenDate); // now.isAfter(reportOpenDate) || now.isEqual(reportOpenDate);
 
                     return new MonthlyReportSummaryResponse(
                             String.valueOf(startOfMonth.getMonthValue()),

@@ -127,8 +127,9 @@ public class ExpenseReportController {
         return ApiResponse.onSuccess(response);
     }
 
-    @Operation(summary = "도착한 월별 분석 리포트 목록 조회",
-            description = "전월 소비 분석 리포트가 도착했는지, 유저가 확인했는지 여부를 포함한 목록을 반환합니다. 이전 달 미확인과 무관하게 최신 리포트도 노출됩니다.")
+    @Operation(summary = "분석 리포트 도착 알림 카드 조회",
+            description = "생성한 월별 분석 리포트 알림 카드 목록을 반환합니다. 확인한 리포트는 isChecked=true로\n" +
+                    "  표시됩니다. 이전 달 미확인과 무관하게 최신 리포트도 노출됩니다.")
     @GetMapping("/report_arrivals")
     public ApiResponse<List<MonthlyReportArrivalResponse>> getReportArrivals(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
