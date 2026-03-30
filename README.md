@@ -3,7 +3,7 @@
 | 브랜치 | 용도 | 직접 push |
 |--------|------|-----------|
 | `develop` | 운영 브랜치 | ❌ 금지 |
-| `feature/apple-login-split ` | 기능 개발 브랜치 | ✅ 가능 |
+| `feature/apple-login-split ` | 통합테스트 브랜치 | ✅ 가능 |
 
 ---
 
@@ -12,12 +12,13 @@
 1. `feature/기능명` 브랜치 생성 후 작업
 2. 원격에 push
 ```bash
-   git push origin feature/apple-login-split
+   git push origin feature/<기능명>
 ```
-3. GitHub Actions CI/CD 확인
-4. GitHub에서 `develop`으로 PR 생성
-5. 관리자 승인 후 merge
-6. 로컬 `develop` 동기화
+3. 통합테스트에 PR
+4. GitHub Actions CI/CD 확인
+5. GitHub에서 `develop`으로 PR 생성
+6. 관리자 승인 후 merge
+7. 로컬 `develop` 동기화
 ```bash
    git checkout develop
    git pull origin develop
@@ -28,7 +29,7 @@
 ## ⚠️ 주의사항
 
 - `develop` 브랜치 직접 push **금지**
-- merge 후 **`Delete branch` 버튼 클릭 절대 금지** (테스트 서버 연결된 브랜치)
+- 통합테스트 -> 운영으로 merge 후 **`Delete branch` 버튼 클릭 절대 금지** (테스트 서버 연결된 브랜치)
 - force push **금지**
 
 <br>
