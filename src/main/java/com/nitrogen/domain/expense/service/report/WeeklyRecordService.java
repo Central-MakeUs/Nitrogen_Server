@@ -28,7 +28,7 @@ public class WeeklyRecordService {
     private final MonthlyReportReadRepository monthlyReportReadRepository;
     private final UserRepository userRepository;
 
-    // 분석리포트 도착 목록 조회 api
+    // 월간 분석리포트 도착 목록 조회 api
     @Transactional(readOnly = true)
     public List<MonthlyReportArrivalResponse> getMonthlyReportArrivals(Long userId) {
         User user = userRepository.findById(userId)
@@ -66,7 +66,7 @@ public class WeeklyRecordService {
                 .collect(Collectors.toList());
     }
 
-    // 분석리포트 확인 처리 api
+    // 월간 분석리포트 확인 처리 api
     @Transactional
     public void checkMonthlyReport(Long userId, int year, int month) {
         User user = userRepository.findById(userId)
