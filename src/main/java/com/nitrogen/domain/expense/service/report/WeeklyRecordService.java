@@ -1,20 +1,23 @@
 package com.nitrogen.domain.expense.service.report;
 
 import com.nitrogen.domain.expense.dto.report.summary.EmotionSummary;
+import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportArrivalResponse;
 import com.nitrogen.domain.expense.dto.report.summary.WeeklyReportResponse;
 import com.nitrogen.domain.expense.entity.Expense;
+import com.nitrogen.domain.expense.entity.MonthlyReportRead;
 import com.nitrogen.domain.expense.entity.enums.EmotionType;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
+import com.nitrogen.domain.expense.repository.MonthlyReportReadRepository;
+import com.nitrogen.domain.user.entity.User;
+import com.nitrogen.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,12 +25,61 @@ import java.util.stream.Collectors;
 public class WeeklyRecordService {
 
     private final ExpenseRepository expenseRepository;
+    private final MonthlyReportReadRepository monthlyReportReadRepository;
+    private final UserRepository userRepository;
 
-    // 분석리포트 도착메세지 api
-//    public MonthlyReportSummaryResponse generateWeeklyCard(Long UserId, LocalDate start, LocalDate start, LocalDate end, int week){
-//          List<Expense> currentMonthExpenses = expenseRepository.findAllByUserIdAndExpendedAtBetweenWithCategory(userId, start, end);
-//
-//    }
+    // 분석리포트 도착 목록 조회 api
+    @Transactional(readOnly = true)
+    public List<MonthlyReportArrivalResponse> getMonthlyReportArrivals(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
+        LocalDate now = LocalDate.now();
+        List<String> monthsWithExpenses = expenseRepository.findDistinctMonthsByUserId(userId);
+
+        // 유저가 확인한 월 목록
+        Set<LocalDate> checkedMonths = monthlyReportReadRepository.findAllByUser(user).stream()
+                .map(MonthlyReportRead::getReportMonth)
+                .collect(Collectors.toSet());
+
+        return monthsWithExpenses.stream()
+                .map(monthStr -> {
+                    LocalDate startOfMonth = LocalDate.parse(monthStr);
+                    LocalDate reportOpenDate = startOfMonth.plusMonths(1);
+
+                    // 다음달 1일이 지나야 리포트가 "도착"한 상태
+                    boolean isArrived = !now.isBefore(reportOpenDate);
+                    if (!isArrived) return null;
+
+                    LocalDate endOfMonth = startOfMonth.withDayOfMonth(startOfMonth.lengthOfMonth());
+                    long totalAmount = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
+                    boolean isChecked = checkedMonths.contains(startOfMonth);
+
+                    return new MonthlyReportArrivalResponse(
+                            startOfMonth.getYear(),
+                            startOfMonth.getMonthValue(),
+                            totalAmount,
+                            isChecked
+                    );
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    // 분석리포트 확인 처리 api
+    @Transactional
+    public void checkMonthlyReport(Long userId, int year, int month) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
+        LocalDate reportMonth = LocalDate.of(year, month, 1);
+
+        if (monthlyReportReadRepository.existsByUserAndReportMonth(user, reportMonth)) {
+            return; // 이미 확인한 리포트
+        }
+
+        monthlyReportReadRepository.save(new MonthlyReportRead(user, reportMonth));
+    }
 
     public WeeklyReportResponse generateWeeklyReport(Long userId, LocalDate start, LocalDate end, int week) {
 

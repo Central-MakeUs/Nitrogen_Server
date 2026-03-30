@@ -1,6 +1,7 @@
 package com.nitrogen.domain.expense.controller;
 
 import com.nitrogen.domain.expense.dto.report.detail.WeeklyDetailReportResponse;
+import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportArrivalResponse;
 import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportSummaryResponse;
 import com.nitrogen.domain.expense.dto.report.summary.SummaryRecordResponse;
 import com.nitrogen.domain.expense.dto.report.summary.WeeklyReportResponse;
@@ -18,10 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -30,6 +28,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/expense")
@@ -126,5 +125,31 @@ public class ExpenseReportController {
         List<MonthlyReportSummaryResponse> response = expenseInquiryService.getMonthlyTotalList(userId);
 
         return ApiResponse.onSuccess(response);
+    }
+
+    @Operation(summary = "도착한 월별 분석 리포트 목록 조회",
+            description = "전월 소비 분석 리포트가 도착했는지, 유저가 확인했는지 여부를 포함한 목록을 반환합니다. 이전 달 미확인과 무관하게 최신 리포트도 노출됩니다.")
+    @GetMapping("/report_arrivals")
+    public ApiResponse<List<MonthlyReportArrivalResponse>> getReportArrivals(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getUserId();
+        List<MonthlyReportArrivalResponse> response = weeklyRecordService.getMonthlyReportArrivals(userId);
+
+        return ApiResponse.onSuccess(response);
+    }
+
+    @Operation(summary = "월별 분석 리포트 확인 처리",
+            description = "유저가 특정 월의 분석 리포트를 확인했음을 기록합니다.")
+    @PatchMapping("/report_arrivals/{year}/{month}/check")
+    public ApiResponse<Map<String, Boolean>> checkReport(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable int year,
+            @PathVariable int month) {
+
+        Long userId = userDetails.getUserId();
+        weeklyRecordService.checkMonthlyReport(userId, year, month);
+
+        return ApiResponse.onSuccess(Map.of("isChecked", true));
     }
 }
