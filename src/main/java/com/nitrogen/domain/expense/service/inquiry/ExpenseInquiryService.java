@@ -132,6 +132,7 @@ public class ExpenseInquiryService {
                     boolean isOpened = !now.isBefore(reportOpenDate); // now.isAfter(reportOpenDate) || now.isEqual(reportOpenDate);
 
                     return new MonthlyReportSummaryResponse(
+                            String.valueOf(startOfMonth.getYear() % 100), // 2026 -> 26 변환
                             String.valueOf(startOfMonth.getMonthValue()),
                             totalAmount,
                             isOpened

@@ -56,8 +56,9 @@ public class ExpenseReportController {
 
         // 월별 리포트는 다음달 1일에 오픈
         boolean isOpened = false;
+        String yearTitle = String.valueOf(nowDate.getYear());
         String monthTitle = String.format("%d년 %d월 소비 현황", nowDate.getYear(), nowDate.getMonthValue());
-        MonthlyReportSummaryResponse monthlyReport = new MonthlyReportSummaryResponse(monthTitle, monthlyTotalAmount, isOpened);
+        MonthlyReportSummaryResponse monthlyReport = new MonthlyReportSummaryResponse(yearTitle, monthTitle, monthlyTotalAmount, isOpened);
 
         List<WeeklyReportResponse> weeklyReports = new ArrayList<>();
 
