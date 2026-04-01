@@ -7,7 +7,6 @@ import com.nitrogen.domain.expense.dto.report.summary.SummaryRecordResponse;
 import com.nitrogen.domain.expense.dto.report.summary.WeeklyReportResponse;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import com.nitrogen.domain.expense.service.inquiry.ExpenseInquiryService;
-import com.nitrogen.domain.expense.service.record.ExpenseRecordService;
 import com.nitrogen.domain.expense.service.report.DailyRetrospectReportService;
 import com.nitrogen.domain.expense.service.report.WeeklyRecordService;
 import com.nitrogen.domain.expense.service.report.WeeklyDetailRecordService;

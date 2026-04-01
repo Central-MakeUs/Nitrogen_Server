@@ -58,7 +58,6 @@ public class WeeklyRecordService {
                     return new MonthlyReportArrivalResponse(
                             startOfMonth.getYear(),
                             startOfMonth.getMonthValue(),
-                            totalAmount,
                             isChecked
                     );
                 })
