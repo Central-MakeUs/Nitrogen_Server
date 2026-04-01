@@ -7,7 +7,6 @@ import com.nitrogen.domain.expense.dto.report.summary.SummaryRecordResponse;
 import com.nitrogen.domain.expense.dto.report.summary.WeeklyReportResponse;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import com.nitrogen.domain.expense.service.inquiry.ExpenseInquiryService;
-import com.nitrogen.domain.expense.service.record.ExpenseRecordService;
 import com.nitrogen.domain.expense.service.report.DailyRetrospectReportService;
 import com.nitrogen.domain.expense.service.report.WeeklyRecordService;
 import com.nitrogen.domain.expense.service.report.WeeklyDetailRecordService;
@@ -56,8 +55,9 @@ public class ExpenseReportController {
 
         // 월별 리포트는 다음달 1일에 오픈
         boolean isOpened = false;
+        String yearTitle = String.valueOf(nowDate.getYear());
         String monthTitle = String.format("%d년 %d월 소비 현황", nowDate.getYear(), nowDate.getMonthValue());
-        MonthlyReportSummaryResponse monthlyReport = new MonthlyReportSummaryResponse(monthTitle, monthlyTotalAmount, isOpened);
+        MonthlyReportSummaryResponse monthlyReport = new MonthlyReportSummaryResponse(yearTitle, monthTitle, monthlyTotalAmount, isOpened);
 
         List<WeeklyReportResponse> weeklyReports = new ArrayList<>();
 
