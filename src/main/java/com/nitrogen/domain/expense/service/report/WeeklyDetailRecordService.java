@@ -6,6 +6,7 @@ import com.nitrogen.domain.expense.dto.report.detail.WeeklyDetailReportResponse;
 import com.nitrogen.domain.expense.dto.report.summary.EmotionSummary;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.expense.entity.enums.EmotionType;
+import com.nitrogen.domain.expense.entity.enums.EmotionFeedback;
 import com.nitrogen.domain.expense.entity.enums.EvaluationFeedback;
 import com.nitrogen.domain.expense.entity.enums.EvaluationType;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
@@ -31,8 +32,8 @@ public class WeeklyDetailRecordService {
 
         // 주간 평균 만족도 점수를 계산해 랜덤문구 생성
         double avgScore = expenseRepository.calculateAverageEvaluationScore(userId, start, end);
-        String headerEvaluationMessage = EvaluationFeedback.getRandomSentence(avgScore); // 상단
-        String evaluationMessage = EvaluationFeedback.getRandomSentence(avgScore); // 하단
+        String headerEvaluationMessage = EmotionFeedback.getRandomSentence(avgScore); // 상단 (마음항목 관점)
+        String evaluationMessage = EvaluationFeedback.getRandomSentence(avgScore); // 하단 (소비회고 관점)
 
         // 각 만족도별 소비 건수와 총액 - 중앙 리스트 UI
         List<EvaluationSummary> evaluationSummaries = Arrays.stream(EvaluationType.values())
@@ -70,7 +71,7 @@ public class WeeklyDetailRecordService {
                         .thenComparing(EmotionSummary::emotionDescription))
                 .toList();
 
-                        // 가장 많이 소비한 마음의 총액과 주간 전체 소비 총액 계산
+        // 가장 많이 소비한 마음의 총액과 주간 전체 소비 총액 계산
         long topEmotionTotalAmount = allExpenses.stream()
                 .filter(e -> e.getEmotionType() == topEmotion)
                 .mapToLong(Expense::getAmount).sum();
