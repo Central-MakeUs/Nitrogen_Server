@@ -10,7 +10,6 @@ import com.nitrogen.domain.expense.entity.enums.EvaluationFeedback;
 import com.nitrogen.domain.expense.entity.enums.EvaluationType;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
