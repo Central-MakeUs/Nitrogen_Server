@@ -67,11 +67,19 @@ public class WeeklyDetailRecordService {
                 .collect(Collectors.groupingBy(Expense::getEmotionType));
 
         List<EmotionSummary> emotionDetails = emotionGrouped.entrySet().stream()
-                .map(entry -> new EmotionSummary(
-                        entry.getKey().getEmotion_description(),
-                        entry.getValue().stream().mapToLong(Expense::getAmount).sum(),
-                        entry.getValue().size()
-                        ))
+                .map(entry -> {
+                    double emotionAvgScore = entry.getValue().stream()
+                            .filter(e -> e.getEvaluationType() != null)
+                            .mapToDouble(e -> e.getEvaluationType().getScore())
+                            .average()
+                            .orElse(0.0);
+                    return new EmotionSummary(
+                            entry.getKey().getEmotion_description(),
+                            entry.getValue().stream().mapToLong(Expense::getAmount).sum(),
+                            entry.getValue().size(),
+                            EvaluationFeedback.getRandomSentence(emotionAvgScore, seed)
+                    );
+                })
                 .sorted(Comparator.comparingLong(EmotionSummary::totalAmount).reversed()
                                 .thenComparing(Comparator.comparingLong(EmotionSummary::count).reversed())
                         .thenComparing(EmotionSummary::emotionDescription))
@@ -91,7 +99,7 @@ public class WeeklyDetailRecordService {
         return new WeeklyDetailReportResponse(
                 weekRange,
                 emotionFeedbackMessage,
-                new EmotionSummary(topEmotion.getEmotion_description(), topEmotionTotalAmount, (long) top3Expenses.size()),
+                new EmotionSummary(topEmotion.getEmotion_description(), topEmotionTotalAmount, (long) top3Expenses.size(), emotionFeedbackMessage),
                 evaluationFeedbackMessage,
                 evaluationSummaries,
                 emotionDetails,
