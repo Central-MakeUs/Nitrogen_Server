@@ -6,7 +6,6 @@ import com.nitrogen.domain.expense.dto.report.detail.WeeklyDetailReportResponse;
 import com.nitrogen.domain.expense.dto.report.summary.EmotionSummary;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.expense.entity.enums.EmotionType;
-import com.nitrogen.domain.expense.entity.enums.EmotionFeedback;
 import com.nitrogen.domain.expense.entity.enums.EvaluationFeedback;
 import com.nitrogen.domain.expense.entity.enums.EvaluationType;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
@@ -47,7 +46,7 @@ public class WeeklyDetailRecordService {
         double avgScore = expenseRepository.calculateAverageSatisfactionScore(userId, start, end);
 
         long seed = Objects.hash(userId, start);
-        String emotionFeedbackMessage = EmotionFeedback.getRandomSentence(topEmotionAvgScore, seed); // 상단 (가장 많은 마음항목 기준)
+        String emotionFeedbackMessage = EvaluationFeedback.getRandomSentence(topEmotionAvgScore, seed); // 상단 (가장 많은 마음항목 기준)
         String evaluationFeedbackMessage = EvaluationFeedback.getRandomSentence(avgScore, seed); // 하단 (전체 주간 기준)
 
         // 각 만족도별 소비 건수와 총액 - 중앙 리스트 UI
