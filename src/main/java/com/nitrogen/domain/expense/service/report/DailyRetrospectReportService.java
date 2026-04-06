@@ -28,7 +28,7 @@ public class DailyRetrospectReportService {
         if (!allRetrospectsCompleted) {
             return "소비 회고가 완료되지 않았습니다.";
         }
-        double averageScore = expenseRepository.calculateAverageEvaluationScore(userId, date, date);
+        double averageScore = expenseRepository.calculateAverageSatisfactionScore(userId, date, date);
 
         return SatisfactionLevel.getDescriptionByAverage(averageScore);
     }

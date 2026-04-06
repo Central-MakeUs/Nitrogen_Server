@@ -7,9 +7,9 @@ import java.util.List;
 public record WeeklyDetailReportResponse(
 
         String weekRange, // 주간 범위
-        String headerAverageEvaluation,// 가장 많은 마음항목(emotionType)에 대한 문장(상단)
+        String emotionFeedbackMessage, // 마음항목 관점 평균만족도 문장(상단)
         EmotionSummary topEmotion, // 가장 많이 소비한 마음
-        String inAverageEvaluation, // 평균만족도(evaluationType)에 해당하는 문장(하단)
+        String evaluationFeedbackMessage, // 소비회고 관점 평균만족도 문장(하단)
         List<EvaluationSummary> evaluationSummaries, // 가장 많이 소비한 마음
         List<EmotionSummary> emotionDetails, // 그아래로 전체 마음 순위별 요약 리스트
         List<ExpenseSimpleResponse> top3Expenses,

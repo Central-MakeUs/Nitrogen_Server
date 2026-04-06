@@ -31,9 +31,9 @@ public class WeeklyDetailRecordService {
         List<Expense> allExpenses = expenseRepository.findAllByUserIdAndExpendedAtBetweenWithCategory(userId, start, end);
 
         // 주간 평균 만족도 점수를 계산해 랜덤문구 생성
-        double avgScore = expenseRepository.calculateAverageEvaluationScore(userId, start, end);
-        String headerEvaluationMessage = EmotionFeedback.getRandomSentence(avgScore); // 상단 (마음항목 관점)
-        String evaluationMessage = EvaluationFeedback.getRandomSentence(avgScore); // 하단 (소비회고 관점)
+        double avgScore = expenseRepository.calculateAverageSatisfactionScore(userId, start, end);
+        String emotionFeedbackMessage = EmotionFeedback.getRandomSentence(avgScore); // 상단 (마음항목 관점)
+        String evaluationFeedbackMessage = EvaluationFeedback.getRandomSentence(avgScore); // 하단 (소비회고 관점)
 
         // 각 만족도별 소비 건수와 총액 - 중앙 리스트 UI
         List<EvaluationSummary> evaluationSummaries = Arrays.stream(EvaluationType.values())
@@ -84,9 +84,9 @@ public class WeeklyDetailRecordService {
 
         return new WeeklyDetailReportResponse(
                 weekRange,
-                headerEvaluationMessage,
+                emotionFeedbackMessage,
                 new EmotionSummary(topEmotion.getEmotion_description(), topEmotionTotalAmount, (long) top3Expenses.size()),
-                evaluationMessage,
+                evaluationFeedbackMessage,
                 evaluationSummaries,
                 emotionDetails,
                 top3Response,
