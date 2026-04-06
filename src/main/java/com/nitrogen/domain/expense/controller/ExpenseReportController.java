@@ -5,10 +5,12 @@ import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportArrivalRespon
 import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportSummaryResponse;
 import com.nitrogen.domain.expense.dto.report.summary.SummaryRecordResponse;
 import com.nitrogen.domain.expense.dto.report.summary.WeeklyReportResponse;
+import com.nitrogen.domain.expense.dto.weeklyAndmonthly.TotalOpenStatusResponse;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import com.nitrogen.domain.expense.service.inquiry.ExpenseInquiryService;
 import com.nitrogen.domain.expense.service.report.DailyRetrospectReportService;
 import com.nitrogen.domain.expense.service.report.WeeklyRecordService;
+import com.nitrogen.domain.expense.service.report.TotalOpenStatusService;
 import com.nitrogen.domain.expense.service.report.WeeklyDetailRecordService;
 import com.nitrogen.domain.user.entity.CustomUserDetails;
 import com.nitrogen.global.apiPayload.ApiResponse;
@@ -40,6 +42,7 @@ public class ExpenseReportController {
     private final DailyRetrospectReportService dailyRetrospectReportService;
     private final ExpenseRepository expenseRepository;
     private final ExpenseInquiryService expenseInquiryService;
+    private final TotalOpenStatusService totalOpenStatusService;
 
     @Operation(summary = "메인화면 분석 리포트 조회", description = "이번 달 총 소비 금액과 지난주 주간 분석 리포트를 한 번에 조회합니다.")
     @GetMapping("/summary_record")
@@ -123,6 +126,20 @@ public class ExpenseReportController {
 
         Long userId = userDetails.getUserId();
         List<MonthlyReportSummaryResponse> response = expenseInquiryService.getMonthlyTotalList(userId);
+
+        return ApiResponse.onSuccess(response);
+    }
+
+    @Operation(summary = "월 + 주차별 open 상태 통합 조회",
+            description = "특정 월의 총 지출액, 주차별 리포트 오픈 여부, 월간 리포트 오픈 여부를 한 번에 조회합니다.")
+    @GetMapping("/total_open_status")
+    public ApiResponse<TotalOpenStatusResponse> getTotalOpenStatus(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam int year,
+            @RequestParam int month) {
+
+        Long userId = userDetails.getUserId();
+        TotalOpenStatusResponse response = totalOpenStatusService.getTotalOpenStatus(userId, year, month);
 
         return ApiResponse.onSuccess(response);
     }
