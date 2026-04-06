@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,7 +54,24 @@ public class WeeklyDetailRecordService {
         // 선정된 {마음항목} 내에서 가장 비싼 지출 3건 조회
         List<Expense> top3Expenses = expenseRepository.findTop3ByEmotion(userId, start, end, topEmotion.name());
 
-        // 가장 많이 소비한 마음의 총액과 주간 전체 소비 총액 계산
+        /*
+        금액 내림차순 > 건수 내림차순 > 이름 오름차순
+        */
+        Map<EmotionType, List<Expense>> emotionGrouped = allExpenses.stream()
+                .collect(Collectors.groupingBy(Expense::getEmotionType));
+
+        List<EmotionSummary> emotionDetails = emotionGrouped.entrySet().stream()
+                .map(entry -> new EmotionSummary(
+                        entry.getKey().getEmotion_description(),
+                        entry.getValue().stream().mapToLong(Expense::getAmount).sum(),
+                        entry.getValue().size()
+                        ))
+                .sorted(Comparator.comparingLong(EmotionSummary::totalAmount).reversed()
+                                .thenComparing(Comparator.comparingLong(EmotionSummary::count).reversed())
+                        .thenComparing(EmotionSummary::emotionDescription))
+                .toList();
+
+                        // 가장 많이 소비한 마음의 총액과 주간 전체 소비 총액 계산
         long topEmotionTotalAmount = allExpenses.stream()
                 .filter(e -> e.getEmotionType() == topEmotion)
                 .mapToLong(Expense::getAmount).sum();
@@ -70,6 +88,7 @@ public class WeeklyDetailRecordService {
                 new EmotionSummary(topEmotion.getEmotion_description(), topEmotionTotalAmount, (long) top3Expenses.size()),
                 evaluationMessage,
                 evaluationSummaries,
+                emotionDetails,
                 top3Response,
                 topEmotionTotalAmount,
                 (long) allExpenses.size(),
