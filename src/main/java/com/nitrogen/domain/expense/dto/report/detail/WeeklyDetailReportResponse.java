@@ -12,6 +12,7 @@ public record WeeklyDetailReportResponse(
         EmotionSummary topEmotion, // 가장 많이 소비한 마음
         String inAvarageEvaluation, // 평균점수에 해당하는 문장(하단 회색박스)
         List<EvaluationSummary> evaluationSummaries, // 가장 많이 소비한 마음
+        List<EmotionSummary> emotionDetails, // 그아래로 전체 마음 순위별 요약 리스트
         List<ExpenseSimpleResponse> top3Expenses,
         long emotionTotalAmount, // 마음 당 총 소비건수
         long weeklyTotalCount, // 주간 총 소비개수
