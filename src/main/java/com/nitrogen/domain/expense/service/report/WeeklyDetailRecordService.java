@@ -14,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,10 +27,28 @@ public class WeeklyDetailRecordService {
         // {주차별 총 소비 금액}
         List<Expense> allExpenses = expenseRepository.findAllByUserIdAndExpendedAtBetweenWithCategory(userId, start, end);
 
-        // 주간 평균 만족도 점수를 계산해 랜덤문구 생성
+        // 이번 주 가장 빈번했던 {마음항목} 선정
+        EmotionType topEmotion = allExpenses.stream()
+                .collect(Collectors.groupingBy(Expense::getEmotionType, Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(EmotionType.TYPE_B);
+
+        // 상단: 가장 많은 마음항목의 소비회고 완료 건에 대한 만족도 평균점수
+        double topEmotionAvgScore = allExpenses.stream()
+                .filter(e -> e.getEmotionType() == topEmotion)
+                .filter(e -> e.getEvaluationType() != null)
+                .mapToDouble(e -> e.getEvaluationType().getScore())
+                .average()
+                .orElse(0.0);
+
+        // 하단: 전체 주간 만족도 평균점수
         double avgScore = expenseRepository.calculateAverageSatisfactionScore(userId, start, end);
-        String emotionFeedbackMessage = EmotionFeedback.getRandomSentence(avgScore); // 상단 (마음항목 관점)
-        String evaluationFeedbackMessage = EvaluationFeedback.getRandomSentence(avgScore); // 하단 (소비회고 관점)
+
+        long seed = Objects.hash(userId, start);
+        String emotionFeedbackMessage = EmotionFeedback.getRandomSentence(topEmotionAvgScore, seed); // 상단 (가장 많은 마음항목 기준)
+        String evaluationFeedbackMessage = EvaluationFeedback.getRandomSentence(avgScore, seed); // 하단 (전체 주간 기준)
 
         // 각 만족도별 소비 건수와 총액 - 중앙 리스트 UI
         List<EvaluationSummary> evaluationSummaries = Arrays.stream(EvaluationType.values())
@@ -42,14 +57,6 @@ public class WeeklyDetailRecordService {
                         allExpenses.stream().filter(e -> e.getEvaluationType() == type).count(),
                         allExpenses.stream().filter(e -> e.getEvaluationType() == type).mapToLong(Expense::getAmount).sum()
                 )).toList();
-
-        // 이번 주 가장 빈번했던 {마음항목} 선정
-        EmotionType topEmotion = allExpenses.stream()
-                .collect(Collectors.groupingBy(Expense::getEmotionType, Collectors.counting()))
-                .entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElse(EmotionType.TYPE_B);
 
         // 선정된 {마음항목} 내에서 가장 비싼 지출 3건 조회
         List<Expense> top3Expenses = expenseRepository.findTop3ByEmotion(userId, start, end, topEmotion.name());
