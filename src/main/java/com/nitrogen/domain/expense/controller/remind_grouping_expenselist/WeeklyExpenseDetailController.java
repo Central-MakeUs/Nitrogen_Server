@@ -29,13 +29,12 @@ public class WeeklyExpenseDetailController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
-            @RequestParam String weekRange,
             @RequestParam EmotionType emotionType
     ) {
         Long userId = userDetails.getUserId();
 
         WeeklyExpenseDetailResponse response = weeklyExpenseDetailService.getWeeklyExpenseDetailList(
-                userId, start, end, weekRange, emotionType
+                userId, start, end, emotionType
         );
 
         return ApiResponse.onSuccess(response);

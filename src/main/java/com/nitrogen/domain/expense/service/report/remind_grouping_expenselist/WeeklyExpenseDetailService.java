@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.WeekFields;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +24,14 @@ public class WeeklyExpenseDetailService {
     private final ExpenseRepository expenseRepository;
 
     // 선택한 마음항목에 해당하는 지출만 필터링한뒤 그 안에서 회고별로 소비 상세 내역 조회
-    public WeeklyExpenseDetailResponse getWeeklyExpenseDetailList(Long userId, LocalDate start, LocalDate end, String weekRange, EmotionType emotionType) {
+    public WeeklyExpenseDetailResponse getWeeklyExpenseDetailList(Long userId, LocalDate start, LocalDate end, EmotionType emotionType) {
+
+        // start 날짜 기반으로 weekRange 자동 생성
+        LocalDate thursday = start.plusDays(3);
+        int year = thursday.getYear();
+        int month = thursday.getMonthValue();
+        int weekOfMonth = thursday.get(WeekFields.ISO.weekOfMonth());
+        String weekRange = String.format("%d년 %d월 %d주차", year, month, weekOfMonth);
 
         List<Expense> allExpenses = expenseRepository.findAllByUserIdAndExpendedAtBetweenWithCategory(userId, start, end);
 
