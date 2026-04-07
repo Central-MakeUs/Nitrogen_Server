@@ -77,7 +77,7 @@ public class ExpenseReportController {
             LocalDate sunday = checkDate.plusDays(6);
 
             if (expenseRepository.existsByUserUserIdAndExpendedAtBetween(userId, checkDate, sunday)) {
-                int weekOfMonth = checkDate.get(WeekFields.ISO.weekOfMonth());
+                int weekOfMonth = checkDate.plusDays(3).get(WeekFields.ISO.weekOfMonth());
                 weeklyReports.add(weeklyRecordService.generateWeeklyReport(userId, checkDate, sunday, weekOfMonth));
             }
             checkDate = checkDate.plusWeeks(1);
