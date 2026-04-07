@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -107,8 +108,12 @@ public class WeeklyDetailRecordService {
                 .map(e -> new ExpenseSimpleResponse(e.getUsageHistory(), e.getAmount()))
                 .toList();
 
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+
         return new WeeklyDetailReportResponse(
                 weekRange,
+                start.format(fmt),
+                end.format(fmt),
                 emotionFeedbackMessage,
                 new EmotionSummary(topEmotion.getEmotion_description(), topEmotionTotalAmount, (long) top3Expenses.size(), emotionFeedbackMessage),
                 evaluationFeedbackMessage,

@@ -9,6 +9,8 @@ import java.util.List;
 public record WeeklyDetailReportResponse(
 
         String weekRange, // 주간 범위
+        String weekStartDate, // 주간 시작일 (yyyy.MM.dd)
+        String weekEndDate, // 주간 종료일 (yyyy.MM.dd)
         String emotionFeedbackMessage, // 마음항목 관점 평균만족도 문장(상단)
         EmotionSummary topEmotion, // 가장 많이 소비한 마음
         String evaluationFeedbackMessage, // 소비회고 관점 평균만족도 문장(하단)
