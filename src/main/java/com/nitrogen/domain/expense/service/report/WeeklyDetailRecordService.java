@@ -1,9 +1,10 @@
 package com.nitrogen.domain.expense.service.report;
 
-import com.nitrogen.domain.expense.dto.report.detail.EvaluationSummary;
+import com.nitrogen.domain.expense.dto.report.summary.EmotionSummary;
+import com.nitrogen.domain.expense.dto.report.summary.EvaluationSummary;
 import com.nitrogen.domain.expense.dto.report.detail.ExpenseSimpleResponse;
 import com.nitrogen.domain.expense.dto.report.detail.WeeklyDetailReportResponse;
-import com.nitrogen.domain.expense.dto.report.summary.EmotionSummary;
+import com.nitrogen.domain.expense.dto.report.summary.EmotionDetailSummary;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.expense.entity.enums.EmotionType;
 import com.nitrogen.domain.expense.entity.enums.EvaluationFeedback;
@@ -66,23 +67,33 @@ public class WeeklyDetailRecordService {
         Map<EmotionType, List<Expense>> emotionGrouped = allExpenses.stream()
                 .collect(Collectors.groupingBy(Expense::getEmotionType));
 
-        List<EmotionSummary> emotionDetails = emotionGrouped.entrySet().stream()
+        List<EmotionDetailSummary> emotionDetails = emotionGrouped.entrySet().stream()
                 .map(entry -> {
-                    double emotionAvgScore = entry.getValue().stream()
+                    List<Expense> emotionExpenses = entry.getValue();
+                    double emotionAvgScore = emotionExpenses.stream()
                             .filter(e -> e.getEvaluationType() != null)
                             .mapToDouble(e -> e.getEvaluationType().getScore())
                             .average()
                             .orElse(0.0);
-                    return new EmotionSummary(
+
+                    List<EvaluationSummary> perEmotionEvalSummaries = Arrays.stream(EvaluationType.values())
+                            .map(type -> new EvaluationSummary(
+                                    type,
+                                    emotionExpenses.stream().filter(e -> e.getEvaluationType() == type).count(),
+                                    emotionExpenses.stream().filter(e -> e.getEvaluationType() == type).mapToLong(Expense::getAmount).sum()
+                            )).toList();
+
+                    return new EmotionDetailSummary(
                             entry.getKey().getEmotion_description(),
-                            entry.getValue().stream().mapToLong(Expense::getAmount).sum(),
-                            entry.getValue().size(),
-                            EvaluationFeedback.getRandomSentence(emotionAvgScore, seed)
+                            emotionExpenses.stream().mapToLong(Expense::getAmount).sum(),
+                            emotionExpenses.size(),
+                            EvaluationFeedback.getRandomSentence(emotionAvgScore, seed),
+                            perEmotionEvalSummaries
                     );
                 })
-                .sorted(Comparator.comparingLong(EmotionSummary::totalAmount).reversed()
-                                .thenComparing(Comparator.comparingLong(EmotionSummary::count).reversed())
-                        .thenComparing(EmotionSummary::emotionDescription))
+                .sorted(Comparator.comparingLong(EmotionDetailSummary::totalAmount).reversed()
+                                .thenComparing(Comparator.comparingLong(EmotionDetailSummary::count).reversed())
+                        .thenComparing(EmotionDetailSummary::emotionDescription))
                 .toList();
 
         // 가장 많이 소비한 마음의 총액과 주간 전체 소비 총액 계산
