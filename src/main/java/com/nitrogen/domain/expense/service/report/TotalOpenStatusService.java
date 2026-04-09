@@ -38,9 +38,10 @@ public class TotalOpenStatusService {
         int weekNumber = 1;
         while (!monday.isAfter(endOfMonth)) {
             LocalDate sunday = monday.plusDays(6);
+            LocalDate thursday = monday.plusDays(3);
 
-            boolean hasExpense = expenseRepository.existsByUserUserIdAndExpendedAtBetween(userId, monday, sunday);
-            if (hasExpense) {
+            if (thursday.getYear() == year && thursday.getMonthValue() == month
+                    && expenseRepository.existsByUserUserIdAndExpendedAtBetween(userId, monday, sunday)) {
                 boolean isOpened = now.isAfter(sunday);
                 weeklyReports.add(new WeeklyOpenStatus(weekNumber, isOpened));
             }

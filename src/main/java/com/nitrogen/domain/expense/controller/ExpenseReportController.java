@@ -76,8 +76,10 @@ public class ExpenseReportController {
         while (!checkDate.isAfter(lastAvailableMonday)) {
             LocalDate sunday = checkDate.plusDays(6);
 
-            if (expenseRepository.existsByUserUserIdAndExpendedAtBetween(userId, checkDate, sunday)) {
-                int weekOfMonth = checkDate.plusDays(3).get(WeekFields.ISO.weekOfMonth());
+            LocalDate thursday = checkDate.plusDays(3);
+            if (thursday.getYear() == nowDate.getYear() && thursday.getMonthValue() == nowDate.getMonthValue()
+                    && expenseRepository.existsByUserUserIdAndExpendedAtBetween(userId, checkDate, sunday)) {
+                int weekOfMonth = thursday.get(WeekFields.ISO.weekOfMonth());
                 weeklyReports.add(weeklyRecordService.generateWeeklyReport(userId, checkDate, sunday, weekOfMonth));
             }
             checkDate = checkDate.plusWeeks(1);
@@ -112,8 +114,9 @@ public class ExpenseReportController {
         while (!checkDate.isAfter(lastAvailableMonday)) {
             LocalDate sunday = checkDate.plusDays(6);
 
-            if (expenseRepository.existsByUserUserIdAndExpendedAtBetween(userId, checkDate, sunday)) {
-                LocalDate thursday = checkDate.plusDays(3);
+            LocalDate thursday = checkDate.plusDays(3);
+            if (thursday.getYear() == year && thursday.getMonthValue() == month
+                    && expenseRepository.existsByUserUserIdAndExpendedAtBetween(userId, checkDate, sunday)) {
                 int weekOfMonth = thursday.get(WeekFields.ISO.weekOfMonth());
                 String weekRange = String.format("%d년 %d월 %d주차 분석 리포트", thursday.getYear(), thursday.getMonthValue(), weekOfMonth);
 
