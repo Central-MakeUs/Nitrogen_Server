@@ -54,7 +54,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
             "WHEN e.evaluationType = com.nitrogen.domain.expense.entity.enums.EvaluationType.VERY_DISAPPOINTED THEN 1.0 " +
             "ELSE 0.0 END), 0.0) " +
             "FROM Expense e WHERE e.user.userId = :userId AND e.expendedAt BETWEEN :start AND :end")
-    double calculateAverageEvaluationScore(@Param("userId") Long userId,
+    double calculateAverageSatisfactionScore(@Param("userId") Long userId,
                                            @Param("start") LocalDate start,
                                            @Param("end") LocalDate end);
 

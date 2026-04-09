@@ -52,11 +52,11 @@ public enum EvaluationFeedback {
         this.sentences = sentences;
     }
 
-    public static String getRandomSentence(double score) {
+    public static String getRandomSentence(double score, long seed) {
         for (EvaluationFeedback feedback : values()) {
             if (score >= feedback.min && score < feedback.max) {
-                int randomIndex = new Random().nextInt(feedback.sentences.size());
-                return feedback.sentences.get(randomIndex);
+                int index = new Random(seed).nextInt(feedback.sentences.size());
+                return feedback.sentences.get(index);
             }
         }
         return "데이터가 부족하여 분석할 수 없습니다."; // 0개

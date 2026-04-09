@@ -5,10 +5,12 @@ import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportArrivalRespon
 import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportSummaryResponse;
 import com.nitrogen.domain.expense.dto.report.summary.SummaryRecordResponse;
 import com.nitrogen.domain.expense.dto.report.summary.WeeklyReportResponse;
+import com.nitrogen.domain.expense.dto.weeklyAndmonthly.TotalOpenStatusResponse;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import com.nitrogen.domain.expense.service.inquiry.ExpenseInquiryService;
 import com.nitrogen.domain.expense.service.report.DailyRetrospectReportService;
 import com.nitrogen.domain.expense.service.report.WeeklyRecordService;
+import com.nitrogen.domain.expense.service.report.TotalOpenStatusService;
 import com.nitrogen.domain.expense.service.report.WeeklyDetailRecordService;
 import com.nitrogen.domain.user.entity.CustomUserDetails;
 import com.nitrogen.global.apiPayload.ApiResponse;
@@ -40,6 +42,7 @@ public class ExpenseReportController {
     private final DailyRetrospectReportService dailyRetrospectReportService;
     private final ExpenseRepository expenseRepository;
     private final ExpenseInquiryService expenseInquiryService;
+    private final TotalOpenStatusService totalOpenStatusService;
 
     @Operation(summary = "메인화면 분석 리포트 조회", description = "이번 달 총 소비 금액과 지난주 주간 분석 리포트를 한 번에 조회합니다.")
     @GetMapping("/summary_record")
@@ -73,8 +76,10 @@ public class ExpenseReportController {
         while (!checkDate.isAfter(lastAvailableMonday)) {
             LocalDate sunday = checkDate.plusDays(6);
 
-            if (expenseRepository.existsByUserUserIdAndExpendedAtBetween(userId, checkDate, sunday)) {
-                int weekOfMonth = checkDate.get(WeekFields.ISO.weekOfMonth());
+            LocalDate thursday = checkDate.plusDays(3);
+            if (thursday.getYear() == nowDate.getYear() && thursday.getMonthValue() == nowDate.getMonthValue()
+                    && expenseRepository.existsByUserUserIdAndExpendedAtBetween(userId, checkDate, sunday)) {
+                int weekOfMonth = thursday.get(WeekFields.ISO.weekOfMonth());
                 weeklyReports.add(weeklyRecordService.generateWeeklyReport(userId, checkDate, sunday, weekOfMonth));
             }
             checkDate = checkDate.plusWeeks(1);
@@ -83,25 +88,45 @@ public class ExpenseReportController {
         return ApiResponse.onSuccess(new SummaryRecordResponse(monthlyReport, weeklyReports));
     }
 
-    @Operation(summary = "주간 분석 상세 리포트 조회", description = "특정 주차의 감정 분석, 만족도 통계, TOP 3 지출 내역 등 상세 데이터를 조회합니다.")
+    @Operation(summary = "주간 분석 상세 리포트 조회", description = "해당 월의 열람 가능한 모든 주차에 대한 상세 리포트를 리스트로 조회합니다.")
     @GetMapping("/weekly_detail")
-    public ApiResponse<WeeklyDetailReportResponse> getWeeklyDetailReport(
+    public ApiResponse<List<WeeklyDetailReportResponse>> getWeeklyDetailReport(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @RequestParam int year,
+            @RequestParam int month) {
 
         Long userId = userDetails.getUserId();
+        LocalDateTime nowDateTime = LocalDateTime.now();
+        LocalDate nowDate = nowDateTime.toLocalDate();
 
-        LocalDate start = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        LocalDate end = start.plusDays(6);
+        LocalDate startOfMonth = LocalDate.of(year, month, 1);
 
-        int month = date.getMonthValue();
-        int weekOfMonth = date.get(WeekFields.ISO.weekOfMonth()) + 1;
-        String weekRange = String.format("%d년 %d월 %d주차 분석 리포트", date.getYear(), month, weekOfMonth);
+        LocalDateTime thisWeekGenTime = nowDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atTime(8, 0);
 
-        WeeklyDetailReportResponse response = weeklyDetailRecordService.generateWeeklyDetailReport(
-                userId, start, end, weekRange);
+        LocalDate lastAvailableMonday = nowDateTime.isBefore(thisWeekGenTime)
+                ? nowDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(2)
+                : nowDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(1);
 
-        return ApiResponse.onSuccess(response);
+        LocalDate checkDate = startOfMonth.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        List<WeeklyDetailReportResponse> responses = new ArrayList<>();
+
+        while (!checkDate.isAfter(lastAvailableMonday)) {
+            LocalDate sunday = checkDate.plusDays(6);
+
+            LocalDate thursday = checkDate.plusDays(3);
+            if (thursday.getYear() == year && thursday.getMonthValue() == month
+                    && expenseRepository.existsByUserUserIdAndExpendedAtBetween(userId, checkDate, sunday)) {
+                int weekOfMonth = thursday.get(WeekFields.ISO.weekOfMonth());
+                String weekRange = String.format("%d년 %d월 %d주차 분석 리포트", thursday.getYear(), thursday.getMonthValue(), weekOfMonth);
+
+                responses.add(weeklyDetailRecordService.generateWeeklyDetailReport(
+                        userId, checkDate, sunday, weekRange));
+            }
+            checkDate = checkDate.plusWeeks(1);
+        }
+
+        return ApiResponse.onSuccess(responses);
     }
 
     @Operation(summary = "일별 종합 소비 만족도 조회", description = "당일 모든 지출에 대한 회고가 완료된 경우, 전체 만족도 평균을 문구로 반환합니다.")
@@ -123,6 +148,20 @@ public class ExpenseReportController {
 
         Long userId = userDetails.getUserId();
         List<MonthlyReportSummaryResponse> response = expenseInquiryService.getMonthlyTotalList(userId);
+
+        return ApiResponse.onSuccess(response);
+    }
+
+    @Operation(summary = "월 + 주차별 open 상태 통합 조회",
+            description = "특정 월의 총 지출액, 주차별 리포트 오픈 여부, 월간 리포트 오픈 여부를 한 번에 조회합니다.")
+    @GetMapping("/total_open_status")
+    public ApiResponse<TotalOpenStatusResponse> getTotalOpenStatus(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam int year,
+            @RequestParam int month) {
+
+        Long userId = userDetails.getUserId();
+        TotalOpenStatusResponse response = totalOpenStatusService.getTotalOpenStatus(userId, year, month);
 
         return ApiResponse.onSuccess(response);
     }

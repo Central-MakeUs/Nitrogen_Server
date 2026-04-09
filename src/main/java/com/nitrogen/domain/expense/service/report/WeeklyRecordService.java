@@ -100,8 +100,9 @@ public class WeeklyRecordService {
         List<EmotionSummary> emotionDetails = grouped.entrySet().stream()
                 .map(entry -> new EmotionSummary(
                         entry.getKey().getEmotion_description(),
+                        entry.getValue().stream().mapToLong(Expense::getAmount).sum(),
                         entry.getValue().size(),
-                        entry.getValue().stream().mapToLong(Expense::getAmount).sum()
+                        null
                 ))
                 .sorted(getEmotionComparator())
                 .toList();
