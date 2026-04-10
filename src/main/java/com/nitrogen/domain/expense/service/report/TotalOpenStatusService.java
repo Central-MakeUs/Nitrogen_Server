@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.DayOfWeek;
@@ -35,19 +36,18 @@ public class TotalOpenStatusService {
         List<WeeklyOpenStatus> weeklyReports = new ArrayList<>();
         LocalDate monday = startOfMonth.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-        int weekNumber = 1;
         while (!monday.isAfter(endOfMonth)) {
             LocalDate sunday = monday.plusDays(6);
             LocalDate thursday = monday.plusDays(3);
 
             if (thursday.getYear() == year && thursday.getMonthValue() == month
                     && expenseRepository.existsByUserUserIdAndExpendedAtBetween(userId, monday, sunday)) {
+                int weekNumber = thursday.get(WeekFields.ISO.weekOfMonth());
                 boolean isOpened = now.isAfter(sunday);
                 weeklyReports.add(new WeeklyOpenStatus(weekNumber, isOpened));
             }
 
             monday = monday.plusWeeks(1);
-            weekNumber++;
         }
 
         return new TotalOpenStatusResponse(year, month, totalAmount, weeklyReports, monthlyIsOpened);
