@@ -102,6 +102,10 @@ public class MonthlyDetailRecordService {
                 .filter(e -> e.getEmotionType() == topEmotion)
                 .mapToLong(Expense::getAmount).sum();
 
+        long topEmotionCount = allExpenses.stream()
+                .filter(e -> e.getEmotionType() == topEmotion)
+                .count();
+
         long monthlyTotalAmount = allExpenses.stream().mapToLong(Expense::getAmount).sum();
 
         List<ExpenseSimpleResponse> top3Response = top3Expenses.stream()
@@ -115,7 +119,7 @@ public class MonthlyDetailRecordService {
                 start.format(fmt),
                 end.format(fmt),
                 emotionFeedbackMessage,
-                new EmotionSummary(topEmotion.getEmotion_description(), topEmotionTotalAmount, (long) top3Expenses.size(), emotionFeedbackMessage),
+                new EmotionSummary(topEmotion.getEmotion_description(), topEmotionTotalAmount, topEmotionCount, emotionFeedbackMessage),
                 evaluationFeedbackMessage,
                 evaluationSummaries,
                 emotionDetails,
