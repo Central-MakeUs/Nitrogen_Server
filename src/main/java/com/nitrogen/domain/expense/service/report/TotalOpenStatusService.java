@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
@@ -24,13 +25,15 @@ public class TotalOpenStatusService {
     public TotalOpenStatusResponse getTotalOpenStatus(Long userId, int year, int month) {
         LocalDate startOfMonth = LocalDate.of(year, month, 1);
         LocalDate endOfMonth = startOfMonth.withDayOfMonth(startOfMonth.lengthOfMonth());
-        LocalDate now = LocalDate.now();
+        LocalDateTime nowDateTime = LocalDateTime.now();
+        LocalDate now = nowDateTime.toLocalDate();
 
         // 월간 총액
         long totalAmount = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
 
-        // 월간 리포트 오픈 여부 (다음달 1일 이후)
-        boolean monthlyIsOpened = !now.isBefore(startOfMonth.plusMonths(1));
+        // 월간 리포트 오픈 여부 (다음달 1일 오전 8시 이후)
+        LocalDateTime monthlyOpenDateTime = startOfMonth.plusMonths(1).atTime(8, 0);
+        boolean monthlyIsOpened = !nowDateTime.isBefore(monthlyOpenDateTime);
 
         // 주차별 오픈 상태
         List<WeeklyOpenStatus> weeklyReports = new ArrayList<>();

@@ -1,5 +1,6 @@
 package com.nitrogen.domain.expense.controller;
 
+import com.nitrogen.domain.expense.dto.report.detail.MonthlyDetailReportResponse;
 import com.nitrogen.domain.expense.dto.report.detail.WeeklyDetailReportResponse;
 import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportArrivalResponse;
 import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportSummaryResponse;
@@ -9,11 +10,14 @@ import com.nitrogen.domain.expense.dto.weeklyAndmonthly.TotalOpenStatusResponse;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
 import com.nitrogen.domain.expense.service.inquiry.ExpenseInquiryService;
 import com.nitrogen.domain.expense.service.report.DailyRetrospectReportService;
+import com.nitrogen.domain.expense.service.report.MonthlyDetailRecordService;
 import com.nitrogen.domain.expense.service.report.WeeklyRecordService;
 import com.nitrogen.domain.expense.service.report.TotalOpenStatusService;
 import com.nitrogen.domain.expense.service.report.WeeklyDetailRecordService;
 import com.nitrogen.domain.user.entity.CustomUserDetails;
 import com.nitrogen.global.apiPayload.ApiResponse;
+import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
+import com.nitrogen.global.apiPayload.exception.GeneralException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +43,7 @@ public class ExpenseReportController {
 
     private final WeeklyRecordService weeklyRecordService;
     private final WeeklyDetailRecordService weeklyDetailRecordService;
+    private final MonthlyDetailRecordService monthlyDetailRecordService;
     private final DailyRetrospectReportService dailyRetrospectReportService;
     private final ExpenseRepository expenseRepository;
     private final ExpenseInquiryService expenseInquiryService;
@@ -127,6 +132,33 @@ public class ExpenseReportController {
         }
 
         return ApiResponse.onSuccess(responses);
+    }
+
+    @Operation(summary = "월간 분석 상세 리포트 조회", description = "해당 월의 월간 분석 상세 리포트를 조회합니다. 다음 달 1일 오전 8시 이후에 열람 가능합니다.")
+    @GetMapping("/monthly_detail")
+    public ApiResponse<MonthlyDetailReportResponse> getMonthlyDetailReport(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam int year,
+            @RequestParam int month) {
+
+        Long userId = userDetails.getUserId();
+        LocalDateTime nowDateTime = LocalDateTime.now();
+
+        LocalDate startOfMonth = LocalDate.of(year, month, 1);
+        LocalDate endOfMonth = startOfMonth.withDayOfMonth(startOfMonth.lengthOfMonth());
+
+        // 월간 리포트는 다음달 1일 오전 8시에 오픈
+        LocalDateTime monthlyOpenDateTime = startOfMonth.plusMonths(1).atTime(8, 0);
+        if (nowDateTime.isBefore(monthlyOpenDateTime)) {
+            throw new GeneralException(ErrorStatus.MONTHLY_REPORT_NOT_OPENED);
+        }
+
+        String monthTitle = String.format("%d년 %d월 분석 리포트", year, month);
+
+        MonthlyDetailReportResponse response = monthlyDetailRecordService.generateMonthlyDetailReport(
+                userId, startOfMonth, endOfMonth, monthTitle);
+
+        return ApiResponse.onSuccess(response);
     }
 
     @Operation(summary = "일별 종합 소비 만족도 조회", description = "당일 모든 지출에 대한 회고가 완료된 경우, 전체 만족도 평균을 문구로 반환합니다.")
