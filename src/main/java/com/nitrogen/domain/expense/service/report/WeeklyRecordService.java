@@ -1,5 +1,6 @@
 package com.nitrogen.domain.expense.service.report;
 
+import com.nitrogen.domain.expense.dto.calendar.MonthlyAmountDTO;
 import com.nitrogen.domain.expense.dto.report.summary.EmotionSummary;
 import com.nitrogen.domain.expense.dto.report.summary.MonthlyReportArrivalResponse;
 import com.nitrogen.domain.expense.dto.report.summary.WeeklyReportResponse;
@@ -35,7 +36,7 @@ public class WeeklyRecordService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
         LocalDate now = LocalDate.now();
-        List<String> monthsWithExpenses = expenseRepository.findDistinctMonthsByUserId(userId);
+        List<MonthlyAmountDTO> monthsWithExpenses = expenseRepository.findMonthlyTotalsByUserId(userId);
 
         // 유저가 확인한 월 목록
         Set<LocalDate> checkedMonths = monthlyReportReadRepository.findAllByUser(user).stream()
@@ -43,16 +44,14 @@ public class WeeklyRecordService {
                 .collect(Collectors.toSet());
 
         return monthsWithExpenses.stream()
-                .map(monthStr -> {
-                    LocalDate startOfMonth = LocalDate.parse(monthStr);
+                .map(dto -> {
+                    LocalDate startOfMonth = LocalDate.parse(dto.month());
                     LocalDate reportOpenDate = startOfMonth.plusMonths(1);
 
                     // 다음달 1일이 지나야 리포트가 "도착"한 상태
                     boolean isArrived = !now.isBefore(reportOpenDate);
                     if (!isArrived) return null;
 
-                    LocalDate endOfMonth = startOfMonth.withDayOfMonth(startOfMonth.lengthOfMonth());
-                    long totalAmount = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
                     boolean isChecked = checkedMonths.contains(startOfMonth);
 
                     return new MonthlyReportArrivalResponse(

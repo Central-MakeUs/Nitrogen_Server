@@ -2,6 +2,7 @@ package com.nitrogen.domain.expense.service.inquiry;
 
 import com.nitrogen.domain.expense.dto.calendar.CalendarResponseDTO;
 import com.nitrogen.domain.expense.dto.calendar.DailyAmountDTO;
+import com.nitrogen.domain.expense.dto.calendar.MonthlyAmountDTO;
 import com.nitrogen.domain.expense.dto.expense.DailyExpenseResponseDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseListDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseResponseDTO;
@@ -118,23 +119,19 @@ public class ExpenseInquiryService {
     // 월별 총액 리스트
     @Transactional(readOnly = true)
     public List<MonthlyReportSummaryResponse> getMonthlyTotalList(Long userId) {
-        List<String> monthsWithExpenses = expenseRepository.findDistinctMonthsByUserId(userId);
+        List<MonthlyAmountDTO> monthlyTotals = expenseRepository.findMonthlyTotalsByUserId(userId);
         LocalDate now = LocalDate.now();
 
-        return monthsWithExpenses.stream()
-                .map(monthStr -> {
-                    LocalDate startOfMonth = LocalDate.parse(monthStr);
-                    LocalDate endOfMonth = startOfMonth.withDayOfMonth(startOfMonth.lengthOfMonth());
-
-                    long totalAmount = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
-
+        return monthlyTotals.stream()
+                .map(dto -> {
+                    LocalDate startOfMonth = LocalDate.parse(dto.month());
                     LocalDate reportOpenDate = startOfMonth.plusMonths(1);
                     boolean isOpened = !now.isBefore(reportOpenDate); // now.isAfter(reportOpenDate) || now.isEqual(reportOpenDate);
 
                     return new MonthlyReportSummaryResponse(
                             String.valueOf(startOfMonth.getYear() % 100), // 2026 -> 26 변환
                             String.valueOf(startOfMonth.getMonthValue()),
-                            totalAmount,
+                            dto.totalAmount(),
                             isOpened
                     );
                 })
