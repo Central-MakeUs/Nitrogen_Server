@@ -51,8 +51,6 @@ public class WeeklyRecordService {
                     boolean isArrived = !now.isBefore(reportOpenDate);
                     if (!isArrived) return null;
 
-                    LocalDate endOfMonth = startOfMonth.withDayOfMonth(startOfMonth.lengthOfMonth());
-                    long totalAmount = expenseRepository.calculateMonthlyTotal(userId, startOfMonth, endOfMonth);
                     boolean isChecked = checkedMonths.contains(startOfMonth);
 
                     return new MonthlyReportArrivalResponse(
