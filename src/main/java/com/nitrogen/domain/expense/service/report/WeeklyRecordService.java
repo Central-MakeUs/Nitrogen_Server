@@ -45,7 +45,7 @@ public class WeeklyRecordService {
 
         return monthsWithExpenses.stream()
                 .map(dto -> {
-                    LocalDate startOfMonth = LocalDate.parse(dto.month());
+                    LocalDate startOfMonth = LocalDate.parse(dto.getMonth());
                     LocalDate reportOpenDate = startOfMonth.plusMonths(1);
 
                     // 다음달 1일이 지나야 리포트가 "도착"한 상태

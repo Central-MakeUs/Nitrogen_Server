@@ -26,6 +26,13 @@ class ExpenseInquiryServiceTest {
     @InjectMocks
     ExpenseInquiryService expenseInquiryService;
 
+    private MonthlyAmountDTO createMonthlyAmountDTO(String month, Long totalAmount) {
+        MonthlyAmountDTO dto = mock(MonthlyAmountDTO.class);
+        when(dto.getMonth()).thenReturn(month);
+        when(dto.getTotalAmount()).thenReturn(totalAmount);
+        return dto;
+    }
+
     @Test
     @DisplayName("N+1 유발 메서드를 사용하지 않고 단일 쿼리 방식으로 조회한다")
     void getMonthlyTotalList_단일_쿼리로_조회() {
@@ -33,9 +40,9 @@ class ExpenseInquiryServiceTest {
         Long userId = 1L;
         int monthCount = 3;
         List<MonthlyAmountDTO> mockData = List.of(
-                new MonthlyAmountDTO("2026-03-01", 150000L),
-                new MonthlyAmountDTO("2026-02-01", 200000L),
-                new MonthlyAmountDTO("2026-01-01", 100000L)
+                createMonthlyAmountDTO("2026-03-01", 150000L),
+                createMonthlyAmountDTO("2026-02-01", 200000L),
+                createMonthlyAmountDTO("2026-01-01", 100000L)
         );
         when(expenseRepository.findMonthlyTotalsByUserId(userId)).thenReturn(mockData);
 
@@ -62,8 +69,8 @@ class ExpenseInquiryServiceTest {
         // given
         Long userId = 1L;
         List<MonthlyAmountDTO> mockData = List.of(
-                new MonthlyAmountDTO("2026-03-01", 150000L),
-                new MonthlyAmountDTO("2026-01-01", 100000L)
+                createMonthlyAmountDTO("2026-03-01", 150000L),
+                createMonthlyAmountDTO("2026-01-01", 100000L)
         );
 
         when(expenseRepository.findMonthlyTotalsByUserId(userId)).thenReturn(mockData);

@@ -124,14 +124,14 @@ public class ExpenseInquiryService {
 
         return monthlyTotals.stream()
                 .map(dto -> {
-                    LocalDate startOfMonth = LocalDate.parse(dto.month());
+                    LocalDate startOfMonth = LocalDate.parse(dto.getMonth());
                     LocalDate reportOpenDate = startOfMonth.plusMonths(1);
                     boolean isOpened = !now.isBefore(reportOpenDate); // now.isAfter(reportOpenDate) || now.isEqual(reportOpenDate);
 
                     return new MonthlyReportSummaryResponse(
                             String.valueOf(startOfMonth.getYear() % 100), // 2026 -> 26 변환
                             String.valueOf(startOfMonth.getMonthValue()),
-                            dto.totalAmount(),
+                            dto.getTotalAmount(),
                             isOpened
                     );
                 })
