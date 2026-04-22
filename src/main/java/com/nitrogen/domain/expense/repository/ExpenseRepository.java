@@ -81,11 +81,9 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<String> findDistinctMonthsByUserId(@Param("userId") Long userId);
 
     // 사용자의 월별 지출 합계 조회 (월 목록 + 합계를 한 번에)
-    @Query("SELECT new com.nitrogen.domain.expense.dto.calendar.MonthlyAmountDTO(" +
-            "FUNCTION('DATE_FORMAT', e.expendedAt, '%Y-%m-01'), SUM(e.amount)) " +
-            "FROM Expense e WHERE e.user.userId = :userId " +
-            "GROUP BY FUNCTION('DATE_FORMAT', e.expendedAt, '%Y-%m-01') " +
-            "ORDER BY FUNCTION('DATE_FORMAT', e.expendedAt, '%Y-%m-01') DESC")
+    @Query(value = "SELECT DATE_FORMAT(e.expended_at, '%Y-%m-01') AS month, SUM(e.amount) AS totalAmount " +
+            "FROM expense e WHERE e.user_id = :userId " +
+            "GROUP BY month ORDER BY month DESC", nativeQuery = true)
     List<MonthlyAmountDTO> findMonthlyTotalsByUserId(@Param("userId") Long userId);
 
     // 유저의 지출 중 오늘 이전 날짜이면서 아직 평가가 되지 않은 것이 있는지 확인

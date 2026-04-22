@@ -1,6 +1,6 @@
 package com.nitrogen.domain.expense.dto.calendar;
 
-public record MonthlyAmountDTO(
-        String month,
-        Long totalAmount
-) {}
+public interface MonthlyAmountDTO {
+    String getMonth();
+    Long getTotalAmount();
+}
