@@ -52,12 +52,15 @@ public class MonthlyDetailRecordService {
         String evaluationFeedbackMessage = EvaluationFeedback.getRandomSentence(avgScore, seed); // 하단 (전체 월간 기준)
 
         // 각 만족도별 소비 건수와 총액 - 중앙 리스트 UI
+        Map<EvaluationType, List<Expense>> evalGrouped = allExpenses.stream()
+                .filter(e -> e.getEvaluationType() != null)
+                .collect(Collectors.groupingBy(Expense::getEvaluationType));
+
         List<EvaluationSummary> evaluationSummaries = Arrays.stream(EvaluationType.values())
-                .map(type -> new EvaluationSummary(
-                        type,
-                        allExpenses.stream().filter(e -> e.getEvaluationType() == type).count(),
-                        allExpenses.stream().filter(e -> e.getEvaluationType() == type).mapToLong(Expense::getAmount).sum()
-                )).toList();
+                .map(type ->{
+                    List<Expense> group = evalGrouped.getOrDefault(type, List.of());
+                    return new EvaluationSummary(type, group.size(), group.stream().mapToLong(Expense::getAmount).sum());
+                }).toList();
 
         // 선정된 {마음항목} 내에서 가장 비싼 지출 3건 조회
         List<Expense> top3Expenses = expenseRepository.findTop3ByEmotion(userId, start, end, topEmotion.name());
@@ -77,12 +80,15 @@ public class MonthlyDetailRecordService {
                             .average()
                             .orElse(0.0);
 
+                    Map<EvaluationType, List<Expense>> perEmotionEvalGrouped = emotionExpenses.stream()
+                            .filter(e -> e.getEvaluationType() != null)
+                            .collect(Collectors.groupingBy(Expense::getEvaluationType));
+
                     List<EvaluationSummary> perEmotionEvalSummaries = Arrays.stream(EvaluationType.values())
-                            .map(type -> new EvaluationSummary(
-                                    type,
-                                    emotionExpenses.stream().filter(e -> e.getEvaluationType() == type).count(),
-                                    emotionExpenses.stream().filter(e -> e.getEvaluationType() == type).mapToLong(Expense::getAmount).sum()
-                            )).toList();
+                            .map(type -> {
+                                List<Expense> group = perEmotionEvalGrouped.getOrDefault(type, List.of());
+                                return new EvaluationSummary(type, group.size(), group.stream().mapToLong(Expense::getAmount).sum());
+                            }).toList();
 
                     return new EmotionDetailSummary(
                             entry.getKey().getEmotion_description(),
@@ -97,14 +103,10 @@ public class MonthlyDetailRecordService {
                         .thenComparing(EmotionDetailSummary::emotionDescription))
                 .toList();
 
-        // 가장 많이 소비한 마음의 총액과 월간 전체 소비 총액 계산
-        long topEmotionTotalAmount = allExpenses.stream()
-                .filter(e -> e.getEmotionType() == topEmotion)
-                .mapToLong(Expense::getAmount).sum();
-
-        long topEmotionCount = allExpenses.stream()
-                .filter(e -> e.getEmotionType() == topEmotion)
-                .count();
+        // 가장 많이 소비한 {마음항목}의 총액과 월간 전체 소비 총액 계산
+        List<Expense> topEmotionExpenses = emotionGrouped.getOrDefault(topEmotion, List.of());
+        long topEmotionTotalAmount = topEmotionExpenses.stream().mapToLong(Expense::getAmount).sum();
+        long topEmotionCount = topEmotionExpenses.size();
 
         long monthlyTotalAmount = allExpenses.stream().mapToLong(Expense::getAmount).sum();
 
