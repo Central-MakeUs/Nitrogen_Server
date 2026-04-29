@@ -289,7 +289,7 @@ public class OauthService {
             boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
             return AppleUserConverter.toLoginResultDTO(user, accessToken, refreshToken, false, hasExpense);
         } else {
-            String registerToken = tokenProvider.createRegisterToken(appleSub, emailFromApple);
+            String registerToken = tokenProvider.createAppleRegisterToken(appleSub, emailFromApple);
 
             return AppleUserResponseDTO.builder()
                     .appleSub(appleSub)
