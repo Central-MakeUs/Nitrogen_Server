@@ -108,7 +108,7 @@ public class TokenProvider {
 
 
     // apple
-    public String createRegisterToken(String appleSub, String email) {
+    public String createAppleRegisterToken(String appleSub, String email) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + registerExpiration);
 

@@ -275,7 +275,7 @@ public class OauthService {
         Map<String, String> appleInfo = decodeIdToken(tokenResponse.getIdToken());
         String appleSub = appleInfo.get("sub");
         String emailFromApple = appleInfo.get("email");
-        log.info("애플 유저 식별자 추출 성공: {}", appleSub);
+        log.info("애플 유저 식별자 추출 성공: {}", mask(appleSub));
 
         Optional<User> optionalUser = userRepository.findByAppleSub(appleSub);
         if (optionalUser.isPresent()) {
@@ -289,7 +289,7 @@ public class OauthService {
             boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
             return AppleUserConverter.toLoginResultDTO(user, accessToken, refreshToken, false, hasExpense);
         } else {
-            String registerToken = tokenProvider.createRegisterToken(appleSub, emailFromApple);
+            String registerToken = tokenProvider.createAppleRegisterToken(appleSub, emailFromApple);
 
             return AppleUserResponseDTO.builder()
                     .appleSub(appleSub)
@@ -340,7 +340,7 @@ public class OauthService {
         params.add("client_secret", makeClientSecretToken(clientId));
         params.add("code", code);
 
-        log.info("애플 서버로 쏘는 client_id: {}", clientId);
+        log.info("애플 서버로 쏘는 client_id: {}", mask(clientId));
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
@@ -453,7 +453,7 @@ public class OauthService {
             Claims txClaims = txJws.getBody();
             String appleSub = txClaims.getSubject();
 
-            log.info("CONSENT_REVOKED 유저 sub={}", appleSub);
+            log.info("CONSENT_REVOKED 유저 sub={}", mask(appleSub));
             handleUserRevoke(appleSub);
         }catch (Exception e) {
             log.error("애플 서명 검증 실패: {}", e.getMessage());
@@ -532,7 +532,7 @@ public class OauthService {
      */
     private void handleUserRevoke(String appleSub) {
         userRepository.findByAppleSub(appleSub).ifPresent(user -> {
-            log.info("유저 연결 해제 처리: {}", user.getEmail());
+            log.info("유저 연결 해제 처리: {}", mask(user.getEmail()));
 
             userRepository.delete(user);
         });
@@ -547,7 +547,12 @@ public class OauthService {
         user.setRefreshToken(null);
         userRepository.save(user);
 
-        log.info("유저 로그아웃 성공 (ID: {})", socialId);
+        log.info("유저 로그아웃 성공 (ID: {})", mask(socialId));
+    }
+
+    private String mask(String value){
+        if(value == null || value.length() <= 4) return "***";
+        return value.substring(0,4) + "***";
     }
 
     // 온보딩 완료 처리
