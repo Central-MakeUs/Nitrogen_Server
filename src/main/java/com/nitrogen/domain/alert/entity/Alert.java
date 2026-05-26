@@ -1,8 +1,8 @@
 package com.nitrogen.domain.alert.entity;
 
-import com.nitrogen.domain.alert.entity.common.AlertBaseEntity;
 import com.nitrogen.domain.alert.entity.enums.AlertType;
 import com.nitrogen.domain.user.entity.User;
+import com.nitrogen.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Alert extends AlertBaseEntity {
+public class Alert extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

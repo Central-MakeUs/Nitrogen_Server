@@ -82,7 +82,6 @@ public class OauthService {
     // kakao
     public AuthResponse kakaoLoginOrCheck(String kakaoAccessToken) {
         // 1. 카카오 사용자 정보 조회 (RestTemplate)
-        RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + kakaoAccessToken);
 
@@ -218,7 +217,6 @@ public class OauthService {
         params.add("target_id", socialId);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        RestTemplate restTemplate = new RestTemplate();
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(
