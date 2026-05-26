@@ -175,7 +175,7 @@ public class OauthService {
     @Transactional
     public void withdraw(Long userId) { // String identifier 대신 Long userId를 받음
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_NOT_FOUND));
 
         if ("kakao".equals(user.getProvider())) {
             unlinkKakao(user.getSocialId());
@@ -350,7 +350,7 @@ public class OauthService {
             return response.getBody();
         } catch (Exception e) {
             log.error("애플 토큰 발급 실패: {}", e.getMessage());
-            throw new RuntimeException("애플 인증 서버 통신 실패");
+            throw new GeneralException(ErrorStatus.APPLE_AUTH_FAILED);
         }
     }
     private Map<String, String> decodeIdToken(String idToken) {
@@ -373,7 +373,7 @@ public class OauthService {
             return userInfo;
         } catch (Exception e) {
             log.error("ID 토큰 디코딩 실패: {}", e.getMessage());
-            throw new RuntimeException("애플 유저 정보 추출 실패");
+            throw new GeneralException(ErrorStatus.APPLE_TOKEN_DECODE_FAILED);
         }
     }
     private String makeClientSecretToken(String clientId) {
@@ -405,7 +405,7 @@ public class OauthService {
             return kf.generatePrivate(keySpec);
         } catch (Exception e) {
             log.error("애플 개인키 생성 중 오류 발생: {}", e.getMessage());
-            throw new RuntimeException("애플 인증 설정 오류");
+            throw new GeneralException(ErrorStatus.APPLE_AUTH_FAILED);
         }
     }
 
@@ -457,7 +457,7 @@ public class OauthService {
             handleUserRevoke(appleSub);
         }catch (Exception e) {
             log.error("애플 서명 검증 실패: {}", e.getMessage());
-            throw new RuntimeException("신뢰할 수 없는 애플 알림입니다.");
+            throw new GeneralException(ErrorStatus.APPLE_NOTIFICATION_INVALID);
         }
     }
 
@@ -473,13 +473,13 @@ public class OauthService {
             );
 
             if (response == null || response.getKeys() == null) {
-                throw new RuntimeException("애플 공개키 목록을 가져오는데 실패했습니다.");
+                throw new GeneralException(ErrorStatus.APPLE_AUTH_FAILED);
             }
 
             ApplePublicKeyResponse.AppleKey appleKey = response.getKeys().stream()
                     .filter(key -> key.getKid().equals(kid))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("일치하는 애플 공개키가 없습니다."));
+                    .orElseThrow(() -> new GeneralException(ErrorStatus.APPLE_AUTH_FAILED));
 
             // RSA vs EC 분기
             if ("RSA".equals(appleKey.getKty())) {
@@ -487,12 +487,14 @@ public class OauthService {
             } else if ("EC".equals(appleKey.getKty())) {
                 return generateECPublicKey(appleKey);
             } else {
-                throw new RuntimeException("지원하지 않는 키 타입: " + appleKey.getKty());
+                throw new GeneralException(ErrorStatus.APPLE_AUTH_FAILED);
             }
 
+        } catch (GeneralException e) {
+            throw e;
         } catch (Exception e) {
             log.error("애플 공개키 생성 중 오류: {}", e.getMessage());
-            throw new RuntimeException("애플 서버 인증에 실패했습니다.");
+            throw new GeneralException(ErrorStatus.APPLE_AUTH_FAILED);
         }
     }
 

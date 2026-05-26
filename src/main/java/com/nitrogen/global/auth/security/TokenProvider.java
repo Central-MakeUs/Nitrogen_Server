@@ -1,5 +1,7 @@
 package com.nitrogen.global.auth.security;
 
+import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
+import com.nitrogen.global.apiPayload.exception.GeneralException;
 import com.nitrogen.global.auth.service.UserDetailService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -102,7 +104,7 @@ public class TokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         } catch (JwtException e) {
-            throw new RuntimeException("유효하지 않은 토큰입니다.");
+            throw new GeneralException(ErrorStatus.INVALID_TOKEN);
         }
     }
 
@@ -150,13 +152,13 @@ public class TokenProvider {
                     .getBody();
 
             if (!"REGISTER".equals(claims.get("type"))) {
-                throw new RuntimeException("회원가입 전용 임시 토큰이 아닙니다.");
+                throw new GeneralException(ErrorStatus.INVALID_REGISTER_TOKEN);
             }
             return claims;
         } catch (ExpiredJwtException e) {
-            throw new RuntimeException("임시 토큰이 만료되었습니다. 다시 로그인해주세요.");
+            throw new GeneralException(ErrorStatus.REGISTER_TOKEN_EXPIRED);
         } catch (JwtException e) {
-            throw new RuntimeException("유효하지 않은 임시 토큰입니다.");
+            throw new GeneralException(ErrorStatus.INVALID_TOKEN);
         }
     }
 
