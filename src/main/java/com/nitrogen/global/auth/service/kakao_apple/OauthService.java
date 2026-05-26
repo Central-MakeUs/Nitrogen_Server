@@ -80,6 +80,7 @@ public class OauthService {
 //    private String appleRedirectUri;
 
     // kakao
+    @Transactional
     public AuthResponse kakaoLoginOrCheck(String kakaoAccessToken) {
         // 1. 카카오 사용자 정보 조회 (RestTemplate)
         HttpHeaders headers = new HttpHeaders();
@@ -265,6 +266,7 @@ public class OauthService {
 //------------------------------------------------------------------------------------------------------------------------
 
     // apple
+    @Transactional
     public AppleUserResponseDTO appleLoginOrCheck(String code, String platform){
 
         String targetClientId = "ios".equalsIgnoreCase(platform) ? appleAppClientId : appleServiceClientId;
