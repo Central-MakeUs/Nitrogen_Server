@@ -1,4 +1,4 @@
-name: Java CI/CD - Test Server (Port 8081)
+name: Java CI/CD - Test Server V2 (Port 8081)
 
 on:
   push:
