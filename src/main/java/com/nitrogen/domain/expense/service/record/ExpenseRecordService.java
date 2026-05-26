@@ -4,13 +4,11 @@ import com.nitrogen.domain.alert.dto.FCMRequestDTO;
 import com.nitrogen.domain.alert.entity.enums.AlertType;
 import com.nitrogen.domain.alert.service.FcmService;
 import com.nitrogen.domain.expense.dto.expense.ExpenseDetailsDTO;
-import com.nitrogen.domain.expense.dto.expense.ExpenseListDTO;
 import com.nitrogen.domain.expense.dto.expense.ExpenseRemindRequestDTO;
 import com.nitrogen.domain.expense.entity.Category;
 import com.nitrogen.domain.expense.entity.Expense;
 import com.nitrogen.domain.expense.repository.CategoryRepository;
 import com.nitrogen.domain.expense.repository.ExpenseRepository;
-import com.nitrogen.domain.expense.service.inquiry.ExpenseInquiryService;
 import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.domain.user.repository.UserRepository;
 import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
@@ -21,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,25 +35,27 @@ public class ExpenseRecordService {
     private final ExpenseRepository expenseRepository;
     private final FcmService fcmService;
 
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
+
     // 지출 기록 작성
     public long registerExpense(ExpenseDetailsDTO dto, Long userId){
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_NOT_FOUND));
 
         Category category = categoryRepository
                 .findByIdAndUser_UserId(dto.getCategoryId(), userId)
-                .orElseThrow(() -> new IllegalArgumentException("카테고리가 존재하지 않거나 접근 권한이 없습니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.CATEGORY_NOT_FOUND));
 
         if(dto.getAmount() <= 0){
-            throw new IllegalArgumentException("지출기록은 0보다 커야합니다.");
+            throw new GeneralException(ErrorStatus.EXPENSE_INVALID_AMOUNT);
         }
 
         if (dto.getUsageHistory() == null || dto.getUsageHistory().trim().isEmpty()) {
-            throw new IllegalArgumentException("사용처 기록이 비어있습니다.");
+            throw new GeneralException(ErrorStatus.EXPENSE_USAGE_EMPTY);
         }
 
-        if (dto.getExpendedAt().isAfter(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Seoul")))) {
-            throw new IllegalArgumentException("미래 날짜로 소비 기록을 작성할 수 없습니다.");
+        if (dto.getExpendedAt().isAfter(LocalDate.now(KST))) {
+            throw new GeneralException(ErrorStatus.EXPENSE_FUTURE_DATE);
         }
 
         Expense expense = Expense.builder()
@@ -74,31 +76,31 @@ public class ExpenseRecordService {
     // 소비 회고
     public List<Long> remindExpenses(List<ExpenseRemindRequestDTO> dtos, Long userId){
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_NOT_FOUND));
 
         List<Long> updatedIds = dtos.stream()
                 .map(dto ->{
                     Expense expense = expenseRepository.findById(dto.getExpenseId())
-                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출 기록입니다. ID: " + dto.getExpenseId()));
+                            .orElseThrow(() -> new GeneralException(ErrorStatus.EXPENSE_NOT_FOUND));
 
                     if (!expense.getUser().getUserId().equals(userId)) {
-                        throw new IllegalArgumentException("해당 지출에 대한 접근 권한이 없습니다. ID: " + dto.getExpenseId());
+                        throw new GeneralException(ErrorStatus.EXPENSE_FORBIDDEN);
                     }
 
-                    if (!expense.getExpendedAt().isBefore(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Seoul")))) {
-                        throw new IllegalArgumentException("소비 회고는 기록한 다음 날부터 가능합니다. ID: " + dto.getExpenseId());
+                    if (!expense.getExpendedAt().isBefore(LocalDate.now(KST))) {
+                        throw new GeneralException(ErrorStatus.EXPENSE_REMIND_TOO_EARLY);
                     }
                     expense.updateEvaluation(dto.getEvaluationType());
                     return expense.getId();
                 })
                 .collect(Collectors.toList());
 
-        if (expenseRepository.existsByEvaluationTypeIsNullAndUserAndExpendedAtBefore(user, java.time.LocalDate.now(java.time.ZoneId.of("Asia/Seoul")))) {
+        if (expenseRepository.existsByEvaluationTypeIsNullAndUserAndExpendedAtBefore(user, LocalDate.now(KST))) {
             String targetId = user.getSocialId() != null ? user.getSocialId() : user.getAppleSub();
 
-            String yesterday = java.time.LocalDate.now(java.time.ZoneId.of("Asia/Seoul"))
+            String yesterday = LocalDate.now(KST)
                     .minusDays(1)
-                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
             String redirectUrl = "/review/" + yesterday;
 
@@ -116,15 +118,15 @@ public class ExpenseRecordService {
     @Transactional
     public Long updateExpense(Long expenseId, ExpenseDetailsDTO dto, Long userId) {
         Expense expense = expenseRepository.findById(expenseId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지출 기록입니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.EXPENSE_NOT_FOUND));
 
         if (!expense.getUser().getUserId().equals(userId)) {
-            throw new IllegalArgumentException("해당 지출에 대한 접근 권한이 없습니다.");
+            throw new GeneralException(ErrorStatus.EXPENSE_FORBIDDEN);
         }
 
         Category category = categoryRepository
                 .findByIdAndUser_UserId(dto.getCategoryId(), userId)
-                .orElseThrow(() -> new IllegalArgumentException("카테고리가 존재하지 않거나 접근 권한이 없습니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus.CATEGORY_NOT_FOUND));
 
         expense.updateExpenseRecord(dto.getAmount(), dto.getUsageHistory(), dto.getExpendedAt(), category);
         category.updateTimestamp();

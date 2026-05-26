@@ -10,6 +10,8 @@ import com.nitrogen.domain.alert.entity.enums.AlertType;
 import com.nitrogen.domain.alert.repository.AlertRepository;
 import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.domain.user.repository.UserRepository;
+import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
+import com.nitrogen.global.apiPayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,7 +36,7 @@ public class FcmService {
 
         User user = userRepository.findBySocialId(fcmRequestDto.targetUserId())
                 .orElseGet(() -> userRepository.findByAppleSub(fcmRequestDto.targetUserId())
-                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다.")));
+                        .orElseThrow(() -> new GeneralException(ErrorStatus.USER_NOT_FOUND)));
 
         Alert alert = Alert.builder()
                 .user(user)
