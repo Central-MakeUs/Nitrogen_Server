@@ -171,7 +171,7 @@ public class OauthService {
                 .build();
     }
 
-    // apple kakao 공통 로그아웃
+    // apple kakao 공통 회원탈퇴
     @Transactional
     public void withdraw(Long userId) { // String identifier 대신 Long userId를 받음
         User user = userRepository.findById(userId)
