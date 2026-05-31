@@ -33,7 +33,7 @@ public class KakaoAuthController {
     @Operation(summary = "카카오 로그인/체크", description = "카카오 토큰으로 기존 유저인지 확인한다. 신규 유저면 newUser: true와 임시 토큰을 반환한다.")
     @PostMapping("/kakao/login")
     public ApiResponse<AuthResponse> kakaoLogin(
-            @RequestBody Map<String, Object> body, HttpServletResponse response) {
+            @RequestBody Map<String, Object> body) {
 
         String kakaoAccessToken = (String) body.get("accessToken");
         AuthResponse authResponse = oauthService.kakaoLoginOrCheck(kakaoAccessToken);
