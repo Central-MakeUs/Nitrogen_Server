@@ -1,8 +1,6 @@
 package com.nitrogen.global.auth.controller;
 
 import com.nitrogen.domain.user.dto.UserResponseDTO;
-import com.nitrogen.domain.user.entity.CustomUserDetails;
-import com.nitrogen.domain.user.entity.User;
 import com.nitrogen.global.apiPayload.ApiResponse;
 import com.nitrogen.global.apiPayload.code.status.ErrorStatus;
 import com.nitrogen.global.apiPayload.exception.UserHandler;
@@ -18,8 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -36,7 +33,7 @@ public class KakaoAuthController {
     @Operation(summary = "카카오 로그인/체크", description = "카카오 토큰으로 기존 유저인지 확인한다. 신규 유저면 newUser: true와 임시 토큰을 반환한다.")
     @PostMapping("/kakao/login")
     public ApiResponse<AuthResponse> kakaoLogin(
-            @RequestBody Map<String, Object> body, HttpServletResponse response) {
+            @RequestBody Map<String, Object> body) {
 
         String kakaoAccessToken = (String) body.get("accessToken");
         AuthResponse authResponse = oauthService.kakaoLoginOrCheck(kakaoAccessToken);
@@ -67,8 +64,8 @@ public class KakaoAuthController {
 
     @Operation(summary = "회원 탈퇴", description = "현재 로그인한 유저의 정보를 삭제한다.")
     @DeleteMapping("/withdraw")
-    public ApiResponse<String> withdraw(@AuthenticationPrincipal UserDetails userDetails, HttpServletResponse response) {
-        oauthService.withdraw(((CustomUserDetails) userDetails).getUserId());
+    public ApiResponse<String> withdraw(Authentication authentication, HttpServletResponse response) {
+        oauthService.withdraw(authentication.getName());
 
         ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
@@ -80,7 +77,6 @@ public class KakaoAuthController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
 
-        log.info("유저 탈퇴 완료 (Identifier: {})", userDetails.getUsername());
         return ApiResponse.onSuccess("회원 탈퇴가 완료되었습니다.");
     }
 

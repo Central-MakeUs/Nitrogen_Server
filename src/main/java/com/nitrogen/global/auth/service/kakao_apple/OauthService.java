@@ -171,10 +171,11 @@ public class OauthService {
                 .build();
     }
 
-    // apple kakao 공통 로그아웃
+    // apple kakao 공통 회원탈퇴
     @Transactional
-    public void withdraw(Long userId) { // String identifier 대신 Long userId를 받음
-        User user = userRepository.findById(userId)
+    public void withdraw(String identifier) {
+        User user = userRepository.findBySocialId(identifier)
+                .or(() -> userRepository.findByAppleSub(identifier))
                 .orElseThrow(() -> new GeneralException(ErrorStatus.USER_NOT_FOUND));
 
         if ("kakao".equals(user.getProvider())) {
@@ -542,14 +543,14 @@ public class OauthService {
 
     // 공통 로그아웃
     @Transactional
-    public void logout(String socialId) {
-        User user = userRepository.findBySocialId(socialId)
-                .orElseGet(() -> userRepository.findByAppleSub(socialId)
-                        .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND)));
+    public void logout(String identifier) {
+        User user = userRepository.findBySocialId(identifier)
+                .or(() -> userRepository.findByAppleSub(identifier))
+                .orElseThrow(() -> new UserHandler(ErrorStatus.USER_NOT_FOUND));
         user.setRefreshToken(null);
         userRepository.save(user);
 
-        log.info("유저 로그아웃 성공 (ID: {})", mask(socialId));
+        log.info("유저 로그아웃 성공 (ID: {})", mask(identifier));
     }
 
     private String mask(String value){
