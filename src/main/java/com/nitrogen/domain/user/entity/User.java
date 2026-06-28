@@ -47,6 +47,15 @@ public class User extends BaseEntity {
     @Column(unique = true)
     private String appleSub; // 애플 고유 식별자
 
+    /**
+     * 애플 OAuth 서버가 발급한 refresh token.
+     * 회원 탈퇴 시 애플 연동 해제(https://appleid.apple.com/auth/revoke)에 반드시 필요
+     * 우리 서비스의 JWT refresh token(refreshToken 필드)과는 별개
+     * 카카오 유저는 null처리
+     */
+    @Column(length = 1000)
+    private String appleRefreshToken;
+
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();

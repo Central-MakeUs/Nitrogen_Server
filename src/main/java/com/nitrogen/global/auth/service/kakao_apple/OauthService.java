@@ -181,7 +181,7 @@ public class OauthService {
         if ("kakao".equals(user.getProvider())) {
             unlinkKakao(user.getSocialId());
         } else if ("apple".equals(user.getProvider())) {
-            unlinkApple(user.getRefreshToken());
+            unlinkApple(user.getAppleRefreshToken());
         }
 
         userRepository.delete(user);
@@ -285,12 +285,13 @@ public class OauthService {
             String accessToken = tokenProvider.createToken(appleSub);
             String refreshToken = tokenProvider.createRefreshToken(appleSub);
             user.setRefreshToken(refreshToken);
+            user.setAppleRefreshToken(tokenResponse.getRefreshToken());
             userRepository.save(user);
 
             boolean hasExpense = expenseRepository.existsByUserUserId(user.getUserId());
             return AppleUserConverter.toLoginResultDTO(user, accessToken, refreshToken, false, hasExpense);
         } else {
-            String registerToken = tokenProvider.createAppleRegisterToken(appleSub, emailFromApple);
+            String registerToken = tokenProvider.createAppleRegisterToken(appleSub, emailFromApple, tokenResponse.getRefreshToken());
 
             return AppleUserResponseDTO.builder()
                     .appleSub(appleSub)
@@ -310,11 +311,13 @@ public class OauthService {
         Claims claims = tokenProvider.parseRegisterToken(registerToken);
         String appleSub = claims.getSubject();
         String email = claims.get("email", String.class);
+        String appleRefreshToken = claims.get("appleRefreshToken", String.class);
 
         User newUser = User.builder()
                 .appleSub(appleSub)
                 .email(email)
                 .provider("apple")
+                .appleRefreshToken(appleRefreshToken)
                 .status(UserStatus.ACTIVE)
                 .isHomeOnboarding(true)
                 .isCategoryOnboarding(true)

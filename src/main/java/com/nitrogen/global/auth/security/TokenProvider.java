@@ -110,13 +110,14 @@ public class TokenProvider {
 
 
     // apple
-    public String createAppleRegisterToken(String appleSub, String email) {
+    public String createAppleRegisterToken(String appleSub, String email, String appleRefreshToken) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + registerExpiration);
 
         return Jwts.builder()
                 .setSubject(appleSub)
                 .claim("email", email)
+                .claim("appleRefreshToken", appleRefreshToken)
                 .claim("type", "REGISTER")
                 .setIssuedAt(now)
                 .setExpiration(validity)

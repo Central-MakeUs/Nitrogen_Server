@@ -42,3 +42,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Windows reserved device names ###
+nul

@@ -29,7 +29,9 @@ public class CustomUserDetails implements UserDetails {
     public String getPassword() { return ""; }
 
     @Override
-    public String getUsername() { return user.getSocialId(); }
+    public String getUsername() {
+        return user.getSocialId() != null ? user.getSocialId() : user.getAppleSub();
+    }
 
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }
