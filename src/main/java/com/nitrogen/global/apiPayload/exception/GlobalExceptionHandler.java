@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -23,14 +22,14 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
 
         log.warn("Validation failed: {}", errorMessage);
-        ErrorResponse response = new ErrorResponse("4000", errorMessage);
+        ErrorResponse response = new ErrorResponse(ErrorStatus.VALIDATION_FAILED.getCode(), errorMessage);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
         log.warn("Business logic error: {}", e.getMessage());
-        ErrorResponse response = new ErrorResponse("4001", e.getMessage());
+        ErrorResponse response = new ErrorResponse(ErrorStatus.ILLEGAL_ARGUMENT.getCode(), e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -44,7 +43,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         log.error("Unhandled exception occurred: {}", e.getMessage(), e);
-        ErrorResponse response = new ErrorResponse("5999", "알 수 없는 서버 오류가 발생했습니다.");
+        ErrorResponse response = new ErrorResponse(ErrorStatus.UNKNOWN_SERVER_ERROR.getCode(), ErrorStatus.UNKNOWN_SERVER_ERROR.getMessage());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -52,7 +51,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         log.warn("JSON parsing error: {}", e.getMessage());
-        ErrorResponse response = new ErrorResponse("4002", "요청 데이터 형식이 잘못되었거나 누락된 필드가 있습니다.");
+        ErrorResponse response = new ErrorResponse(ErrorStatus.MESSAGE_NOT_READABLE.getCode(), ErrorStatus.MESSAGE_NOT_READABLE.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
